@@ -8,6 +8,8 @@
 
 ![Личный диалог и маршрут адаптации](docs/assets/workspace.png)
 
+[Видео основного пути, 56 секунд](docs/assets/demo.mp4)
+
 ## Запуск
 
 С Docker Compose:
