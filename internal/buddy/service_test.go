@@ -225,9 +225,23 @@ func TestActionExpiryAndRecovery(t *testing.T) {
 		t.Fatal(err)
 	}
 	clock = clock.Add(time.Hour)
+	viewBeforeRetry, err := s.View(ctx, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, action := range viewBeforeRetry.Actions {
+		if action.ID == newAction.ID && action.Status != "completed" {
+			t.Fatal("refresh must reconcile the saved service result", action)
+		}
+	}
+	messageCount := len(viewBeforeRetry.Messages)
 	recovered, err := s.Confirm(ctx, p, newAction.ID)
 	if err != nil || recovered.ID != op.ID {
 		t.Fatal(recovered, err)
+	}
+	viewAfterRetry, err := s.View(ctx, p)
+	if err != nil || len(viewAfterRetry.Messages) != messageCount {
+		t.Fatal("reconciliation must not duplicate the receipt", err, viewAfterRetry.Messages)
 	}
 	if err = s.Corporate.Event(ctx, p.ID, newAction.ID, "rejected"); err != nil {
 		t.Fatal(err)
@@ -364,5 +378,59 @@ func TestCredentialsDoNotReachTheModel(t *testing.T) {
 	}
 	if _, err := s.Chat(ctx, p, "project-key-question", "Какой ключ проекта Jira у команды Каталог?"); err != nil || calls != 1 {
 		t.Fatal(err, calls)
+	}
+}
+
+func TestReconciledReceiptUsesAuthoritativeStatus(t *testing.T) {
+	for _, final := range []string{"approved", "granted"} {
+		t.Run(final, func(t *testing.T) {
+			s, p, _ := world(t)
+			ctx := context.Background()
+			a, err := s.Prepare(ctx, p, "access", "Изучить руководство команды")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err = s.Corporate.Execute(ctx, p.ID, a); err != nil {
+				t.Fatal(err)
+			}
+			if err = s.Corporate.Event(ctx, p.ID, a.ID, "approved"); err != nil {
+				t.Fatal(err)
+			}
+			if final == "granted" {
+				if err = s.Corporate.Event(ctx, p.ID, a.ID, "granted"); err != nil {
+					t.Fatal(err)
+				}
+			}
+			view, err := s.View(ctx, p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(view.Messages) != 1 || strings.Contains(view.Messages[0].Text, "Доступ пока не выдан") {
+				t.Fatal(view.Messages)
+			}
+			if view.Actions[0].Status != "completed" {
+				t.Fatal(view.Actions)
+			}
+		})
+	}
+	s, p, _ := world(t)
+	ctx := context.Background()
+	grant(t, s, p)
+	if err := s.Complete(ctx, p, "read-guide"); err != nil {
+		t.Fatal(err)
+	}
+	a, err := s.Prepare(ctx, p, "issue", "Первая учебная задача")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.Corporate.Execute(ctx, p.ID, a); err != nil {
+		t.Fatal(err)
+	}
+	if err = s.Corporate.Event(ctx, p.ID, a.ID, "done"); err != nil {
+		t.Fatal(err)
+	}
+	view, err := s.View(ctx, p)
+	if err != nil || !strings.Contains(view.Messages[len(view.Messages)-1].Text, "завершение") {
+		t.Fatal(err, view.Messages)
 	}
 }

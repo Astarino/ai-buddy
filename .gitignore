@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.docker.example
 
 .venv/
 __pycache__/
@@ -15,8 +16,15 @@ htmlcov/
 node_modules/
 dist/
 coverage/
+!reports/coverage/
+!reports/coverage/*.json
+!reports/coverage/*.lcov
 
 tmp/
 *.log
 *.gguf
 *.safetensors
+
+web/test-results/
+web/playwright-report/
+*.tsbuildinfo

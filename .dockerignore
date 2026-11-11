@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+AGENTS.md
+AI_BUDDY_PLAN.md
+tmp
+coverage
+reports
+web/node_modules
+web/dist
+web/coverage
+web/test-results
+web/playwright-report
+*.log
+*.gguf
+*.safetensors

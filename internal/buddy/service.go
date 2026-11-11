@@ -51,6 +51,30 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 		return View{}, err
 	}
 	ops, fresh := s.operations(ctx, p)
+	reconciled := false
+	for _, action := range state.Actions {
+		if action.Status == "completed" {
+			continue
+		}
+		for _, op := range ops {
+			if op.Key != action.ID {
+				continue
+			}
+			if !matchesOperation(p.ID, action, op) {
+				return View{}, ErrUnavailable
+			}
+			if err = s.recordResult(ctx, p, action, op); err != nil {
+				return View{}, err
+			}
+			reconciled = true
+		}
+	}
+	if reconciled {
+		state, err = s.Repo.Read(ctx, p.ID)
+		if err != nil {
+			return View{}, err
+		}
+	}
 	docs := s.Catalog.Allowed(p, HasAccess(ops))
 	allowed := map[string]bool{}
 	for i := range docs {
@@ -70,7 +94,7 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 		}
 	}
 	tasks, next := s.Catalog.Route(p, state, ops)
-	return View{p, messages, state.Actions, tasks, ops, docs, next, state.Draft, fresh, s.Model.Name(), true}, nil
+	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh, Model: s.Model.Name(), Demo: true}, nil
 }
 
 func (s *Service) Document(ctx context.Context, p Profile, id string) (Document, error) {
@@ -161,6 +185,9 @@ func (s *Service) Confirm(ctx context.Context, p Profile, id string) (Operation,
 	// Reconcile before expiry checks: an earlier request may have succeeded without a response.
 	for _, op := range ops {
 		if op.Key == action.ID {
+			if !matchesOperation(p.ID, *action, op) {
+				return Operation{}, ErrUnavailable
+			}
 			return op, s.recordResult(ctx, p, *action, op)
 		}
 	}
@@ -184,10 +211,15 @@ func (s *Service) Confirm(ctx context.Context, p Profile, id string) (Operation,
 	if err != nil {
 		return Operation{}, err
 	}
-	if op.UserID != p.ID || op.Key != action.ID || op.Kind != action.Kind || op.Resource != action.Resource || op.Level != action.Level {
+	if !matchesOperation(p.ID, *action, op) {
 		return Operation{}, ErrUnavailable
 	}
 	return op, s.recordResult(ctx, p, *action, op)
+}
+
+func matchesOperation(owner string, action Action, op Operation) bool {
+	validStatus := action.Kind == "access" && slices.Contains([]string{"pending", "approved", "granted", "rejected", "revoked"}, op.Status) || action.Kind == "issue" && slices.Contains([]string{"assigned", "done"}, op.Status)
+	return validStatus && op.ID != "" && op.UserID == owner && op.Key == action.ID && op.Kind == action.Kind && op.Resource == action.Resource && op.Level == action.Level && op.Reason == action.Reason
 }
 
 func (s *Service) recordResult(ctx context.Context, p Profile, a Action, op Operation) error {
@@ -201,8 +233,15 @@ func (s *Service) recordResult(ctx context.Context, p Profile, a Action, op Oper
 			}
 		}
 		text := fmt.Sprintf("Заявка %s создана. Пространство %s, права: чтение. Теперь её должен согласовать владелец ресурса. Доступ пока не выдан. Пока ждёшь, можно изучить принципы разработки.", op.ID, op.Resource)
+		if op.Kind == "access" && op.Status != "pending" {
+			status := map[string]string{"approved": "согласовано, ожидает выдачи", "granted": "доступ выдан", "rejected": "отклонено", "revoked": "доступ отозван"}[op.Status]
+			text = fmt.Sprintf("Сервис подтвердил результат %s для пространства %s: %s. %s", op.ID, op.Resource, status, op.Note)
+		}
 		if op.Kind == "issue" {
 			text = fmt.Sprintf("Задача %s назначена на тебя в тестовой Jira. Начни с критериев готовности в руководстве; результат и ревью подтвердит наставник.", op.ID)
+			if op.Status == "done" {
+				text = fmt.Sprintf("Тестовая Jira подтвердила завершение задачи %s и ревью.", op.ID)
+			}
 		}
 		st.Messages = append(st.Messages, Message{ID: NewID(), Role: "assistant", Text: text, CreatedAt: s.Now(), SourceIDs: []string{}, Kind: "operation"})
 		st.Events = append(st.Events, Event{Type: "action_completed", ObjectID: op.ID, At: s.Now()})

@@ -1,0 +1,52 @@
+name: Checks
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.14-alpine
+        env:
+          POSTGRES_USER: buddy
+          POSTGRES_PASSWORD: buddy-test
+          POSTGRES_DB: buddy_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U buddy -d buddy_test"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://buddy:buddy-test@127.0.0.1:5432/buddy_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version: 1.25.5
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 25.9.0
+      - run: npm install --global pnpm@10.16.0
+      - run: make setup
+      - run: pnpm --dir web exec prettier --check src vite.config.ts
+      - run: make build
+      - run: make coverage
+      - run: pnpm --dir web exec playwright install --with-deps chromium
+      - run: make e2e
+
+  docker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: docker compose config --quiet
+      - run: docker compose up --build --wait
+      - run: python3 scripts/smoke.py http://127.0.0.1:8090
+      - if: always()
+        run: docker compose logs --tail=80
+      - if: always()
+        run: docker compose down

@@ -1,0 +1,71 @@
+name: ai-buddy
+services:
+  db:
+    image: postgres:16.14-alpine
+    environment:
+      POSTGRES_USER: buddy
+      POSTGRES_PASSWORD: buddy-demo
+      POSTGRES_DB: buddy
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U buddy -d buddy]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  corporate:
+    build:
+      context: .
+      target: corporate
+    environment:
+      DATABASE_URL: postgres://buddy:buddy-demo@db:5432/buddy?sslmode=disable
+      CORPORATE_ADDR: 0.0.0.0:8091
+      CORPORATE_TOKEN: ${CORPORATE_TOKEN:-local-demo-service}
+      DEMO_OPERATOR_TOKEN: ${DEMO_OPERATOR_TOKEN:-local-demo-owner}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8091/health]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  app:
+    build:
+      context: .
+      target: app
+    ports:
+      - 127.0.0.1:${BUDDY_PORT:-8090}:8090
+    environment:
+      DATABASE_URL: postgres://buddy:buddy-demo@db:5432/buddy?sslmode=disable
+      APP_ADDR: 0.0.0.0:8090
+      CORPORATE_BASE_URL: http://corporate:8091
+      CORPORATE_TOKEN: ${CORPORATE_TOKEN:-local-demo-service}
+      DEMO_OPERATOR_TOKEN: ${DEMO_OPERATOR_TOKEN:-local-demo-owner}
+      MODEL_PROVIDER: ${DOCKER_MODEL_PROVIDER:-fixture}
+      MODEL_BASE_URL: ${DOCKER_MODEL_BASE_URL:-http://host.docker.internal:11434}
+      MODEL_NAME: ${DOCKER_MODEL_NAME:-qwen3.5:4b}
+      MODEL_API_KEY: ${DOCKER_MODEL_API_KEY:-}
+      ALLOW_EXTERNAL_MODEL: ${DOCKER_ALLOW_EXTERNAL_MODEL:-false}
+      SECURE_COOKIE: "false"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      corporate:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8090/api/health]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+volumes:
+  postgres:
