@@ -392,12 +392,6 @@
     color: #656a70;
     margin-top: 4px;
   }
-  .online-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #a7b1bb;
-  }
   .sidebar-section {
     margin-bottom: 28px;
   }
@@ -436,12 +430,6 @@
     font-size: 10px;
     margin-top: 4px;
     color: #656d7a;
-  }
-  .contact-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #1882db;
   }
   .navigation-links > button {
     display: flex;
@@ -657,7 +645,7 @@
     padding-top: 2px;
     font-variant-numeric: tabular-nums;
   }
-  .next-step > div:nth-child(2) {
+  .next-step > div {
     flex: 1;
   }
   .next-step .eyebrow {
@@ -669,7 +657,7 @@
     font-size: 15px;
     font-weight: 550;
     letter-spacing: -0.3px;
-    margin-top: 6px;
+    margin-top: 0;
   }
   .next-step p {
     color: #566a7c;

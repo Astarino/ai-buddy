@@ -319,7 +319,6 @@ export function RoutePanel({
     <aside className="route-panel" aria-label="Маршрут адаптации">
       <header className="route-heading">
         <div>
-          <span className="eyebrow">АДАПТАЦИЯ</span>
           <h2>Мой маршрут</h2>
         </div>
         {onClose ? (
@@ -410,11 +409,7 @@ export function RoutePanel({
             </button>
           ))}
       </div>
-      <p className="route-footnote">
-        Сроки из чек-листа. Командные шаги и зависимости — тестовый пример.
-      </p>
       <div className="mentor-card">
-        <span className="eyebrow">РЯДОМ, ЕСЛИ ПОНАДОБИТСЯ</span>
         <div className="mentor-person">
           <Avatar name={workspace.profile.mentor} mentor />
           <div>
@@ -426,11 +421,6 @@ export function RoutePanel({
           Подготовить вопрос
           <Icon name="chevron" size={16} />
         </button>
-        <p>
-          Buddy поможет с рутиной.
-          <br />
-          Важное обсудите лично.
-        </p>
       </div>
     </aside>
   );

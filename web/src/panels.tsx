@@ -285,10 +285,6 @@ export function MentorPanel({
           <p>Наставник · {workspace.profile.team_name}</p>
         </div>
       </div>
-      <p className="panel-lead">
-        Соберём вопрос с контекстом. Ты сможешь проверить текст и отправить его в рабочем
-        мессенджере.
-      </p>
       {workspace.draft ? (
         <>
           <label className="field-label" htmlFor="mentor-draft">
@@ -322,9 +318,7 @@ export function MentorPanel({
           <Icon name="chevron" size={16} />
         </button>
       )}
-      <p className="fine-print">
-        Ничего не отправляется автоматически. Не добавляй в текст секреты и персональные данные.
-      </p>
+      <p className="fine-print">Черновик не отправляется автоматически.</p>
     </>
   );
 }

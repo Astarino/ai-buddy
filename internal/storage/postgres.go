@@ -34,7 +34,16 @@ func Open(ctx context.Context, dsn string) (*Postgres, error) {
 		db.Close()
 		return nil, err
 	}
-	if _, err = db.Exec(ctx, schema); err != nil {
+	err = pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
+		// Both processes may start against an empty database at the same time.
+		// IF NOT EXISTS alone does not serialize PostgreSQL's catalog writes.
+		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock(684173205)"); err != nil {
+			return err
+		}
+		_, err := tx.Exec(ctx, schema)
+		return err
+	})
+	if err != nil {
 		db.Close()
 		return nil, err
 	}

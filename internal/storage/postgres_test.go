@@ -5,11 +5,42 @@ import (
 	"errors"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/Astarino/ai-buddy/internal/buddy"
 	"github.com/Astarino/ai-buddy/internal/storage"
 	"github.com/Astarino/ai-buddy/internal/testsupport"
 )
+
+func TestConcurrentStartupOnEmptySchema(t *testing.T) {
+	db := testsupport.Database(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	// Database gives this test its own disposable schema.
+	if _, err := db.Pool.Exec(ctx, "DROP TABLE buddy_states, buddy_sessions, corporate_operations"); err != nil {
+		t.Fatal(err)
+	}
+	const processes = 8
+	start := make(chan struct{})
+	results := make(chan error, processes)
+	for range processes {
+		go func() {
+			<-start
+			instance, err := storage.Open(ctx, db.Pool.Config().ConnString())
+			if err == nil {
+				_, err = instance.CreateSession(ctx, "startup-user")
+				instance.Close()
+			}
+			results <- err
+		}()
+	}
+	close(start)
+	for range processes {
+		if err := <-results; err != nil {
+			t.Error(err)
+		}
+	}
+}
 
 func TestPostgresPersistenceSessionsAndConcurrentUpdates(t *testing.T) {
 	db := testsupport.Database(t)

@@ -1,8 +1,8 @@
 {
   "backend_lines": {
-    "covered": 1189,
-    "total": 1354,
-    "pct": 87.81
+    "covered": 1195,
+    "total": 1362,
+    "pct": 87.74
   },
   "backend_statements_pct": 90.6,
   "frontend_lines": {
@@ -18,10 +18,10 @@
     "pct": 92.04
   },
   "frontend_branches": {
-    "total": 311,
-    "covered": 269,
+    "total": 307,
+    "covered": 266,
     "skipped": 0,
-    "pct": 86.49
+    "pct": 86.64
   },
   "frontend_functions": {
     "total": 161,

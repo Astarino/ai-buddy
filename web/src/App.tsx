@@ -252,8 +252,6 @@ export default function App() {
         <a href="/" className="brand" aria-label="AI Buddy — главная">
           <BuddyMark small />
           <strong>AI Buddy</strong>
-          <span className="brand-divider" />
-          <span>Рабочее пространство</span>
         </a>
         <div className="workspace-bar-right">
           <span className="demo-label">
@@ -277,7 +275,6 @@ export default function App() {
             <strong>Команда {profile.team_name}</strong>
             <span>Backend · стажировка</span>
           </div>
-          <span className="online-dot" />
         </div>
         <div className="sidebar-section">
           <span className="eyebrow">ЛИЧНЫЕ СООБЩЕНИЯ</span>
@@ -285,9 +282,7 @@ export default function App() {
             <BuddyMark small />
             <span>
               <strong>AI Buddy</strong>
-              <span>Помогу с адаптацией</span>
             </span>
-            <span className="contact-dot" />
           </button>
           <button className="contact" onClick={() => setPanel({ kind: 'mentor' })}>
             <Avatar name={profile.mentor} mentor />
@@ -317,20 +312,12 @@ export default function App() {
           </button>
         </div>
         <div className="workspace-context">
-          <span className="eyebrow">ТВОЙ КОНТЕКСТ</span>
           <p>
             <span className="day-chip">{profile.day}</span>
             <span>
               <strong>День в команде</strong>
-              <span>Первая неделя адаптации</span>
             </span>
           </p>
-          <div className="context-rule" />
-          <span className="context-note">
-            Buddy учитывает твою роль,
-            <br />
-            команду и доступные материалы.
-          </span>
         </div>
         <div className="sidebar-bottom">
           <button className="sidebar-demo" onClick={() => setPanel({ kind: 'demo' })}>
@@ -357,10 +344,7 @@ export default function App() {
           <div className="buddy-heading">
             <BuddyMark />
             <div>
-              <h1>
-                AI Buddy<span className="bot-label">помощник</span>
-              </h1>
-              <p>Личный диалог · {profile.team_name}</p>
+              <h1>AI Buddy</h1>
             </div>
           </div>
           <div className="chat-header-actions">
@@ -402,32 +386,19 @@ export default function App() {
           aria-relevant="additions text"
         >
           <div className="conversation-inner">
-            <div className="date-divider">
-              <span>НАЧАЛО ТВОЕЙ АДАПТАЦИИ</span>
-            </div>
             <div className="welcome">
-              <span className="welcome-overline">
-                ДЕНЬ {profile.day} · КОМАНДА {profile.team_name.toLocaleUpperCase('ru-RU')}
-              </span>
               <h2>
                 Привет, {profile.name.split(' ')[0]}
                 <span className="greeting-dot">.</span>
               </h2>
-              <p>
-                Помогу разобраться с рабочими вопросами,
-                <br className="desktop-break" /> найти нужное и сделать следующий шаг.
-              </p>
               <div className="next-step">
-                <div className="next-step-number">01</div>
                 <div>
-                  <span className="eyebrow">НАЧНЁМ С КОМАНДНОЙ БАЗЫ</span>
                   <h3>
                     {workspace.tasks.find((task) => task.id === 'space-access')?.status ===
                     'completed'
                       ? 'Доступ к материалам открыт'
-                      : 'Всё нужное о работе команды'}
+                      : 'Доступ к командной базе'}
                   </h3>
-                  <p>Инструкции, процессы и подготовка к первой задаче.</p>
                   <button
                     className="text-button"
                     disabled={sending}
@@ -448,11 +419,6 @@ export default function App() {
                 </span>
               </div>
             </div>
-            {workspace.messages.length > 0 && (
-              <div className="date-divider messages-divider">
-                <span>ЛИЧНЫЙ ДИАЛОГ</span>
-              </div>
-            )}
             {workspace.messages.map((message) => (
               <article className={`message message-${message.role}`} key={message.id}>
                 {message.role === 'assistant' ? (
@@ -590,7 +556,7 @@ export default function App() {
               rows={2}
               maxLength={2000}
               value={composer}
-              placeholder="Спроси о работе или расскажи, что не получается…"
+              placeholder="Спроси о работе…"
               onChange={(event) => setComposer(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -608,19 +574,9 @@ export default function App() {
               <Icon name="arrow" size={22} />
             </button>
           </form>
-          <div className="composer-footer">
-            <span>
-              Enter — отправить<span className="desktop-hint"> · Shift + Enter — новая строка</span>
-            </span>
-            <span className="model-indicator">
-              <span />
-              {workspace.model === 'fixture'
-                ? 'Тестовые ответы · без LLM'
-                : workspace.model.startsWith('ollama:')
-                  ? 'Qwen · локально'
-                  : 'Внешняя модель'}
-            </span>
-          </div>
+          {workspace.model === 'fixture' && (
+            <div className="composer-footer">Тестовые ответы · без LLM</div>
+          )}
         </div>
       </main>
 
