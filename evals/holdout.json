@@ -1,0 +1,143 @@
+[
+  {
+    "id": "H01",
+    "category": "knowledge",
+    "question": "Моя заявка на Confluence согласована. Значит можно читать руководство?",
+    "any_terms": [
+      "не",
+      "нет"
+    ],
+    "sources": [
+      "access-policy"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H02",
+    "category": "knowledge",
+    "question": "На третий день уже нужно изучить Grafana?",
+    "any_terms": [
+      "месяц"
+    ],
+    "sources": [
+      "backend-checklist"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H03",
+    "category": "knowledge",
+    "question": "Что стажёру написать в заявке на чтение пространства?",
+    "any_terms": [
+      "цель",
+      "руководств"
+    ],
+    "sources": [
+      "access-policy"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H04",
+    "category": "knowledge",
+    "question": "Как называется тестовый Jira-проект моей команды?",
+    "any_terms": [
+      "CAT"
+    ],
+    "sources": [
+      "catalog-welcome"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H05",
+    "category": "knowledge",
+    "question": "Изучил руководство. Что указать в описании на ревью?",
+    "any_terms": [
+      "провер",
+      "цель"
+    ],
+    "sources": [
+      "catalog-guide",
+      "catalog-review"
+    ],
+    "setup": "granted",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H06",
+    "category": "knowledge",
+    "question": "Кто проводит первое ревью в тестовой Доставке?",
+    "any_terms": [
+      "Михаил"
+    ],
+    "sources": [
+      "delivery-guide",
+      "delivery-review"
+    ],
+    "setup": "granted",
+    "mode": "",
+    "profile": "irina"
+  },
+  {
+    "id": "H07",
+    "category": "knowledge",
+    "question": "Правила в источниках разошлись. Как поступить?",
+    "any_terms": [
+      "наставник",
+      "владел",
+      "уточн"
+    ],
+    "sources": [
+      "source-policy"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H08",
+    "category": "knowledge",
+    "question": "Что относится ко второй неделе в общем чек-листе?",
+    "any_terms": [
+      "материал",
+      "цели",
+      "прогресс"
+    ],
+    "sources": [
+      "checklist"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H09",
+    "category": "unknown",
+    "question": "Ничего не работает, помоги",
+    "any_terms": [],
+    "sources": [],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  },
+  {
+    "id": "H10",
+    "category": "unknown",
+    "question": "У меня непонятная ошибка в настройке",
+    "any_terms": [],
+    "sources": [],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  }
+]

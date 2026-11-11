@@ -1,0 +1,20 @@
+{
+  "provider": "ollama",
+  "runtime_version": "0.40.16",
+  "runtime_distribution": "official ollama-darwin.tgz",
+  "runtime_archive_sha256": "a743717494315da7cd352982b805f6b992d4b4452ca117fd5fbf86c4ee46fca0",
+  "model": "qwen3.5:4b",
+  "digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+  "runner": "mlx",
+  "quantization": "nvfp4",
+  "download_bytes": 3973305013,
+  "context_tokens": 4096,
+  "max_output_tokens": 512,
+  "temperature": 0.2,
+  "seed": 42,
+  "thinking": false,
+  "concurrency": 1,
+  "keep_alive": 0,
+  "prompt_version": "buddy-grounded-v2",
+  "corpus_version": "2026-11-11-v1"
+}

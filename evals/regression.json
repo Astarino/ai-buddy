@@ -1,0 +1,18 @@
+[
+  {
+    "id": "R01",
+    "category": "knowledge",
+    "question": "Что относится ко второй неделе в общем чек-листе?",
+    "any_terms": [
+      "материал",
+      "цели",
+      "прогресс"
+    ],
+    "sources": [
+      "checklist"
+    ],
+    "setup": "",
+    "mode": "",
+    "profile": "anton"
+  }
+]
