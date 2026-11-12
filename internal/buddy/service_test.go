@@ -64,7 +64,7 @@ func TestAccessToFirstTaskJourney(t *testing.T) {
 	if len(st.Actions) != 1 || len(st.Messages) != 2 {
 		t.Fatal(st)
 	}
-	again, err := s.Prepare(ctx, p, "access", "Подготовиться к первой задаче")
+	again, err := s.Prepare(ctx, p, "access", a.Reason)
 	if err != nil || again.ID != a.ID {
 		t.Fatalf("%+v %v", again, err)
 	}

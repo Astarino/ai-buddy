@@ -76,22 +76,13 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 		}
 	}
 	docs := s.Catalog.Allowed(p, HasAccess(ops))
-	allowed := map[string]bool{}
 	for i := range docs {
-		allowed[docs[i].ID] = true
 		docs[i].Body = ""
 		docs[i].Keywords = ""
 	}
 	messages := slices.Clone(state.Messages)
 	for i := range messages {
-		for _, id := range messages[i].SourceIDs {
-			if !allowed[id] {
-				messages[i].Text = "Этот ответ скрыт: доступ к его источнику больше не подтверждён."
-				messages[i].SourceIDs = []string{}
-				messages[i].Kind = "restricted"
-				break
-			}
-		}
+		messages[i] = s.Catalog.visibleMessage(p, HasAccess(ops), messages[i])
 	}
 	tasks, next := s.Catalog.Route(p, state, ops)
 	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh, Model: s.Model.Name(), Demo: true}, nil
@@ -149,10 +140,13 @@ func (s *Service) Prepare(ctx context.Context, p Profile, kind, reason string) (
 		return Action{}, ErrInvalid
 	}
 	_, err = s.Repo.Update(ctx, p.ID, func(st *State) error {
-		for _, old := range st.Actions {
+		for i, old := range st.Actions {
 			if old.Kind == kind && old.Status == "ready" && old.ExpiresAt.After(s.Now()) {
-				a = old
-				return nil
+				if old.Resource == a.Resource && old.Level == a.Level && old.Reason == a.Reason {
+					a = old
+					return nil
+				}
+				st.Actions[i].Status = "superseded"
 			}
 		}
 		st.Actions = append(st.Actions, a)
@@ -308,7 +302,7 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 	state, err := s.Repo.Update(ctx, p.ID, func(st *State) error {
 		for _, m := range st.Messages {
 			if m.ID == id {
-				if m.Text != question {
+				if (m.RequestHash != "" && m.RequestHash != fingerprint(question)) || (m.RequestHash == "" && m.Text != question) {
 					return ErrConflict
 				}
 				return nil
@@ -317,7 +311,11 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 		if len(st.Messages) >= 200 {
 			return ErrConflict
 		}
-		st.Messages = append(st.Messages, Message{ID: id, Role: "user", Text: question, CreatedAt: s.Now(), SourceIDs: []string{}})
+		text := question
+		if credentialRequest(question) {
+			text = secretPlaceholder
+		}
+		st.Messages = append(st.Messages, Message{ID: id, Role: "user", Text: text, CreatedAt: s.Now(), SourceIDs: []string{}, RequestHash: fingerprint(question), Blocked: credentialRequest(question) || policyRequest(question)})
 		return nil
 	})
 	if err != nil {
@@ -325,41 +323,47 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 	}
 	for _, m := range state.Messages {
 		if m.ReplyTo == id {
-			return m, nil
+			ops, _ := s.operations(ctx, p)
+			return s.Catalog.visibleMessage(p, HasAccess(ops), m), nil
 		}
 	}
 	start := s.Now()
-	msg := Message{ID: NewID(), Role: "assistant", CreatedAt: s.Now(), ReplyTo: id, SourceIDs: []string{}}
+	msg := Message{ID: NewID(), Role: "assistant", CreatedAt: s.Now(), ReplyTo: id, SourceIDs: []string{}, Kind: "workflow", ContextVersion: contextVersion}
 	lower := strings.ToLower(question)
 	switch {
-	case containsAny(lower, "пароль", "токен", "api_key", "api-ключ", "секретный ключ", "secret"):
-		msg.Text = "В доступных материалах нет подтверждённого способа получить API-токен или другой секрет. Уточни процесс у наставника или владельца сервиса. Могу подготовить вопрос с названием проекта и целью доступа."
+	case credentialRequest(question):
+		msg.Text = "Не присылай пароли и токены в чат. Как получить доступ, подскажет владелец сервиса; могу подготовить ему вопрос."
 		msg.Kind = "policy"
-	case containsAny(lower, "игнорируй", "пароль", "зарплат", "чужой команд", "другой команд", "я админ", "я руководитель", "согласуй", "выдай мне", "system prompt", "системный промпт"):
-		msg.Text = "Я могу помочь с доступными материалами твоей команды. Читать чужие сведения, менять роль и согласовывать собственные заявки нельзя. Для доступа можно подготовить запрос владельцу ресурса."
+	case policyRequest(question):
+		msg.Text = "На это у меня нет прав. Могу помочь подготовить запрос владельцу ресурса."
 		msg.Kind = "policy"
 	case containsAny(lower, "не открывается", "нет доступа", "запросить доступ", "403", "нужен доступ", "доступ к вики"):
+		if !containsAny(lower, "вики", "confluence", "пространств", "руководств") || containsAny(lower, "github", "gitlab", "jira", "sentry", "grafana") {
+			msg.Text = "Что именно не открывается: какой сервис или страница?"
+			msg.Kind = "clarification"
+			break
+		}
 		a, prepareErr := s.Prepare(ctx, p, "access", "Изучить руководство команды и подготовиться к первой задаче")
 		if prepareErr == nil {
 			msg.ActionID = a.ID
-			msg.Text = "Для твоей команды нужно чтение пространства «" + p.Space + "» в Confluence. Подготовил заявку: проверь параметры и подтверди отправку. Содержимое закрытого пространства я пока не читаю."
+			msg.Text = "К вики нужен доступ. Подготовил запрос — проверь и отправь."
 			msg.SourceIDs = []string{"access-policy"}
 		} else if prepareErr == ErrConflict {
-			msg.Text = "Запрос доступа уже есть или права уже выданы. Открой «Мои заявки» и обнови состояние; повторная заявка не нужна."
+			msg.Text = "Запрос уже есть или доступ выдан. Проверь состояние в «Моих заявках»."
 		} else {
 			return Message{}, prepareErr
 		}
 	case containsAny(lower, "взять первую", "дай первую задачу", "назначь задачу"):
 		a, prepareErr := s.Prepare(ctx, p, "issue", "Первая учебная задача после изучения руководства команды")
 		if prepareErr == ErrForbidden {
-			msg.Text = "Сначала нужен выданный доступ к пространству и отметка об изучении руководства. После этого сможем взять первую задачу."
+			msg.Text = "Сначала получи доступ к вики и изучи руководство. Затем можно взять задачу."
 		} else if prepareErr == ErrConflict {
 			msg.Text = "Первая задача уже назначена. Её ключ и состояние есть в «Моих заявках»."
 		} else if prepareErr != nil {
 			return Message{}, prepareErr
 		} else {
 			msg.ActionID = a.ID
-			msg.Text = "Можно взять учебную задачу «" + p.Project + "-101». Проверь карточку: она будет назначена на тебя после подтверждения."
+			msg.Text = "Подготовил первую задачу. Проверь карточку и подтверди назначение."
 		}
 	case containsAny(lower, "мой план", "мой маршрут", "что дальше", "что делать дальше", "с чего начать", "план адаптации"):
 		ops, _ := s.operations(ctx, p)
@@ -379,25 +383,14 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 			msg.Text = "В доступных материалах нет надёжного ответа. Уточни, с какой задачей или инструментом связан вопрос и что уже получилось проверить. Можно подготовить вопрос наставнику."
 			msg.Kind = "clarification"
 		} else {
-			history := []Message{}
-			for _, old := range state.Messages {
-				if old.ID == id {
-					continue
-				}
-				permitted := true
-				for _, source := range old.SourceIDs {
-					if _, e := s.Catalog.Document(p, HasAccess(ops), source); e != nil {
-						permitted = false
-					}
-				}
-				if permitted {
-					history = append(history, old)
-				}
+			history := s.Catalog.modelHistory(p, HasAccess(ops), state.Messages, id)
+			msg.Kind = "answer"
+			msg.Dependencies = contextRefs(docs, history)
+			input, inputErr := (AnswerInput{Question: question, Team: p.TeamName, Day: p.Day, Documents: docs, History: history, Direction: p.Direction, Role: p.Role}).Sanitized()
+			if inputErr != nil {
+				return Message{}, inputErr
 			}
-			if len(history) > 4 {
-				history = history[len(history)-4:]
-			}
-			answer, modelErr := s.Model.Answer(ctx, AnswerInput{question, p.TeamName, p.Day, docs, history})
+			answer, modelErr := s.Model.Answer(ctx, input)
 			if modelErr != nil {
 				return Message{}, modelErr
 			}
@@ -418,10 +411,8 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 			}
 			// Recheck after inference so an access revocation during generation fails closed.
 			latest, fresh := s.operations(ctx, p)
-			for _, source := range msg.SourceIDs {
-				if _, e := s.Catalog.Document(p, fresh && HasAccess(latest), source); e != nil {
-					return Message{}, ErrForbidden
-				}
+			if !s.Catalog.permitsMessage(p, fresh && HasAccess(latest), msg) {
+				return Message{}, ErrForbidden
 			}
 		}
 	}
@@ -437,7 +428,11 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 		st.Events = append(st.Events, Event{Type: "answer_" + msg.Kind, ObjectID: msg.ID, At: s.Now(), DurationMS: msg.DurationMS})
 		return nil
 	})
-	return msg, err
+	if err != nil {
+		return Message{}, err
+	}
+	ops, _ := s.operations(ctx, p)
+	return s.Catalog.visibleMessage(p, HasAccess(ops), msg), nil
 }
 
 func containsAny(s string, values ...string) bool {

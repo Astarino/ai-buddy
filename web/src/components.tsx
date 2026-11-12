@@ -110,12 +110,14 @@ export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
 
 export function BuddyMark({ small = false }: { small?: boolean }) {
   return (
-    <span className={`buddy-mark ${small ? 'small' : ''}`} aria-hidden="true">
-      <i />
-      <i />
-      <i />
-      <i />
-    </span>
+    <img
+      className={`buddy-mark ${small ? 'small' : ''}`}
+      src="/buddy-mark.svg"
+      width={small ? 32 : 40}
+      height={small ? 32 : 40}
+      alt=""
+      aria-hidden="true"
+    />
   );
 }
 
@@ -246,7 +248,9 @@ export function ActionCard({
           <dd>{action.reason}</dd>
         </div>
       </dl>
-      {action.status === 'completed' ? (
+      {action.status === 'superseded' ? (
+        <p className="action-note">Параметры изменились. Используй новую карточку.</p>
+      ) : action.status === 'completed' ? (
         <div className="action-receipt">
           <Icon name="check" size={17} />
           <span>Отправлено · {action.result_id}</span>

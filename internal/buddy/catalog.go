@@ -49,7 +49,16 @@ func (c Catalog) Allowed(p Profile, granted bool) []Document {
 		if d.Team != "" && d.Team != p.Team {
 			continue
 		}
-		if d.Scope == "mentor" || (d.Scope == "space" && !granted) {
+		if d.Direction != "" && d.Direction != p.Direction {
+			continue
+		}
+		switch d.Scope {
+		case "public", "team":
+		case "space":
+			if !granted || d.Team != p.Team || d.Resource == "" || d.Resource != p.Space {
+				continue
+			}
+		default:
 			continue
 		}
 		docs = append(docs, d)

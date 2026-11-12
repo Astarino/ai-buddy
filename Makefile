@@ -14,7 +14,7 @@ build:
 	pnpm --dir web build
 
 test:
-	TEST_DATABASE_URL="$${TEST_DATABASE_URL:-postgres:///ai_buddy_test?host=/tmp}" go test -p 1 ./...
+	TEST_DATABASE_URL="$${TEST_DATABASE_URL:-postgres:///ai_buddy_test?host=/tmp}" go test -p 1 ./cmd/... ./internal/...
 	pnpm --dir web test
 
 web-test:

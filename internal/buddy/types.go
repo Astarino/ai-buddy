@@ -17,15 +17,16 @@ var (
 )
 
 type Profile struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Team     string `json:"team"`
-	TeamName string `json:"team_name"`
-	Role     string `json:"role"`
-	Mentor   string `json:"mentor"`
-	Day      int    `json:"day"`
-	Space    string `json:"space"`
-	Project  string `json:"project"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Team      string `json:"team"`
+	TeamName  string `json:"team_name"`
+	Role      string `json:"role"`
+	Direction string `json:"direction"`
+	Mentor    string `json:"mentor"`
+	Day       int    `json:"day"`
+	Space     string `json:"space"`
+	Project   string `json:"project"`
 }
 
 type Document struct {
@@ -34,6 +35,8 @@ type Document struct {
 	Body      string `json:"body"`
 	Team      string `json:"team"`
 	Scope     string `json:"scope"`
+	Resource  string `json:"resource,omitempty"`
+	Direction string `json:"direction,omitempty"`
 	Origin    string `json:"origin"`
 	URL       string `json:"url,omitempty"`
 	Version   string `json:"version"`
@@ -58,15 +61,24 @@ type Task struct {
 }
 
 type Message struct {
-	ID         string    `json:"id"`
-	Role       string    `json:"role"`
-	Text       string    `json:"text"`
-	CreatedAt  time.Time `json:"created_at"`
-	SourceIDs  []string  `json:"source_ids"`
-	ActionID   string    `json:"action_id,omitempty"`
-	ReplyTo    string    `json:"reply_to,omitempty"`
-	Kind       string    `json:"kind,omitempty"`
-	DurationMS int64     `json:"duration_ms,omitempty"`
+	ID             string        `json:"id"`
+	Role           string        `json:"role"`
+	Text           string        `json:"text"`
+	CreatedAt      time.Time     `json:"created_at"`
+	SourceIDs      []string      `json:"source_ids"`
+	ActionID       string        `json:"action_id,omitempty"`
+	ReplyTo        string        `json:"reply_to,omitempty"`
+	Kind           string        `json:"kind,omitempty"`
+	DurationMS     int64         `json:"duration_ms,omitempty"`
+	Dependencies   []DocumentRef `json:"dependencies,omitempty"`
+	ContextVersion int           `json:"context_version,omitempty"`
+	Blocked        bool          `json:"blocked,omitempty"`
+	RequestHash    string        `json:"request_hash,omitempty"`
+}
+
+type DocumentRef struct {
+	ID          string `json:"id"`
+	Fingerprint string `json:"fingerprint"`
 }
 
 type Action struct {
@@ -143,6 +155,8 @@ type AnswerInput struct {
 	Day       int        `json:"day"`
 	Documents []Document `json:"documents"`
 	History   []Message  `json:"history"`
+	Direction string     `json:"direction"`
+	Role      string     `json:"role"`
 }
 
 type Answer struct {

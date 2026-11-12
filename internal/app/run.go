@@ -15,6 +15,7 @@ import (
 	"github.com/Astarino/ai-buddy/internal/corporate"
 	"github.com/Astarino/ai-buddy/internal/httpapi"
 	"github.com/Astarino/ai-buddy/internal/model"
+	"github.com/Astarino/ai-buddy/internal/outbound"
 	"github.com/Astarino/ai-buddy/internal/storage"
 )
 
@@ -54,7 +55,11 @@ func RunContext(ctx context.Context, kind string) error {
 		if err != nil {
 			return err
 		}
-		corp := corporate.NewClient(env("CORPORATE_BASE_URL", "http://127.0.0.1:8091"), token, operator)
+		base := env("CORPORATE_BASE_URL", "http://127.0.0.1:8091")
+		if _, err := outbound.ValidateBaseURL(base); err != nil {
+			return err
+		}
+		corp := corporate.NewClient(base, token, operator)
 		api := &httpapi.API{Service: buddy.NewService(db, corp, llm), Sessions: db, DemoToken: operator, StaticDir: env("WEB_DIR", "web/dist"), SecureCookie: os.Getenv("SECURE_COOKIE") == "true"}
 		server = httpapi.HTTPServer(env("APP_ADDR", "127.0.0.1:8090"), api.Handler())
 		slog.Info("model configured", "provider", provider, "model", llm.Name(), "external_fallback", false)

@@ -105,7 +105,11 @@ func TestHTTPJourneyAndPersistedState(t *testing.T) {
 		t.Fatal(view)
 	}
 	id := view.Actions[0].ID
-	b.expect("POST", "/api/actions", `{"kind":"access","reason":"Изучить руководство команды"}`, 200)
+	repeated, _ := json.Marshal(map[string]string{"kind": "access", "reason": view.Actions[0].Reason})
+	same := readJSON[buddy.Action](t, b.expect("POST", "/api/actions", string(repeated), 200))
+	if same.ID != id {
+		t.Fatal("identical parameters changed confirmation", same)
+	}
 	op := readJSON[buddy.Operation](t, b.expect("POST", "/api/actions/"+id+"/confirm", `{}`, 200))
 	b.expect("POST", "/api/actions/"+id+"/confirm", `{}`, 200)
 	b.expect("POST", "/api/demo/events", `{"key":"`+id+`","status":"approved"}`, 403)

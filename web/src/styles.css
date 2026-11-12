@@ -196,75 +196,15 @@
 
 @layer components {
   .buddy-mark {
-    display: inline-block;
+    display: block;
     width: 40px;
     height: 40px;
     flex-shrink: 0;
-    position: relative;
-    border-radius: 12px;
-    background: #1c2024;
-    overflow: hidden;
-  }
-  .buddy-mark i {
-    position: absolute;
-    border-radius: 50%;
-  }
-  .buddy-mark i:nth-child(1) {
-    width: 13px;
-    height: 13px;
-    background: #00aaff;
-    left: 8px;
-    top: 8px;
-  }
-  .buddy-mark i:nth-child(2) {
-    width: 8px;
-    height: 8px;
-    background: #9b6bef;
-    left: 24px;
-    top: 7px;
-  }
-  .buddy-mark i:nth-child(3) {
-    width: 10px;
-    height: 10px;
-    background: #00d777;
-    left: 6px;
-    top: 24px;
-  }
-  .buddy-mark i:nth-child(4) {
-    width: 15px;
-    height: 15px;
-    background: #ff4053;
-    left: 20px;
-    top: 21px;
+    object-fit: contain;
   }
   .buddy-mark.small {
     width: 32px;
     height: 32px;
-    border-radius: 10px;
-  }
-  .buddy-mark.small i:nth-child(1) {
-    width: 10px;
-    height: 10px;
-    left: 6px;
-    top: 6px;
-  }
-  .buddy-mark.small i:nth-child(2) {
-    width: 6px;
-    height: 6px;
-    left: 20px;
-    top: 5px;
-  }
-  .buddy-mark.small i:nth-child(3) {
-    width: 8px;
-    height: 8px;
-    left: 5px;
-    top: 19px;
-  }
-  .buddy-mark.small i:nth-child(4) {
-    width: 12px;
-    height: 12px;
-    left: 16px;
-    top: 16px;
   }
   .avatar {
     width: 34px;

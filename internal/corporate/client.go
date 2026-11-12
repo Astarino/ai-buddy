@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Astarino/ai-buddy/internal/buddy"
+	"github.com/Astarino/ai-buddy/internal/outbound"
 )
 
 type Client struct {
@@ -21,10 +22,13 @@ type Client struct {
 }
 
 func NewClient(base, token, operator string) *Client {
-	return &Client{strings.TrimRight(base, "/"), token, operator, &http.Client{Timeout: 3 * time.Second}}
+	return &Client{strings.TrimRight(base, "/"), token, operator, outbound.Client(3 * time.Second)}
 }
 
 func (c *Client) call(ctx context.Context, method, path, token string, body, target any) error {
+	if _, err := outbound.ValidateBaseURL(c.BaseURL); err != nil {
+		return buddy.ErrUnavailable
+	}
 	raw, err := json.Marshal(body)
 	if err != nil {
 		return err
