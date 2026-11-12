@@ -21,6 +21,14 @@ var schema string
 type Postgres struct{ Pool *pgxpool.Pool }
 
 func Open(ctx context.Context, dsn string) (*Postgres, error) {
+	return open(ctx, dsn, true)
+}
+
+func OpenExisting(ctx context.Context, dsn string) (*Postgres, error) {
+	return open(ctx, dsn, false)
+}
+
+func open(ctx context.Context, dsn string, migrate bool) (*Postgres, error) {
 	cfg, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, err
@@ -33,6 +41,14 @@ func Open(ctx context.Context, dsn string) (*Postgres, error) {
 	if err = db.Ping(ctx); err != nil {
 		db.Close()
 		return nil, err
+	}
+	if !migrate {
+		_, err = db.Exec(ctx, `SELECT context_hash FROM buddy_sessions LIMIT 0; SELECT id FROM buddy_audit LIMIT 0; SELECT state_hash FROM buddy_logins LIMIT 0; SELECT profile_id FROM buddy_principals LIMIT 0; SELECT user_id FROM buddy_states LIMIT 0`)
+		if err != nil {
+			db.Close()
+			return nil, err
+		}
+		return &Postgres{db}, nil
 	}
 	err = pgx.BeginFunc(ctx, db, func(tx pgx.Tx) error {
 		// Both processes may start against an empty database at the same time.
@@ -86,8 +102,15 @@ func (p *Postgres) Update(ctx context.Context, owner string, change func(*buddy.
 	if err = json.Unmarshal(raw, &state); err != nil {
 		return state, err
 	}
+	previousEvents := len(state.Events)
 	if err = change(&state); err != nil {
 		return state, err
+	}
+	for i := previousEvents; i < len(state.Events); i++ {
+		state.Events[i] = auditEvent(ctx, owner, state.Events[i])
+		if err := appendAudit(ctx, tx, state.Events[i]); err != nil {
+			return state, err
+		}
 	}
 	raw, err = json.Marshal(state)
 	if err != nil {

@@ -12,15 +12,20 @@ import (
 )
 
 type Service struct {
-	Repo      Repository
-	Corporate Corporate
-	Model     Model
-	Catalog   Catalog
-	Now       func() time.Time
+	Repo            Repository
+	Corporate       Corporate
+	Model           Model
+	Catalog         Catalog
+	Now             func() time.Time
+	Authorizer      Authorizer
+	Operator        DemoOperator
+	Demo            bool
+	ModelDataPolicy string
 }
 
 func NewService(repo Repository, corporate Corporate, model Model) *Service {
-	return &Service{repo, corporate, model, LoadCatalog(), time.Now}
+	operator, _ := corporate.(DemoOperator)
+	return &Service{Repo: repo, Corporate: corporate, Model: model, Catalog: LoadCatalog(), Now: time.Now, Operator: operator, Demo: true}
 }
 
 func NewID() string {
@@ -75,26 +80,34 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 			return View{}, err
 		}
 	}
-	docs := s.Catalog.Allowed(p, HasAccess(ops))
+	allowed, permissionsFresh := s.allowedDocuments(ctx, p, ops)
+	docs := slices.Clone(allowed)
 	for i := range docs {
 		docs[i].Body = ""
 		docs[i].Keywords = ""
 	}
 	messages := slices.Clone(state.Messages)
 	for i := range messages {
-		messages[i] = s.Catalog.visibleMessage(p, HasAccess(ops), messages[i])
+		messages[i] = visibleMessage(allowed, messages[i])
 	}
 	tasks, next := s.Catalog.Route(p, state, ops)
-	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh, Model: s.Model.Name(), Demo: true}, nil
+	if audit, ok := s.Repo.(AuditStore); ok {
+		if err := audit.AppendAudit(ctx, Event{OwnerID: p.ID, Type: "state_read", ObjectID: p.ID}); err != nil {
+			return View{}, ErrUnavailable
+		}
+	}
+	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh && permissionsFresh, Model: s.Model.Name(), Demo: s.Demo}, nil
 }
 
 func (s *Service) Document(ctx context.Context, p Profile, id string) (Document, error) {
 	ops, _ := s.operations(ctx, p)
-	doc, err := s.Catalog.Document(p, HasAccess(ops), id)
-	if err != nil {
-		return Document{}, err
+	allowed, _ := s.allowedDocuments(ctx, p, ops)
+	index := slices.IndexFunc(allowed, func(d Document) bool { return d.ID == id })
+	if index < 0 {
+		return Document{}, ErrNotFound
 	}
-	_, err = s.Repo.Update(ctx, p.ID, func(st *State) error {
+	doc := allowed[index]
+	_, err := s.Repo.Update(ctx, p.ID, func(st *State) error {
 		st.Events = append(st.Events, Event{Type: "source_opened", ObjectID: id, At: s.Now()})
 		return nil
 	})
@@ -102,7 +115,13 @@ func (s *Service) Document(ctx context.Context, p Profile, id string) (Document,
 }
 
 func (s *Service) Prepare(ctx context.Context, p Profile, kind, reason string) (Action, error) {
+	if err := s.authorizeAction(ctx, p, kind); err != nil {
+		return Action{}, err
+	}
 	reason = strings.TrimSpace(reason)
+	if credentialRequest(reason) {
+		return Action{}, ErrForbidden
+	}
 	if utf8.RuneCountInString(reason) < 8 || utf8.RuneCountInString(reason) > 300 {
 		return Action{}, ErrInvalid
 	}
@@ -128,6 +147,10 @@ func (s *Service) Prepare(ctx context.Context, p Profile, kind, reason string) (
 		a.Resource, a.Level = p.Space, "Чтение"
 	case "issue":
 		if !HasAccess(ops) || !state.Completed["read-guide"] {
+			return Action{}, ErrForbidden
+		}
+		allowed, _ := s.allowedDocuments(ctx, p, ops)
+		if !slices.ContainsFunc(allowed, func(d Document) bool { return d.ID == p.Team+"-guide" }) {
 			return Action{}, ErrForbidden
 		}
 		for _, op := range ops {
@@ -172,6 +195,9 @@ func (s *Service) Confirm(ctx context.Context, p Profile, id string) (Operation,
 	if action == nil {
 		return Operation{}, ErrNotFound
 	}
+	if !ValidActionTarget(p, *action) {
+		return Operation{}, ErrForbidden
+	}
 	ops, fresh := s.operations(ctx, p)
 	if !fresh {
 		return Operation{}, ErrUnavailable
@@ -182,17 +208,33 @@ func (s *Service) Confirm(ctx context.Context, p Profile, id string) (Operation,
 			if !matchesOperation(p.ID, *action, op) {
 				return Operation{}, ErrUnavailable
 			}
+			if action.Status == "completed" {
+				if audit, ok := s.Repo.(AuditStore); ok {
+					if err := audit.AppendAudit(ctx, Event{OwnerID: p.ID, Type: "action_replayed", ObjectID: action.ID, Outcome: op.Status}); err != nil {
+						return Operation{}, ErrUnavailable
+					}
+				}
+			}
 			return op, s.recordResult(ctx, p, *action, op)
 		}
 	}
 	if action.Status != "ready" {
 		return Operation{}, ErrConflict
 	}
+	if err := s.authorizeAction(ctx, p, action.Kind); err != nil {
+		return Operation{}, err
+	}
 	if !action.ExpiresAt.After(s.Now()) {
 		return Operation{}, ErrExpired
 	}
 	if action.Kind == "issue" && (!HasAccess(ops) || !state.Completed["read-guide"]) {
 		return Operation{}, ErrForbidden
+	}
+	if action.Kind == "issue" {
+		allowed, _ := s.allowedDocuments(ctx, p, ops)
+		if !slices.ContainsFunc(allowed, func(d Document) bool { return d.ID == p.Team+"-guide" }) {
+			return Operation{}, ErrForbidden
+		}
 	}
 	if action.Kind == "access" {
 		for _, op := range ops {
@@ -246,6 +288,7 @@ func (s *Service) recordResult(ctx context.Context, p Profile, a Action, op Oper
 
 func (s *Service) Complete(ctx context.Context, p Profile, taskID string) error {
 	ops, _ := s.operations(ctx, p)
+	allowed, _ := s.allowedDocuments(ctx, p, ops)
 	_, err := s.Repo.Update(ctx, p.ID, func(st *State) error {
 		tasks, _ := s.Catalog.Route(p, *st, ops)
 		for _, task := range tasks {
@@ -253,6 +296,9 @@ func (s *Service) Complete(ctx context.Context, p Profile, taskID string) error 
 				continue
 			}
 			if task.Completion != "self" || (task.Status != "available" && task.Status != "completed") {
+				return ErrForbidden
+			}
+			if task.DocumentID != "" && !slices.ContainsFunc(allowed, func(d Document) bool { return d.ID == task.DocumentID }) {
 				return ErrForbidden
 			}
 			if !st.Completed[taskID] {
@@ -285,6 +331,9 @@ func (s *Service) Draft(ctx context.Context, p Profile, question string) (string
 	if strings.TrimSpace(question) == "" {
 		question = "Хочу уточнить следующий шаг адаптации и критерии первой задачи."
 	}
+	if credentialRequest(question) {
+		return "", ErrForbidden
+	}
 	draft := fmt.Sprintf("%s, привет! Я прохожу адаптацию в команде «%s».\n\nВопрос: %s\n\nПосмотрел доступные материалы в AI Buddy, но полного ответа не нашёл. Поможешь уточнить, что проверить дальше?", p.Mentor, p.TeamName, question)
 	_, err = s.Repo.Update(ctx, p.ID, func(st *State) error {
 		st.Draft = draft
@@ -295,15 +344,28 @@ func (s *Service) Draft(ctx context.Context, p Profile, question string) (string
 }
 
 func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Message, error) {
+	return s.ChatWithConsent(ctx, p, id, question, "")
+}
+
+func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, consentTo string) (Message, error) {
 	question = strings.TrimSpace(question)
 	if len(id) < 8 || len(id) > 80 || question == "" || utf8.RuneCountInString(question) > 2000 {
 		return Message{}, ErrInvalid
 	}
 	state, err := s.Repo.Update(ctx, p.ID, func(st *State) error {
-		for _, m := range st.Messages {
+		for i, old := range st.Messages {
+			if old.Role == "user" && old.RequestHash == "" && credentialRequest(old.Text) {
+				st.Messages[i].RequestHash = fingerprint(old.Text)
+				st.Messages[i].Text, st.Messages[i].Blocked = secretPlaceholder, true
+			}
+		}
+		for i, m := range st.Messages {
 			if m.ID == id {
 				if (m.RequestHash != "" && m.RequestHash != fingerprint(question)) || (m.RequestHash == "" && m.Text != question) {
 					return ErrConflict
+				}
+				if consentTo != "" && consentTo == s.Model.Boundary().Token {
+					st.Messages[i].ConsentTo = consentTo
 				}
 				return nil
 			}
@@ -315,7 +377,11 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 		if credentialRequest(question) {
 			text = secretPlaceholder
 		}
-		st.Messages = append(st.Messages, Message{ID: id, Role: "user", Text: text, CreatedAt: s.Now(), SourceIDs: []string{}, RequestHash: fingerprint(question), Blocked: credentialRequest(question) || policyRequest(question)})
+		approved := ""
+		if consentTo != "" && consentTo == s.Model.Boundary().Token {
+			approved = consentTo
+		}
+		st.Messages = append(st.Messages, Message{ID: id, Role: "user", Text: text, CreatedAt: s.Now(), SourceIDs: []string{}, RequestHash: fingerprint(question), Blocked: credentialRequest(question) || policyRequest(question), ConsentTo: approved})
 		return nil
 	})
 	if err != nil {
@@ -324,7 +390,8 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 	for _, m := range state.Messages {
 		if m.ReplyTo == id {
 			ops, _ := s.operations(ctx, p)
-			return s.Catalog.visibleMessage(p, HasAccess(ops), m), nil
+			allowed, _ := s.allowedDocuments(ctx, p, ops)
+			return visibleMessage(allowed, m), nil
 		}
 	}
 	start := s.Now()
@@ -340,6 +407,15 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 	case containsAny(lower, "не открывается", "нет доступа", "запросить доступ", "403", "нужен доступ", "доступ к вики"):
 		if !containsAny(lower, "вики", "confluence", "пространств", "руководств") || containsAny(lower, "github", "gitlab", "jira", "sentry", "grafana") {
 			msg.Text = "Что именно не открывается: какой сервис или страница?"
+			for _, service := range []string{"GitHub", "GitLab", "Jira", "Sentry", "Grafana"} {
+				if strings.Contains(lower, strings.ToLower(service)) {
+					msg.Text = "Что пишет " + service + " при открытии страницы?"
+					if strings.Contains(lower, "403") {
+						msg.Text = "На какой странице " + service + " появляется 403?"
+					}
+					break
+				}
+			}
 			msg.Kind = "clarification"
 			break
 		}
@@ -377,18 +453,50 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 		msg.SourceIDs = []string{"checklist"}
 	default:
 		ops, _ := s.operations(ctx, p)
-		allowed := s.Catalog.Allowed(p, HasAccess(ops))
+		allowed, _ := s.allowedDocuments(ctx, p, ops)
 		docs := Search(allowed, question)
 		if len(docs) == 0 {
 			msg.Text = "В доступных материалах нет надёжного ответа. Уточни, с какой задачей или инструментом связан вопрос и что уже получилось проверить. Можно подготовить вопрос наставнику."
 			msg.Kind = "clarification"
 		} else {
-			history := s.Catalog.modelHistory(p, HasAccess(ops), state.Messages, id)
+			history := modelHistory(allowed, state.Messages, id)
+			boundary := s.Model.Boundary()
+			if boundary.External {
+				if s.ModelDataPolicy != "public-only" {
+					return Message{}, ErrDataPolicy
+				}
+				if !(AnswerInput{Documents: docs}).PublicOnly() {
+					return Message{}, ErrDataPolicy
+				}
+				approved := false
+				for _, old := range state.Messages {
+					if old.ID == id && old.ConsentTo == boundary.Token {
+						approved = true
+					}
+				}
+				if !approved {
+					return Message{}, ErrConsentRequired
+				}
+				history = nil
+			}
 			msg.Kind = "answer"
 			msg.Dependencies = contextRefs(docs, history)
 			input, inputErr := (AnswerInput{Question: question, Team: p.TeamName, Day: p.Day, Documents: docs, History: history, Direction: p.Direction, Role: p.Role}).Sanitized()
 			if inputErr != nil {
 				return Message{}, inputErr
+			}
+			input.ApprovedExternal = boundary.External
+			if boundary.External {
+				input.Team, input.Role, input.Direction = "", "", ""
+			}
+			if audit, ok := s.Repo.(AuditStore); ok {
+				kind := "model_requested"
+				if boundary.External {
+					kind = "external_model_requested"
+				}
+				if err := audit.AppendAudit(ctx, Event{OwnerID: p.ID, Type: kind, ObjectID: msg.ID, Outcome: "started"}); err != nil {
+					return Message{}, ErrUnavailable
+				}
 			}
 			answer, modelErr := s.Model.Answer(ctx, input)
 			if modelErr != nil {
@@ -411,7 +519,11 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 			}
 			// Recheck after inference so an access revocation during generation fails closed.
 			latest, fresh := s.operations(ctx, p)
-			if !s.Catalog.permitsMessage(p, fresh && HasAccess(latest), msg) {
+			if !fresh {
+				latest = nil
+			}
+			latestAllowed, _ := s.allowedDocuments(ctx, p, latest)
+			if !permitsMessage(latestAllowed, msg) {
 				return Message{}, ErrForbidden
 			}
 		}
@@ -432,7 +544,8 @@ func (s *Service) Chat(ctx context.Context, p Profile, id, question string) (Mes
 		return Message{}, err
 	}
 	ops, _ := s.operations(ctx, p)
-	return s.Catalog.visibleMessage(p, HasAccess(ops), msg), nil
+	allowed, _ := s.allowedDocuments(ctx, p, ops)
+	return visibleMessage(allowed, msg), nil
 }
 
 func containsAny(s string, values ...string) bool {

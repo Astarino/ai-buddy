@@ -1,0 +1,37 @@
+{
+  "profiles": [
+    {
+      "id": "employee-17",
+      "name": "Тестовый сотрудник",
+      "team": "example-team",
+      "team_name": "Пример команды",
+      "role": "Стажёр-аналитик",
+      "direction": "analytics",
+      "mentor": "Тестовый наставник",
+      "day": 1,
+      "space": "EXAMPLE",
+      "project": "EXM",
+      "issuer": "https://sso.example.invalid",
+      "subject": "replace-with-corporate-subject"
+    }
+  ],
+  "documents": [
+    {
+      "id": "team-guide",
+      "title": "Пример командного руководства",
+      "body": "Синтетический пример схемы. Заменяется согласованным снимком источника.",
+      "team": "example-team",
+      "scope": "space",
+      "system": "confluence",
+      "resource_kind": "document",
+      "resource": "replace-with-native-page-id",
+      "data_class": "internal",
+      "origin": "Тестовый пример конфигурации",
+      "version": "example-1",
+      "updated_at": "2026-11-12",
+      "synthetic": true,
+      "keywords": "руководство команда"
+    }
+  ],
+  "tasks": []
+}

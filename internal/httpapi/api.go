@@ -30,14 +30,31 @@ type API struct {
 	DemoToken    string
 	StaticDir    string
 	SecureCookie bool
+	Production   bool
+	Login        LoginProvider
 }
 
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) { respond(w, map[string]string{"status": "ok"}) })
 	mux.HandleFunc("GET /api/bootstrap", func(w http.ResponseWriter, r *http.Request) {
-		respond(w, map[string]any{"profiles": a.Service.Catalog.Profiles, "model": a.Service.Model.Name(), "demo": true})
+		profiles := a.Service.Catalog.Profiles
+		loginURL := ""
+		if a.Production {
+			profiles = []buddy.Profile{}
+			loginURL = "/api/login"
+		}
+		boundary := a.Service.Model.Boundary()
+		endpoint := ""
+		if boundary.External {
+			endpoint = boundary.Endpoint
+		}
+		respond(w, map[string]any{"profiles": profiles, "model": a.Service.Model.Name(), "demo": !a.Production, "login_url": loginURL, "external_model": boundary.External, "model_endpoint": endpoint, "consent_to": boundary.Token})
 	})
+	if a.Production && a.Login != nil {
+		mux.HandleFunc("GET /api/login", a.beginLogin)
+		mux.HandleFunc("GET /api/login/callback", a.finishLogin)
+	}
 	mux.HandleFunc("POST /api/session", a.login)
 	mux.HandleFunc("DELETE /api/session", a.logout)
 	mux.HandleFunc("GET /api/state", a.withProfile(a.state))
@@ -52,13 +69,14 @@ func (a *API) Handler() http.Handler {
 	}))
 	mux.HandleFunc("POST /api/messages", a.withProfile(func(w http.ResponseWriter, r *http.Request, p buddy.Profile) {
 		var input struct {
-			ID   string `json:"id"`
-			Text string `json:"text"`
+			ID              string `json:"id"`
+			Text            string `json:"text"`
+			ExternalConsent string `json:"external_consent"`
 		}
 		if !decode(w, r, &input) {
 			return
 		}
-		msg, err := a.Service.Chat(r.Context(), p, input.ID, input.Text)
+		msg, err := a.Service.ChatWithConsent(r.Context(), p, input.ID, input.Text, input.ExternalConsent)
 		if err != nil {
 			failure(w, err)
 			return
@@ -117,47 +135,61 @@ func (a *API) Handler() http.Handler {
 		}
 		respond(w, map[string]string{"draft": draft})
 	}))
-	mux.HandleFunc("POST /api/demo/events", a.withProfile(func(w http.ResponseWriter, r *http.Request, p buddy.Profile) {
-		if !a.operator(r) {
-			failure(w, buddy.ErrForbidden)
-			return
-		}
-		var input struct {
-			Key    string `json:"key"`
-			Status string `json:"status"`
-		}
-		if !decode(w, r, &input) {
-			return
-		}
-		if err := a.Service.Corporate.Event(r.Context(), p.ID, input.Key, input.Status); err != nil {
-			failure(w, err)
-			return
-		}
-		a.state(w, r, p)
-	}))
-	mux.HandleFunc("GET /api/demo/metrics", func(w http.ResponseWriter, r *http.Request) {
-		if !a.operator(r) {
-			failure(w, buddy.ErrForbidden)
-			return
-		}
-		counts, err := a.Sessions.Metrics(r.Context())
-		if err != nil {
-			failure(w, err)
-			return
-		}
-		respond(w, counts)
-	})
+	if !a.Production {
+		mux.HandleFunc("POST /api/demo/events", a.withProfile(func(w http.ResponseWriter, r *http.Request, p buddy.Profile) {
+			if !a.operator(r) {
+				failure(w, buddy.ErrForbidden)
+				return
+			}
+			var input struct {
+				Key    string `json:"key"`
+				Status string `json:"status"`
+			}
+			if !decode(w, r, &input) {
+				return
+			}
+			if a.Service.Operator == nil {
+				failure(w, buddy.ErrForbidden)
+				return
+			}
+			if err := a.Service.Operator.Event(r.Context(), p.ID, input.Key, input.Status); err != nil {
+				failure(w, err)
+				return
+			}
+			a.state(w, r, p)
+		}))
+		mux.HandleFunc("GET /api/demo/metrics", func(w http.ResponseWriter, r *http.Request) {
+			if !a.operator(r) {
+				failure(w, buddy.ErrForbidden)
+				return
+			}
+			counts, err := a.Sessions.Metrics(r.Context())
+			if err != nil {
+				failure(w, err)
+				return
+			}
+			respond(w, counts)
+		})
+	}
 	mux.HandleFunc("GET /api/diagnostics", a.withProfile(func(w http.ResponseWriter, r *http.Request, p buddy.Profile) {
 		state, err := a.Service.Repo.Read(r.Context(), p.ID)
 		if err != nil {
 			failure(w, err)
 			return
 		}
-		respond(w, map[string]any{"model": a.Service.Model.Name(), "prompt_version": model.PromptVersion, "events": state.Events, "simulation": true, "external_fallback": false})
+		events := state.Events
+		if audit, ok := a.Service.Repo.(buddy.AuditStore); ok {
+			events, err = audit.AuditEvents(r.Context(), p.ID, 200)
+			if err != nil {
+				failure(w, err)
+				return
+			}
+		}
+		respond(w, map[string]any{"model": a.Service.Model.Name(), "prompt_version": model.PromptVersion, "events": events, "simulation": !a.Production, "external_fallback": false})
 	}))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { failure(w, buddy.ErrNotFound) })
 	mux.HandleFunc("/", a.static)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return a.audited(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("X-Frame-Options", "DENY")
@@ -179,7 +211,7 @@ func (a *API) Handler() http.Handler {
 			}
 		}
 		mux.ServeHTTP(w, r)
-	})
+	}))
 }
 
 func (a *API) operator(r *http.Request) bool {
@@ -188,7 +220,7 @@ func (a *API) operator(r *http.Request) bool {
 
 func (a *API) withProfile(next func(http.ResponseWriter, *http.Request, buddy.Profile)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("buddy_session")
+		cookie, err := r.Cookie(a.sessionCookieName())
 		if err != nil {
 			unauthorized(w)
 			return
@@ -203,6 +235,28 @@ func (a *API) withProfile(next func(http.ResponseWriter, *http.Request, buddy.Pr
 			unauthorized(w)
 			return
 		}
+		if a.Production {
+			bound, ok := a.Sessions.(boundSessions)
+			if !ok {
+				unauthorized(w)
+				return
+			}
+			binding, err := bound.SessionBinding(r.Context(), cookie.Value)
+			if err != nil || binding != buddy.ProfileBinding(p) {
+				unauthorized(w)
+				return
+			}
+			buddy.SetAuditActor(r.Context(), p.ID)
+			if a.Service.Authorizer == nil {
+				failure(w, buddy.ErrForbidden)
+				return
+			}
+			if err := a.Service.Authorizer.Check(r.Context(), p, buddy.Resource{System: "ai-buddy", Kind: "account", ID: p.ID}, "read"); err != nil {
+				failure(w, err)
+				return
+			}
+		}
+		buddy.SetAuditActor(r.Context(), p.ID)
 		if expected := r.Header.Get("X-Buddy-Context"); expected != "" && expected != p.ID {
 			failure(w, buddy.ErrConflict)
 			return
@@ -212,6 +266,10 @@ func (a *API) withProfile(next func(http.ResponseWriter, *http.Request, buddy.Pr
 }
 
 func (a *API) login(w http.ResponseWriter, r *http.Request) {
+	if a.Production {
+		failure(w, buddy.ErrForbidden)
+		return
+	}
 	var input struct {
 		ProfileID string `json:"profile_id"`
 	}
@@ -232,13 +290,13 @@ func (a *API) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) logout(w http.ResponseWriter, r *http.Request) {
-	if cookie, err := r.Cookie("buddy_session"); err == nil {
+	if cookie, err := r.Cookie(a.sessionCookieName()); err == nil {
 		if err = a.Sessions.DeleteSession(r.Context(), cookie.Value); err != nil {
 			failure(w, err)
 			return
 		}
 	}
-	http.SetCookie(w, &http.Cookie{Name: "buddy_session", Value: "", Path: "/", HttpOnly: true, Secure: a.SecureCookie, SameSite: http.SameSiteLaxMode, MaxAge: -1})
+	http.SetCookie(w, &http.Cookie{Name: a.sessionCookieName(), Value: "", Path: "/", HttpOnly: true, Secure: a.SecureCookie, SameSite: http.SameSiteLaxMode, MaxAge: -1})
 	respond(w, map[string]bool{"ok": true})
 }
 
@@ -307,6 +365,10 @@ func failure(w http.ResponseWriter, err error) {
 		status, code, message = http.StatusGone, "expired", "Карточка устарела. Подготовь действие заново."
 	case errors.Is(err, buddy.ErrBusy):
 		status, code, message = http.StatusTooManyRequests, "busy", "Модель уже отвечает на другой вопрос. Повтори чуть позже."
+	case errors.Is(err, buddy.ErrConsentRequired):
+		status, code, message = http.StatusPreconditionRequired, "external_consent", "Подтверди отправку этого вопроса внешней модели."
+	case errors.Is(err, buddy.ErrDataPolicy):
+		status, code, message = http.StatusForbidden, "data_policy", "Для этого вопроса нужна модель во внутреннем контуре. Командные материалы наружу не отправлены."
 	case errors.Is(err, buddy.ErrUnavailable), errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled):
 		status, code, message = http.StatusServiceUnavailable, "unavailable", "Модель или сервис не ответили. Если отправлял заявку, сначала обнови её состояние: результат мог сохраниться."
 	}

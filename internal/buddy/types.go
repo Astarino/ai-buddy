@@ -7,45 +7,54 @@ import (
 )
 
 var (
-	ErrNotFound    = errors.New("not found")
-	ErrForbidden   = errors.New("forbidden")
-	ErrConflict    = errors.New("conflict")
-	ErrInvalid     = errors.New("invalid input")
-	ErrExpired     = errors.New("confirmation expired")
-	ErrUnavailable = errors.New("service unavailable")
-	ErrBusy        = errors.New("generation busy")
+	ErrNotFound        = errors.New("not found")
+	ErrForbidden       = errors.New("forbidden")
+	ErrConflict        = errors.New("conflict")
+	ErrInvalid         = errors.New("invalid input")
+	ErrExpired         = errors.New("confirmation expired")
+	ErrUnavailable     = errors.New("service unavailable")
+	ErrBusy            = errors.New("generation busy")
+	ErrConsentRequired = errors.New("external processing consent required")
+	ErrDataPolicy      = errors.New("model data policy denied")
 )
 
 type Profile struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Team      string `json:"team"`
-	TeamName  string `json:"team_name"`
-	Role      string `json:"role"`
-	Direction string `json:"direction"`
-	Mentor    string `json:"mentor"`
-	Day       int    `json:"day"`
-	Space     string `json:"space"`
-	Project   string `json:"project"`
+	ID               string   `json:"id"`
+	Name             string   `json:"name"`
+	Team             string   `json:"team"`
+	TeamName         string   `json:"team_name"`
+	Role             string   `json:"role"`
+	Direction        string   `json:"direction"`
+	Issuer           string   `json:"issuer,omitempty"`
+	Subject          string   `json:"subject,omitempty"`
+	InitialCompleted []string `json:"initial_completed,omitempty"`
+	Mentor           string   `json:"mentor"`
+	Day              int      `json:"day"`
+	Space            string   `json:"space"`
+	Project          string   `json:"project"`
 }
 
 type Document struct {
-	ID        string `json:"id"`
-	Title     string `json:"title"`
-	Body      string `json:"body"`
-	Team      string `json:"team"`
-	Scope     string `json:"scope"`
-	Resource  string `json:"resource,omitempty"`
-	Direction string `json:"direction,omitempty"`
-	Origin    string `json:"origin"`
-	URL       string `json:"url,omitempty"`
-	Version   string `json:"version"`
-	UpdatedAt string `json:"updated_at"`
-	Synthetic bool   `json:"synthetic"`
-	Keywords  string `json:"keywords"`
+	ID           string `json:"id"`
+	Title        string `json:"title"`
+	Body         string `json:"body"`
+	Team         string `json:"team"`
+	Scope        string `json:"scope"`
+	Resource     string `json:"resource,omitempty"`
+	System       string `json:"system,omitempty"`
+	ResourceKind string `json:"resource_kind,omitempty"`
+	DataClass    string `json:"data_class,omitempty"`
+	Direction    string `json:"direction,omitempty"`
+	Origin       string `json:"origin"`
+	URL          string `json:"url,omitempty"`
+	Version      string `json:"version"`
+	UpdatedAt    string `json:"updated_at"`
+	Synthetic    bool   `json:"synthetic"`
+	Keywords     string `json:"keywords"`
 }
 
 type Task struct {
+	Direction   string   `json:"direction,omitempty"`
 	ID          string   `json:"id"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
@@ -74,6 +83,7 @@ type Message struct {
 	ContextVersion int           `json:"context_version,omitempty"`
 	Blocked        bool          `json:"blocked,omitempty"`
 	RequestHash    string        `json:"request_hash,omitempty"`
+	ConsentTo      string        `json:"consent_to,omitempty"`
 }
 
 type DocumentRef struct {
@@ -106,10 +116,22 @@ type Operation struct {
 }
 
 type Event struct {
-	Type       string    `json:"type"`
-	ObjectID   string    `json:"object_id"`
-	At         time.Time `json:"at"`
-	DurationMS int64     `json:"duration_ms,omitempty"`
+	ID            string    `json:"id,omitempty"`
+	ActorID       string    `json:"actor_id,omitempty"`
+	OwnerID       string    `json:"owner_id,omitempty"`
+	Decision      string    `json:"decision,omitempty"`
+	Outcome       string    `json:"outcome,omitempty"`
+	CorrelationID string    `json:"correlation_id,omitempty"`
+	PolicyVersion string    `json:"policy_version,omitempty"`
+	Type          string    `json:"type"`
+	ObjectID      string    `json:"object_id"`
+	At            time.Time `json:"at"`
+	DurationMS    int64     `json:"duration_ms,omitempty"`
+}
+
+type AuditStore interface {
+	AppendAudit(context.Context, Event) error
+	AuditEvents(context.Context, string, int) ([]Event, error)
 }
 
 type State struct {
@@ -121,7 +143,7 @@ type State struct {
 }
 
 func EmptyState() State {
-	return State{Messages: []Message{}, Actions: []Action{}, Completed: map[string]bool{"meet-team": true}, Events: []Event{}}
+	return State{Messages: []Message{}, Actions: []Action{}, Completed: map[string]bool{}, Events: []Event{}}
 }
 
 type View struct {
@@ -146,17 +168,31 @@ type Repository interface {
 type Corporate interface {
 	List(context.Context, string) ([]Operation, error)
 	Execute(context.Context, string, Action) (Operation, error)
+}
+
+type DemoOperator interface {
 	Event(context.Context, string, string, string) error
 }
 
+type Resource struct {
+	System string `json:"system"`
+	Kind   string `json:"kind"`
+	ID     string `json:"id"`
+}
+
+type Authorizer interface {
+	Check(context.Context, Profile, Resource, string) error
+}
+
 type AnswerInput struct {
-	Question  string     `json:"question"`
-	Team      string     `json:"team"`
-	Day       int        `json:"day"`
-	Documents []Document `json:"documents"`
-	History   []Message  `json:"history"`
-	Direction string     `json:"direction"`
-	Role      string     `json:"role"`
+	ApprovedExternal bool       `json:"-"`
+	Question         string     `json:"question"`
+	Team             string     `json:"team"`
+	Day              int        `json:"day"`
+	Documents        []Document `json:"documents"`
+	History          []Message  `json:"history"`
+	Direction        string     `json:"direction"`
+	Role             string     `json:"role"`
 }
 
 type Answer struct {
@@ -168,4 +204,10 @@ type Answer struct {
 type Model interface {
 	Answer(context.Context, AnswerInput) (Answer, error)
 	Name() string
+	Boundary() ModelBoundary
+}
+
+type ModelBoundary struct {
+	External        bool
+	Endpoint, Token string
 }

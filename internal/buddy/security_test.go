@@ -32,7 +32,7 @@ func TestReplayRechecksRevokedAccess(t *testing.T) {
 	if !closed {
 		t.Fatal("audit setup: original answer must use a closed source")
 	}
-	if err := s.Corporate.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
+	if err := s.Operator.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
 		t.Fatal(err)
 	}
 	view, err := s.View(ctx, p)
@@ -91,7 +91,7 @@ func TestRevocationIgnoresModelCitationClaims(t *testing.T) {
 						t.Fatal("audit setup: missing public source")
 					}
 				}
-				if err := s.Corporate.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
+				if err := s.Operator.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
 					t.Fatal(err)
 				}
 				return buddy.Answer{Text: closedBody, SourceIDs: sources, NeedsClarification: !usePublicSource}, nil
@@ -170,6 +170,9 @@ func TestUnrelated403NeedsResourceClarification(t *testing.T) {
 	if msg.ActionID != "" {
 		t.Error("GitHub 403 prepared a Confluence access action without resource clarification")
 	}
+	if !strings.Contains(msg.Text, "странице GitHub") || strings.Contains(msg.Text, "какой сервис") {
+		t.Fatal("asked for an already known service", msg.Text)
+	}
 }
 
 func TestChangedReasonNeedsNewConfirmation(t *testing.T) {
@@ -202,7 +205,7 @@ func TestHistoryDependenciesSurvivePublicOnlyCitations(t *testing.T) {
 	if err != nil || len(second.SourceIDs) != 1 || second.SourceIDs[0] != "checklist" {
 		t.Fatal("setup: expected public-only citation", second, err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
 		t.Fatal(err)
 	}
 	view, err := s.View(ctx, p)

@@ -53,3 +53,21 @@ func TestLegacyAnswersAndChangedSourcesAreNotReusable(t *testing.T) {
 		t.Fatal("restricted source metadata leaked", visible)
 	}
 }
+
+func TestSecretValuesAreExcludedAndContextIsBounded(t *testing.T) {
+	input := AnswerInput{Question: "Как проверить пример?", Documents: []Document{{ID: "guide", Body: strings.Repeat("я", 1200), Keywords: "internal-retrieval-terms"}}}
+	clean, err := input.Sanitized()
+	if err != nil || len([]rune(clean.Documents[0].Body)) != 900 || clean.Documents[0].Keywords != "" || len([]rune(input.Documents[0].Body)) != 1200 {
+		t.Fatal("document clipping or snapshot isolation failed", err)
+	}
+	input.Documents[0].Body = "password=synthetic-password-value"
+	if _, err := input.Sanitized(); err != ErrForbidden {
+		t.Fatal("credential source reached the model", err)
+	}
+	c := LoadCatalog()
+	p, _ := c.Profile("anton")
+	c.Documents = append(c.Documents, Document{ID: "secret-source", Scope: "team", Body: "Bearer SYNTHETIC_SECRET_VALUE"})
+	if _, err := c.Document(p, true, "secret-source"); err != ErrNotFound {
+		t.Fatal("credential source visible", err)
+	}
+}

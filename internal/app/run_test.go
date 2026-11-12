@@ -2,11 +2,16 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"net"
 	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/Astarino/ai-buddy/internal/buddy"
 	"github.com/Astarino/ai-buddy/internal/testsupport"
 )
 
@@ -19,6 +24,114 @@ func freeAddress(t *testing.T) string {
 	address := listener.Addr().String()
 	listener.Close()
 	return address
+}
+
+func TestCorporateModeRequiresIdentityAuthorityAndNoDemoControls(t *testing.T) {
+	t.Setenv("APP_MODE", "unknown")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("unknown mode accepted")
+	}
+	t.Setenv("APP_MODE", "corporate")
+	if err := RunContext(context.Background(), "corporate"); err == nil {
+		t.Fatal("simulator started as corporate backend")
+	}
+	db := testsupport.Database(t)
+	t.Setenv("DATABASE_URL", db.Pool.Config().ConnString())
+	t.Setenv("MODEL_PROVIDER", "ollama")
+	t.Setenv("MODEL_NAME", "not-loaded-in-tests")
+	t.Setenv("MODEL_BASE_URL", "http://127.0.0.1:11434")
+	t.Setenv("MODEL_API_KEY", "")
+	t.Setenv("MODEL_DATA_POLICY", "internal")
+	t.Setenv("CORPORATE_TOKEN", "synthetic-corporate-service")
+	t.Setenv("CORPORATE_BASE_URL", "http://127.0.0.1:8091")
+	t.Setenv("SECURE_COOKIE", "true")
+	t.Setenv("DEMO_OPERATOR_TOKEN", "must-be-disabled")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("corporate mode kept demo controls")
+	}
+	t.Setenv("DEMO_OPERATOR_TOKEN", "")
+	t.Setenv("CATALOG_FILE", filepath.Join(t.TempDir(), "not-present"))
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("embedded demo directory used in corporate mode")
+	}
+	var provider *httptest.Server
+	provider = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(map[string]any{"issuer": provider.URL, "authorization_endpoint": provider.URL + "/authorize", "token_endpoint": provider.URL + "/token", "jwks_uri": provider.URL + "/keys", "id_token_signing_alg_values_supported": []string{"RS256"}})
+	}))
+	defer provider.Close()
+	catalog := buddy.LoadCatalog()
+	for i := range catalog.Profiles {
+		catalog.Profiles[i].Issuer = provider.URL
+		catalog.Profiles[i].Subject = "subject-" + catalog.Profiles[i].ID
+	}
+	file := filepath.Join(t.TempDir(), "trusted-catalog.json")
+	raw, _ := json.Marshal(catalog)
+	if err := os.WriteFile(file, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("CATALOG_FILE", file)
+	t.Setenv("AUTHORIZATION_BASE_URL", "https://authority.example")
+	t.Setenv("AUTHORIZATION_TOKEN", "")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("missing resource authority accepted")
+	}
+	t.Setenv("AUTHORIZATION_TOKEN", "synthetic-authority-token")
+	t.Setenv("OIDC_CLIENT_ID", "buddy-client")
+	t.Setenv("OIDC_CLIENT_SECRET", "synthetic-client-secret")
+	t.Setenv("OIDC_ISSUER", "http://unsafe-external.example")
+	t.Setenv("OIDC_REDIRECT_URL", "https://buddy.example/api/login/callback")
+	t.Setenv("OIDC_TRUSTED_ORIGINS", "")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("unsafe identity provider accepted")
+	}
+	t.Setenv("OIDC_ISSUER", provider.URL)
+	address := freeAddress(t)
+	t.Setenv("APP_ADDR", address)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() { done <- RunContext(ctx, "server") }()
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		resp, err := http.Get("http://" + address + "/api/bootstrap")
+		if err == nil {
+			var result struct {
+				Demo     bool
+				Profiles []buddy.Profile
+				LoginURL string `json:"login_url"`
+			}
+			err = json.NewDecoder(resp.Body).Decode(&result)
+			resp.Body.Close()
+			if err != nil || result.Demo || len(result.Profiles) != 0 || result.LoginURL != "/api/login" {
+				t.Fatal(result, err)
+			}
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("corporate server did not start", err)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	cancel()
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("APP_MODE", "demo")
+	t.Setenv("MODEL_DATA_POLICY", "invalid-policy")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("unknown processing policy accepted")
+	}
+	t.Setenv("MODEL_DATA_POLICY", "internal")
+	t.Setenv("MODEL_BASE_URL", "https://approved-model.example/v1")
+	t.Setenv("ALLOW_EXTERNAL_MODEL", "true")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("external model started without data policy")
+	}
+	t.Setenv("MODEL_BASE_URL", "http://127.0.0.1:11434")
+	t.Setenv("CORPORATE_BASE_URL", "http://unsafe-corporate.example")
+	if err := RunContext(context.Background(), "server"); err == nil {
+		t.Fatal("unsafe corporate URL accepted")
+	}
 }
 
 func TestConfiguredProcessesStartAndShutDown(t *testing.T) {

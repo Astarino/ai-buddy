@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +13,56 @@ import (
 
 	"github.com/Astarino/ai-buddy/internal/buddy"
 )
+
+type testTransport func(*http.Request) (*http.Response, error)
+
+func (f testTransport) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func TestExternalPayloadRequiresConsentAndDropsInternalContext(t *testing.T) {
+	m, err := New("compatible", "https://approved-model.example/v1", "qwen", "synthetic-server-key", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := m.(*Client)
+	calls, source := 0, "source-1"
+	client.HTTP.Transport = testTransport(func(r *http.Request) (*http.Response, error) {
+		calls++
+		raw, _ := io.ReadAll(r.Body)
+		for _, private := range []string{"PRIVATE_TEAM", "PRIVATE_HISTORY", "native-doc-42", "native-space", "INTERNAL_ORIGIN", "internal-policy-v1"} {
+			if strings.Contains(string(raw), private) {
+				t.Fatal("internal metadata sent externally", private)
+			}
+		}
+		if r.Header.Get("Authorization") != "Bearer synthetic-server-key" {
+			t.Fatal("provider authentication missing")
+		}
+		answer, _ := json.Marshal(buddy.Answer{Text: "Публичный ответ", SourceIDs: []string{source}})
+		body, _ := json.Marshal(map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(answer)}}}})
+		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(string(body))), Header: make(http.Header)}, nil
+	})
+	doc := buddy.Document{ID: "native-doc-42", Title: "Публичный материал", Body: "Публичные сведения", Scope: "public", DataClass: "public", System: "native-space", Resource: "native-space", Origin: "INTERNAL_ORIGIN", Version: "internal-policy-v1"}
+	input := buddy.AnswerInput{Question: "Как работает этот процесс?", Team: "PRIVATE_TEAM", Role: "PRIVATE_TEAM", History: []buddy.Message{{Role: "user", Text: "PRIVATE_HISTORY"}}, Documents: []buddy.Document{doc}}
+	if _, err := client.Answer(context.Background(), input); !errors.Is(err, buddy.ErrDataPolicy) || calls != 0 {
+		t.Fatal("external call without consent", err, calls)
+	}
+	input.ApprovedExternal = true
+	input.Documents[0].DataClass = "internal"
+	if _, err := client.Answer(context.Background(), input); !errors.Is(err, buddy.ErrDataPolicy) || calls != 0 {
+		t.Fatal("internal document sent", err, calls)
+	}
+	input.Documents[0].DataClass = "public"
+	answer, err := client.Answer(context.Background(), input)
+	if err != nil || len(answer.SourceIDs) != 1 || answer.SourceIDs[0] != doc.ID || calls != 1 {
+		t.Fatal("public citation not mapped back", answer, err, calls)
+	}
+	source = "not-provided-to-model"
+	if _, err := client.Answer(context.Background(), input); !errors.Is(err, buddy.ErrUnavailable) {
+		t.Fatal("unknown external citation accepted", err)
+	}
+	if !client.Boundary().External || client.Boundary().Token == "" {
+		t.Fatal("external boundary not described")
+	}
+}
 
 func TestProviderConfiguration(t *testing.T) {
 	for _, tc := range []struct {

@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { ActionCard } from './components';
 import { api, ApiError } from './api';
 import { action, fullSource, operation, profiles, workspace } from './test/fixtures';
 import type { Workspace } from './types';
@@ -81,6 +82,75 @@ async function start() {
   render(<App />);
   await screen.findByRole('heading', { name: 'Привет, Антон.' });
 }
+
+describe('Корпоративный вход и передача данных', () => {
+  it('uses corporate login without showing demo identities', async () => {
+    mock.state.mockRejectedValue(new ApiError('unauthorized', 'Войди', 401));
+    mock.bootstrap.mockResolvedValue({
+      profiles: [],
+      model: state.model,
+      demo: false,
+      login_url: '/api/login',
+    });
+    render(<App />);
+    expect(await screen.findByRole('link', { name: 'Войти через компанию' })).toHaveAttribute(
+      'href',
+      '/api/login',
+    );
+    expect(
+      screen.queryByRole('heading', { name: 'Выбери тестовый профиль' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('ДЕМОНСТРАЦИОННЫЙ КОНТУР')).not.toBeInTheDocument();
+  });
+
+  it('sends an external question only after reviewing that question and provider', async () => {
+    mock.bootstrap.mockResolvedValue({
+      profiles,
+      model: 'approved-model',
+      demo: true,
+      external_model: true,
+      model_endpoint: 'https://approved.example/v1',
+      consent_to: 'destination-one',
+    });
+    await start();
+    const user = userEvent.setup();
+    const composer = screen.getByRole('textbox', { name: 'Сообщение AI Buddy' });
+    await user.type(composer, 'Как проверить публичный пример?');
+    await user.click(screen.getByRole('button', { name: 'Отправить сообщение' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent('https://approved.example/v1');
+    expect(dialog).toHaveTextContent('Как проверить публичный пример?');
+    expect(mock.message).not.toHaveBeenCalled();
+    await user.click(within(dialog).getByRole('button', { name: 'Отмена' }));
+    expect(composer).toHaveValue('Как проверить публичный пример?');
+    await user.click(screen.getByRole('button', { name: 'Отправить сообщение' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Отправить вопрос' }),
+    );
+    await waitFor(() =>
+      expect(mock.message).toHaveBeenCalledWith(
+        expect.any(String),
+        'Как проверить публичный пример?',
+        'destination-one',
+      ),
+    );
+  });
+
+  it('disables a replaced confirmation card', () => {
+    const confirm = vi.fn();
+    render(
+      <ActionCard
+        action={{ ...action(), status: 'superseded' }}
+        busy={false}
+        onConfirm={confirm}
+        onRecreate={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Параметры изменились. Используй новую карточку.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Отправить заявку' })).not.toBeInTheDocument();
+    expect(confirm).not.toHaveBeenCalled();
+  });
+});
 function close() {
   return userEvent.click(screen.getByRole('button', { name: 'Закрыть панель' }));
 }

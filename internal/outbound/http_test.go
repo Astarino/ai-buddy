@@ -2,8 +2,10 @@ package outbound
 
 import (
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -47,4 +49,31 @@ func TestRedirectNeverResendsCredentialsOrBody(t *testing.T) {
 			t.Fatal("redirect followed", status, forwarded.Load())
 		}
 	}
+}
+
+func TestLocalNamesCannotResolveToPublicDestinations(t *testing.T) {
+	for _, tc := range []struct {
+		host, ip string
+		allowed  bool
+	}{
+		{"localhost", "127.0.0.1", true}, {"localhost", "203.0.113.17", false}, {"localhost", "10.0.0.1", false},
+		{"ollama", "172.17.0.2", true}, {"corporate", "192.168.1.2", true}, {"host.docker.internal", "10.0.0.2", true},
+		{"ollama", "203.0.113.17", false}, {"ollama", "169.254.169.254", false},
+	} {
+		if localAddressAllowed(tc.host, net.ParseIP(tc.ip)) != tc.allowed {
+			t.Fatal(tc)
+		}
+	}
+	transport := Client(time.Second).Transport.(*http.Transport)
+	proxy, err := transport.Proxy(&http.Request{URL: &url.URL{Scheme: "http", Host: "corporate:8091"}})
+	if err != nil || proxy != nil {
+		t.Fatal("private service used environment proxy", proxy, err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) }))
+	defer server.Close()
+	resp, err := Client(time.Second).Get(strings.Replace(server.URL, "127.0.0.1", "localhost", 1))
+	if err != nil {
+		t.Fatal("localhost lost IPv4/IPv6 fallback", err)
+	}
+	resp.Body.Close()
 }

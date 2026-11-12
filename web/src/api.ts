@@ -64,7 +64,12 @@ export const api = {
     contextID = '';
     return request<{ ok: boolean }>('/session', { method: 'DELETE', body: '{}' });
   },
-  message: (id: string, text: string) => post<Message>('/messages', { id, text }),
+  message: (id: string, text: string, externalConsent = '') =>
+    post<Message>('/messages', {
+      id,
+      text,
+      ...(externalConsent ? { external_consent: externalConsent } : {}),
+    }),
   prepare: (kind: 'access' | 'issue', reason: string) => post<Action>('/actions', { kind, reason }),
   confirm: (id: string) => post<Operation>(`/actions/${encodeURIComponent(id)}/confirm`, {}),
   complete: (id: string) => post<Workspace>(`/tasks/${encodeURIComponent(id)}/complete`, {}),

@@ -39,6 +39,10 @@ func (c *Client) call(ctx context.Context, method, path, token string, body, tar
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
+	_, correlation := buddy.AuditIdentity(ctx)
+	if correlation != "" {
+		req.Header.Set("X-Buddy-Request-ID", correlation)
+	}
 	resp, err := c.HTTP.Do(req)
 	if err != nil {
 		return buddy.ErrUnavailable

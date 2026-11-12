@@ -10,7 +10,10 @@
       "day": 3,
       "space": "CATALOG",
       "project": "CAT",
-      "direction": "backend"
+      "direction": "backend",
+      "initial_completed": [
+        "meet-team"
+      ]
     },
     {
       "id": "irina",
@@ -22,7 +25,10 @@
       "day": 3,
       "space": "DELIVERY",
       "project": "DLV",
-      "direction": "backend"
+      "direction": "backend",
+      "initial_completed": [
+        "meet-team"
+      ]
     }
   ],
   "documents": [
@@ -37,7 +43,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "access-policy"
     },
     {
       "id": "checklist",
@@ -50,7 +60,11 @@
       "url": "https://docs.google.com/spreadsheets/d/1qKFqOzfSZ2jEz57jBSmq7rukDXi_tRfWohgemViceV0/edit",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": false
+      "synthetic": false,
+      "data_class": "public",
+      "system": "public",
+      "resource_kind": "document",
+      "resource": "checklist"
     },
     {
       "id": "engineering",
@@ -63,7 +77,11 @@
       "url": "https://github.com/avito-tech/playbook/blob/master/development-principles.md",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": false
+      "synthetic": false,
+      "data_class": "public",
+      "system": "public",
+      "resource_kind": "document",
+      "resource": "engineering"
     },
     {
       "id": "backend-checklist",
@@ -77,7 +95,11 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": false,
-      "direction": "backend"
+      "direction": "backend",
+      "data_class": "public",
+      "system": "public",
+      "resource_kind": "document",
+      "resource": "backend-checklist"
     },
     {
       "id": "mentor-question",
@@ -90,7 +112,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "mentor-question"
     },
     {
       "id": "source-policy",
@@ -103,7 +129,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "source-policy"
     },
     {
       "id": "security-basics",
@@ -116,7 +146,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "security-basics"
     },
     {
       "id": "demo-readme",
@@ -129,7 +163,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "demo-readme"
     },
     {
       "id": "catalog-welcome",
@@ -142,7 +180,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "catalog-welcome"
     },
     {
       "id": "catalog-guide",
@@ -156,7 +198,10 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": true,
-      "resource": "CATALOG"
+      "resource": "CATALOG",
+      "data_class": "internal",
+      "system": "confluence",
+      "resource_kind": "space"
     },
     {
       "id": "catalog-first-task",
@@ -170,7 +215,10 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": true,
-      "resource": "CATALOG"
+      "resource": "CATALOG",
+      "data_class": "internal",
+      "system": "confluence",
+      "resource_kind": "space"
     },
     {
       "id": "catalog-environment",
@@ -183,7 +231,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "catalog-environment"
     },
     {
       "id": "catalog-review",
@@ -197,7 +249,10 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": true,
-      "resource": "CATALOG"
+      "resource": "CATALOG",
+      "data_class": "internal",
+      "system": "confluence",
+      "resource_kind": "space"
     },
     {
       "id": "catalog-mentor-private",
@@ -210,7 +265,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "catalog-mentor-private"
     },
     {
       "id": "delivery-welcome",
@@ -223,7 +282,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "delivery-welcome"
     },
     {
       "id": "delivery-guide",
@@ -237,7 +300,10 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": true,
-      "resource": "DELIVERY"
+      "resource": "DELIVERY",
+      "data_class": "internal",
+      "system": "confluence",
+      "resource_kind": "space"
     },
     {
       "id": "delivery-first-task",
@@ -251,7 +317,10 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": true,
-      "resource": "DELIVERY"
+      "resource": "DELIVERY",
+      "data_class": "internal",
+      "system": "confluence",
+      "resource_kind": "space"
     },
     {
       "id": "delivery-environment",
@@ -264,7 +333,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "delivery-environment"
     },
     {
       "id": "delivery-review",
@@ -278,7 +351,10 @@
       "version": "1.0",
       "updated_at": "2026-11-11",
       "synthetic": true,
-      "resource": "DELIVERY"
+      "resource": "DELIVERY",
+      "data_class": "internal",
+      "system": "confluence",
+      "resource_kind": "space"
     },
     {
       "id": "delivery-mentor-private",
@@ -291,7 +367,11 @@
       "url": "",
       "version": "1.0",
       "updated_at": "2026-11-11",
-      "synthetic": true
+      "synthetic": true,
+      "data_class": "internal",
+      "system": "demo",
+      "resource_kind": "document",
+      "resource": "delivery-mentor-private"
     }
   ],
   "tasks": [
@@ -358,7 +438,8 @@
       "document_id": "backend-checklist",
       "source": "Backend, A12–A13",
       "source_url": "https://docs.google.com/spreadsheets/d/1qKFqOzfSZ2jEz57jBSmq7rukDXi_tRfWohgemViceV0/edit",
-      "status": "available"
+      "status": "available",
+      "direction": "backend"
     },
     {
       "id": "sentry",
@@ -371,7 +452,8 @@
       "document_id": "backend-checklist",
       "source": "Backend, A15",
       "source_url": "https://docs.google.com/spreadsheets/d/1qKFqOzfSZ2jEz57jBSmq7rukDXi_tRfWohgemViceV0/edit",
-      "status": "available"
+      "status": "available",
+      "direction": "backend"
     },
     {
       "id": "read-guide",
@@ -399,7 +481,8 @@
       "document_id": "backend-checklist",
       "source": "Backend, A23",
       "source_url": "https://docs.google.com/spreadsheets/d/1qKFqOzfSZ2jEz57jBSmq7rukDXi_tRfWohgemViceV0/edit",
-      "status": "available"
+      "status": "available",
+      "direction": "backend"
     },
     {
       "id": "data-storage",

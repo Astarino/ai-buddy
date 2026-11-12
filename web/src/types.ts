@@ -4,6 +4,7 @@ export interface Profile {
   team: string;
   team_name: string;
   role: string;
+  direction?: string;
   mentor: string;
   day: number;
   space: string;
@@ -85,4 +86,8 @@ export interface Bootstrap {
   profiles: Profile[];
   model: string;
   demo: boolean;
+  login_url?: string;
+  external_model?: boolean;
+  model_endpoint?: string;
+  consent_to?: string;
 }

@@ -45,7 +45,21 @@ func HasAccess(ops []Operation) bool {
 
 func (c Catalog) Allowed(p Profile, granted bool) []Document {
 	docs := []Document{}
+	for _, d := range c.Eligible(p) {
+		if d.Scope == "space" && (!granted || d.Resource == "" || d.Resource != p.Space || d.Team != p.Team) {
+			continue
+		}
+		docs = append(docs, d)
+	}
+	return docs
+}
+
+func (c Catalog) Eligible(p Profile) []Document {
+	docs := []Document{}
 	for _, d := range c.Documents {
+		if containsCredentialValue(d.Title + " " + d.Body) {
+			continue
+		}
 		if d.Team != "" && d.Team != p.Team {
 			continue
 		}
@@ -53,11 +67,7 @@ func (c Catalog) Allowed(p Profile, granted bool) []Document {
 			continue
 		}
 		switch d.Scope {
-		case "public", "team":
-		case "space":
-			if !granted || d.Team != p.Team || d.Resource == "" || d.Resource != p.Space {
-				continue
-			}
+		case "public", "team", "space":
 		default:
 			continue
 		}
@@ -142,10 +152,15 @@ func Search(docs []Document, query string) []Document {
 }
 
 func (c Catalog) Route(p Profile, state State, ops []Operation) ([]Task, string) {
-	tasks := make([]Task, len(c.Tasks))
+	tasks := []Task{}
 	done := map[string]bool{}
 	for k, v := range state.Completed {
 		done[k] = v
+	}
+	if p.Issuer == "" {
+		for _, id := range p.InitialCompleted {
+			done[id] = true
+		}
 	}
 	done["space-access"] = HasAccess(ops)
 	for _, op := range ops {
@@ -157,7 +172,10 @@ func (c Catalog) Route(p Profile, state State, ops []Operation) ([]Task, string)
 		}
 	}
 	next := ""
-	for i, base := range c.Tasks {
+	for _, base := range c.Tasks {
+		if base.Direction != "" && base.Direction != p.Direction {
+			continue
+		}
 		t := base
 		if t.DocumentID == "team-guide" {
 			t.DocumentID = p.Team + "-guide"
@@ -186,7 +204,7 @@ func (c Catalog) Route(p Profile, state State, ops []Operation) ([]Task, string)
 		if next == "" && t.Status == "available" {
 			next = t.ID
 		}
-		tasks[i] = t
+		tasks = append(tasks, t)
 	}
 	return tasks, next
 }

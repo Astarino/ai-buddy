@@ -92,16 +92,16 @@ func TestAccessToFirstTaskJourney(t *testing.T) {
 	if _, err := s.Prepare(ctx, p, "access", "Повторная новая заявка"); !errors.Is(err, buddy.ErrConflict) {
 		t.Fatal(err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, a.ID, "granted"); !errors.Is(err, buddy.ErrConflict) {
+	if err = s.Operator.Event(ctx, p.ID, a.ID, "granted"); !errors.Is(err, buddy.ErrConflict) {
 		t.Fatal(err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, a.ID, "approved"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, a.ID, "approved"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = s.Document(ctx, p, "catalog-guide"); !errors.Is(err, buddy.ErrNotFound) {
 		t.Fatal("approved must not grant access", err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, a.ID, "granted"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, a.ID, "granted"); err != nil {
 		t.Fatal(err)
 	}
 	doc, err := s.Document(ctx, p, "catalog-guide")
@@ -135,7 +135,7 @@ func TestAccessToFirstTaskJourney(t *testing.T) {
 	if err = s.Complete(ctx, p, "finish-issue"); !errors.Is(err, buddy.ErrForbidden) {
 		t.Fatal(err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, issue.ID, "done"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, issue.ID, "done"); err != nil {
 		t.Fatal(err)
 	}
 	view, err = s.View(ctx, p)
@@ -158,7 +158,7 @@ func TestRightsRevocationAndHistory(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, status := range []string{"approved", "granted"} {
-		if err = s.Corporate.Event(ctx, p.ID, a.ID, status); err != nil {
+		if err = s.Operator.Event(ctx, p.ID, a.ID, status); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -166,7 +166,7 @@ func TestRightsRevocationAndHistory(t *testing.T) {
 	if err != nil || len(msg.SourceIDs) == 0 {
 		t.Fatal(msg, err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
 		t.Fatal(err)
 	}
 	view, err := s.View(ctx, p)
@@ -243,7 +243,7 @@ func TestActionExpiryAndRecovery(t *testing.T) {
 	if err != nil || len(viewAfterRetry.Messages) != messageCount {
 		t.Fatal("reconciliation must not duplicate the receipt", err, viewAfterRetry.Messages)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, newAction.ID, "rejected"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, newAction.ID, "rejected"); err != nil {
 		t.Fatal(err)
 	}
 	view, err := s.View(ctx, p)
@@ -263,7 +263,8 @@ type answerFunc func(context.Context, buddy.AnswerInput) (buddy.Answer, error)
 func (f answerFunc) Answer(ctx context.Context, in buddy.AnswerInput) (buddy.Answer, error) {
 	return f(ctx, in)
 }
-func (answerFunc) Name() string { return "test-model" }
+func (answerFunc) Name() string                  { return "test-model" }
+func (answerFunc) Boundary() buddy.ModelBoundary { return buddy.ModelBoundary{} }
 
 func TestChatValidationClarificationAndIsolation(t *testing.T) {
 	s, p, other := world(t)
@@ -344,7 +345,7 @@ func TestServiceUnavailableFailsClosed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, "", "unavailable"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, "", "unavailable"); err != nil {
 		t.Fatal(err)
 	}
 	view, err := s.View(ctx, p)
@@ -393,11 +394,11 @@ func TestReconciledReceiptUsesAuthoritativeStatus(t *testing.T) {
 			if _, err = s.Corporate.Execute(ctx, p.ID, a); err != nil {
 				t.Fatal(err)
 			}
-			if err = s.Corporate.Event(ctx, p.ID, a.ID, "approved"); err != nil {
+			if err = s.Operator.Event(ctx, p.ID, a.ID, "approved"); err != nil {
 				t.Fatal(err)
 			}
 			if final == "granted" {
-				if err = s.Corporate.Event(ctx, p.ID, a.ID, "granted"); err != nil {
+				if err = s.Operator.Event(ctx, p.ID, a.ID, "granted"); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -426,7 +427,7 @@ func TestReconciledReceiptUsesAuthoritativeStatus(t *testing.T) {
 	if _, err = s.Corporate.Execute(ctx, p.ID, a); err != nil {
 		t.Fatal(err)
 	}
-	if err = s.Corporate.Event(ctx, p.ID, a.ID, "done"); err != nil {
+	if err = s.Operator.Event(ctx, p.ID, a.ID, "done"); err != nil {
 		t.Fatal(err)
 	}
 	view, err := s.View(ctx, p)

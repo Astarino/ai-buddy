@@ -3,6 +3,7 @@ package corporate
 import (
 	"context"
 	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -34,6 +35,10 @@ func authorized(r *http.Request, token string) bool {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	correlation := r.Header.Get("X-Buddy-Request-ID")
+	if raw, err := hex.DecodeString(correlation); err != nil || len(raw) != 16 {
+		correlation = buddy.NewID()
+	}
 	w.Header().Set("Content-Type", "application/json")
 	if r.URL.Path == "/health" && r.Method == http.MethodGet {
 		w.Write([]byte(`{"status":"ok","simulation":true}`))
@@ -68,7 +73,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"ok":true}`))
 			return
 		}
-		err := s.transition(r.Context(), input.UserID, input.Key, input.Status)
+		ctx := buddy.WithAudit(r.Context(), "demo-operator", correlation)
+		err := s.transition(ctx, input.UserID, input.Key, input.Status)
 		write(w, map[string]bool{"ok": err == nil}, err)
 		return
 	}
@@ -104,7 +110,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
-		op, err := s.create(r.Context(), input.UserID, input.Action)
+		op, err := s.create(buddy.WithAudit(r.Context(), "demo-service", correlation), input.UserID, input.Action)
 		if err == nil && s.fault(input.UserID) == "lost_response" {
 			timer := time.NewTimer(s.ResponseDelay)
 			defer timer.Stop()
@@ -248,6 +254,9 @@ func (s *Server) create(ctx context.Context, owner string, a buddy.Action) (budd
 	if _, err = tx.Exec(ctx, "INSERT INTO corporate_operations(operation_key,user_id,body) VALUES($1,$2,$3)", a.ID, owner, raw); err != nil {
 		return op, err
 	}
+	if err := s.DB.AuditOperation(ctx, tx, owner, a.ID, "operation_created", op.Status); err != nil {
+		return buddy.Operation{}, err
+	}
 	return op, tx.Commit(ctx)
 }
 
@@ -279,6 +288,7 @@ func (s *Server) transition(ctx context.Context, owner, key, status string) erro
 	if !valid {
 		return buddy.ErrConflict
 	}
+	previous := op.Status
 	op.Status, op.UpdatedAt = status, time.Now().UTC()
 	op.Note = map[string]string{"approved": "Владелец согласовал. Сервис ещё не выдал права.", "granted": "Тестовое событие: сервис подтвердил выдачу прав.", "rejected": "Тестовый отказ владельца: уточни необходимость ресурса с наставником.", "revoked": "Тестовое событие: права отозваны.", "done": "Тестовое событие Jira: задача и ревью завершены.", "pending": op.Note, "assigned": op.Note}[status]
 	raw, err = json.Marshal(op)
@@ -287,6 +297,11 @@ func (s *Server) transition(ctx context.Context, owner, key, status string) erro
 	}
 	if _, err = tx.Exec(ctx, "UPDATE corporate_operations SET body=$2,updated_at=now() WHERE operation_key=$1", key, raw); err != nil {
 		return err
+	}
+	if status != previous {
+		if err := s.DB.AuditOperation(ctx, tx, owner, key, "resource_transition", status); err != nil {
+			return err
+		}
 	}
 	return tx.Commit(ctx)
 }

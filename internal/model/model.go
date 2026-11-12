@@ -3,6 +3,8 @@ package model
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -37,12 +39,13 @@ var schema = map[string]any{
 }
 
 type Client struct {
-	Provider string
-	BaseURL  string
-	Model    string
-	Key      string
-	HTTP     *http.Client
-	gate     chan struct{}
+	Provider        string
+	BaseURL         string
+	Model           string
+	Key             string
+	HTTP            *http.Client
+	gate            chan struct{}
+	externalAllowed bool
 }
 
 func New(provider, baseURL, name, key string, external bool) (buddy.Model, error) {
@@ -63,10 +66,16 @@ func New(provider, baseURL, name, key string, external bool) (buddy.Model, error
 	if strings.TrimSpace(name) == "" {
 		return nil, fmt.Errorf("model name is required")
 	}
-	return &Client{provider, strings.TrimRight(baseURL, "/"), name, key, outbound.Client(90 * time.Second), make(chan struct{}, 1)}, nil
+	return &Client{Provider: provider, BaseURL: strings.TrimRight(baseURL, "/"), Model: name, Key: key, HTTP: outbound.Client(90 * time.Second), gate: make(chan struct{}, 1), externalAllowed: external}, nil
 }
 
 func (c *Client) Name() string { return c.Provider + ":" + c.Model }
+
+func (c *Client) Boundary() buddy.ModelBoundary {
+	u, err := outbound.ValidateBaseURL(c.BaseURL)
+	digest := sha256.Sum256([]byte(c.Provider + "\x00" + c.BaseURL + "\x00" + c.Model))
+	return buddy.ModelBoundary{External: err != nil || !outbound.Local(u), Endpoint: c.BaseURL, Token: hex.EncodeToString(digest[:])}
+}
 
 func (c *Client) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Answer, error) {
 	select {
@@ -81,6 +90,27 @@ func (c *Client) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Ans
 	input, err := input.Sanitized()
 	if err != nil {
 		return buddy.Answer{}, err
+	}
+	if _, err := outbound.ValidateBaseURL(c.BaseURL); err != nil {
+		return buddy.Answer{}, buddy.ErrUnavailable
+	}
+	sourceMap := map[string]string{}
+	if c.Boundary().External {
+		if !c.externalAllowed || !input.ApprovedExternal || !input.PublicOnly() {
+			return buddy.Answer{}, buddy.ErrDataPolicy
+		}
+		input.Team, input.Role, input.Direction = "", "", ""
+		input.History = []buddy.Message{}
+		documents := []buddy.Document{}
+		for i, doc := range input.Documents {
+			if doc.DataClass != "public" || doc.Scope != "public" {
+				return buddy.Answer{}, buddy.ErrDataPolicy
+			}
+			id := fmt.Sprintf("source-%d", i+1)
+			sourceMap[id] = doc.ID
+			documents = append(documents, buddy.Document{ID: id, Title: doc.Title, Body: doc.Body, DataClass: "public"})
+		}
+		input.Documents = documents
 	}
 	content, err := json.Marshal(input)
 	if err != nil {
@@ -152,13 +182,23 @@ func (c *Client) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Ans
 	if err = decoder.Decode(new(any)); err != io.EOF {
 		return buddy.Answer{}, buddy.ErrUnavailable
 	}
+	for i, id := range answer.SourceIDs {
+		if c.Boundary().External {
+			original, ok := sourceMap[id]
+			if !ok {
+				return buddy.Answer{}, buddy.ErrUnavailable
+			}
+			answer.SourceIDs[i] = original
+		}
+	}
 	return answer, nil
 }
 
 // Fixture deliberately exposes its identity; it tests the product without claiming LLM quality.
 type Fixture struct{}
 
-func (Fixture) Name() string { return "fixture" }
+func (Fixture) Name() string                  { return "fixture" }
+func (Fixture) Boundary() buddy.ModelBoundary { return buddy.ModelBoundary{} }
 func (Fixture) Answer(_ context.Context, input buddy.AnswerInput) (buddy.Answer, error) {
 	if len(input.Documents) == 0 {
 		return buddy.Answer{Text: "В доступных источниках нет ответа. Что именно нужно уточнить?", SourceIDs: []string{}, NeedsClarification: true}, nil

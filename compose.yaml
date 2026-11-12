@@ -52,6 +52,7 @@ services:
       MODEL_NAME: ${DOCKER_MODEL_NAME:-qwen3.5:4b}
       MODEL_API_KEY: ${DOCKER_MODEL_API_KEY:-}
       ALLOW_EXTERNAL_MODEL: ${DOCKER_ALLOW_EXTERNAL_MODEL:-false}
+      MODEL_DATA_POLICY: ${DOCKER_MODEL_DATA_POLICY:-internal}
       SECURE_COOKIE: "false"
     extra_hosts:
       - host.docker.internal:host-gateway

@@ -46,7 +46,8 @@ type countedModel struct {
 	calls int
 }
 
-func (m *countedModel) Name() string { return m.base.Name() }
+func (m *countedModel) Name() string                  { return m.base.Name() }
+func (m *countedModel) Boundary() buddy.ModelBoundary { return m.base.Boundary() }
 func (m *countedModel) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Answer, error) {
 	m.calls++
 	return m.base.Answer(ctx, input)
@@ -63,7 +64,7 @@ func grant(t *testing.T, s *buddy.Service, p buddy.Profile) buddy.Action {
 		t.Fatal(err)
 	}
 	for _, status := range []string{"approved", "granted"} {
-		if err = s.Corporate.Event(ctx, p.ID, a.ID, status); err != nil {
+		if err = s.Operator.Event(ctx, p.ID, a.ID, status); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -268,7 +269,7 @@ func evalOperation(t *testing.T, s *buddy.Service, p buddy.Profile, mode string)
 		if mode == "assign_issue" {
 			return op.Status == "assigned" && op.ID == "CAT-101"
 		}
-		if err = s.Corporate.Event(ctx, p.ID, a.ID, "done"); err != nil {
+		if err = s.Operator.Event(ctx, p.ID, a.ID, "done"); err != nil {
 			return false
 		}
 		view, err := s.View(ctx, p)
@@ -299,14 +300,14 @@ func evalOperation(t *testing.T, s *buddy.Service, p buddy.Profile, mode string)
 		view, e := s.View(ctx, p)
 		return err == nil && e == nil && repeat.ID == op.ID && len(view.Operations) == 1
 	case "approved_not_granted":
-		if err = s.Corporate.Event(ctx, p.ID, a.ID, "approved"); err != nil {
+		if err = s.Operator.Event(ctx, p.ID, a.ID, "approved"); err != nil {
 			return false
 		}
 		_, err = s.Document(ctx, p, "catalog-guide")
 		return errors.Is(err, buddy.ErrNotFound)
 	case "granted":
 		for _, status := range []string{"approved", "granted"} {
-			if err = s.Corporate.Event(ctx, p.ID, a.ID, status); err != nil {
+			if err = s.Operator.Event(ctx, p.ID, a.ID, status); err != nil {
 				return false
 			}
 		}
@@ -336,7 +337,7 @@ func evalFault(t *testing.T, s *buddy.Service, p buddy.Profile, counter *counted
 		return errors.Is(err, buddy.ErrUnavailable)
 	case "service_offline":
 		grant(t, s, p)
-		if err := s.Corporate.Event(ctx, p.ID, "", "unavailable"); err != nil {
+		if err := s.Operator.Event(ctx, p.ID, "", "unavailable"); err != nil {
 			t.Fatal(err)
 		}
 		_, err := s.Document(ctx, p, "catalog-guide")
@@ -348,14 +349,14 @@ func evalFault(t *testing.T, s *buddy.Service, p buddy.Profile, counter *counted
 		}
 		client := s.Corporate.(*corporate.Client)
 		client.HTTP.Timeout = 500 * time.Millisecond
-		if err = s.Corporate.Event(ctx, p.ID, "", "lost_response"); err != nil {
+		if err = s.Operator.Event(ctx, p.ID, "", "lost_response"); err != nil {
 			t.Fatal(err)
 		}
 		_, err = s.Confirm(ctx, p, a.ID)
 		if !errors.Is(err, buddy.ErrUnavailable) {
 			return false
 		}
-		if err = s.Corporate.Event(ctx, p.ID, "", "normal"); err != nil {
+		if err = s.Operator.Event(ctx, p.ID, "", "normal"); err != nil {
 			t.Fatal(err)
 		}
 		op, err := s.Confirm(ctx, p, a.ID)
@@ -368,7 +369,7 @@ func evalFault(t *testing.T, s *buddy.Service, p buddy.Profile, counter *counted
 			if err != nil {
 				return answer, err
 			}
-			if err = s.Corporate.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
+			if err = s.Operator.Event(ctx, p.ID, a.ID, "revoked"); err != nil {
 				t.Fatal(err)
 			}
 			return answer, nil

@@ -32,6 +32,7 @@ type Panel =
         | 'diagnostics'
         | 'help'
         | 'profiles'
+        | 'external'
         | 'route'
         | 'menu';
     }
@@ -48,6 +49,10 @@ export default function App() {
   const [composer, setComposer] = useState('');
   const [sending, setSending] = useState(false);
   const [retry, setRetry] = useState<{ id: string; text: string } | null>(null);
+  const [pendingExternal, setPendingExternal] = useState<{
+    text: string;
+    pending: { id: string; text: string } | null;
+  } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
@@ -112,9 +117,14 @@ export default function App() {
     }
   }
 
-  async function send(text = composer, pending = retry) {
+  async function send(text = composer, pending = retry, consentTo = '') {
     text = text.trim();
     if (!text || sending || !workspace) return;
+    if (bootstrap?.external_model && !consentTo) {
+      setPendingExternal({ text, pending });
+      setPanel({ kind: 'external' });
+      return;
+    }
     const id = pending?.text === text ? pending.id : crypto.randomUUID();
     setSending(true);
     setError('');
@@ -128,13 +138,24 @@ export default function App() {
         ],
       });
     try {
-      await api.message(id, text);
+      if (consentTo) await api.message(id, text, consentTo);
+      else await api.message(id, text);
       setWorkspace(await api.state());
       setComposer('');
       setRetry(null);
     } catch (reason) {
       setError((reason as Error).message);
       setComposer(text);
+      if (reason instanceof ApiError && reason.code === 'external_consent') {
+        try {
+          const current = await api.bootstrap();
+          setBootstrap(current);
+          setPendingExternal({ text, pending: { id, text } });
+          setPanel({ kind: 'external' });
+        } catch (refreshError) {
+          setError((refreshError as Error).message);
+        }
+      }
     } finally {
       setSending(false);
       composerRef.current?.focus();
@@ -185,7 +206,9 @@ export default function App() {
           <strong>AI Buddy</strong>
         </div>
         <section className="login-card">
-          <span className="eyebrow">ДЕМОНСТРАЦИОННЫЙ КОНТУР</span>
+          <span className="eyebrow">
+            {bootstrap?.demo === false ? 'AI BUDDY' : 'ДЕМОНСТРАЦИОННЫЙ КОНТУР'}
+          </span>
           <h1>
             Твой первый шаг
             <br />в новой команде
@@ -194,13 +217,19 @@ export default function App() {
             Рабочие вопросы, материалы и действия —<br className="desktop-break" /> в одном личном
             диалоге.
           </p>
-          <h2>Выбери тестовый профиль</h2>
-          {bootstrap && (
-            <ProfilePicker
-              profiles={bootstrap.profiles}
-              onSelect={(profile) => void login(profile)}
-              busy={busy !== ''}
-            />
+          {bootstrap?.demo !== false && <h2>Выбери тестовый профиль</h2>}
+          {bootstrap?.demo === false ? (
+            <a className="primary-button" href="/api/login">
+              Войти через компанию
+            </a>
+          ) : (
+            bootstrap && (
+              <ProfilePicker
+                profiles={bootstrap.profiles}
+                onSelect={(profile) => void login(profile)}
+                busy={busy !== ''}
+              />
+            )
           )}
           {error && (
             <div className="inline-error" role="alert">
@@ -210,16 +239,20 @@ export default function App() {
               </button>
             </div>
           )}
-          <div className="login-note">
-            <Icon name="shield" size={18} />
-            <span>
-              Профили и командные инструкции вымышлены.
-              <br />
-              Настоящие корпоративные данные не используются.
-            </span>
-          </div>
+          {bootstrap?.demo !== false && (
+            <div className="login-note">
+              <Icon name="shield" size={18} />
+              <span>
+                Профили и командные инструкции вымышлены.
+                <br />
+                Настоящие корпоративные данные не используются.
+              </span>
+            </div>
+          )}
         </section>
-        <span className="login-caption">AI Buddy · прототип для Hack&amp;Change 2026</span>
+        {bootstrap?.demo !== false && (
+          <span className="login-caption">AI Buddy · прототип для Hack&amp;Change 2026</span>
+        )}
       </main>
     );
 
@@ -237,7 +270,8 @@ export default function App() {
     demo: 'Пульт демонстрации',
     diagnostics: 'Диагностика',
     help: 'О рабочем пространстве',
-    profiles: 'Тестовый профиль',
+    profiles: workspace.demo ? 'Тестовый профиль' : 'Учётная запись',
+    external: 'Отправить вопрос внешней модели?',
     route: 'Мой маршрут',
     menu: 'Рабочее пространство',
   };
@@ -254,10 +288,12 @@ export default function App() {
           <strong>AI Buddy</strong>
         </a>
         <div className="workspace-bar-right">
-          <span className="demo-label">
-            <span />
-            Демонстрационный контур
-          </span>
+          {workspace.demo && (
+            <span className="demo-label">
+              <span />
+              Демонстрационный контур
+            </span>
+          )}
           <button
             className="icon-button"
             aria-label="О прототипе"
@@ -273,7 +309,7 @@ export default function App() {
           <span className="team-logo">{profile.project[0]}</span>
           <div>
             <strong>Команда {profile.team_name}</strong>
-            <span>Backend · стажировка</span>
+            <span>{profile.role}</span>
           </div>
         </div>
         <div className="sidebar-section">
@@ -320,10 +356,12 @@ export default function App() {
           </p>
         </div>
         <div className="sidebar-bottom">
-          <button className="sidebar-demo" onClick={() => setPanel({ kind: 'demo' })}>
-            <Icon name="shield" size={16} />
-            Пульт демонстрации
-          </button>
+          {workspace.demo && (
+            <button className="sidebar-demo" onClick={() => setPanel({ kind: 'demo' })}>
+              <Icon name="shield" size={16} />
+              Пульт демонстрации
+            </button>
+          )}
           <button
             className="profile-switch"
             onClick={() => setPanel({ kind: 'profiles' })}
@@ -667,12 +705,14 @@ export default function App() {
               </button>
               <button disabled={sending || !!busy} onClick={() => setPanel({ kind: 'profiles' })}>
                 <Icon name="logout" />
-                Сменить профиль
+                {workspace.demo ? 'Сменить профиль' : 'Учётная запись'}
               </button>
-              <button onClick={() => setPanel({ kind: 'demo' })}>
-                <Icon name="shield" />
-                Пульт демонстрации
-              </button>
+              {workspace.demo && (
+                <button onClick={() => setPanel({ kind: 'demo' })}>
+                  <Icon name="shield" />
+                  Пульт демонстрации
+                </button>
+              )}
               <button onClick={() => setPanel({ kind: 'diagnostics' })}>
                 <Icon name="info" />
                 Диагностика
@@ -709,7 +749,7 @@ export default function App() {
               onDraft={() => void perform('draft', () => api.draft())}
             />
           )}
-          {panel.kind === 'demo' && (
+          {panel.kind === 'demo' && workspace.demo && (
             <DemoPanel
               workspace={workspace}
               busy={!!busy}
@@ -721,12 +761,22 @@ export default function App() {
           {panel.kind === 'diagnostics' && <DiagnosticsPanel />}
           {panel.kind === 'profiles' && (
             <>
-              <p className="panel-lead">У каждого профиля собственные история, права и маршрут.</p>
-              <ProfilePicker
-                profiles={bootstrap?.profiles ?? []}
-                busy={!!busy || sending}
-                onSelect={(selected) => void login(selected)}
-              />
+              {workspace.demo ? (
+                <>
+                  <p className="panel-lead">
+                    У каждого профиля собственные история, права и маршрут.
+                  </p>
+                  <ProfilePicker
+                    profiles={bootstrap?.profiles ?? []}
+                    busy={!!busy || sending}
+                    onSelect={(selected) => void login(selected)}
+                  />
+                </>
+              ) : (
+                <p className="panel-lead">
+                  {profile.name} · {profile.role}
+                </p>
+              )}
               <button
                 className="text-button logout-button"
                 onClick={() =>
@@ -738,8 +788,43 @@ export default function App() {
                 }
               >
                 <Icon name="logout" size={17} />
-                Выйти из тестового профиля
+                {workspace.demo ? 'Выйти из тестового профиля' : 'Выйти'}
               </button>
+            </>
+          )}
+          {panel.kind === 'external' && pendingExternal && (
+            <>
+              <p className="panel-lead">
+                {bootstrap?.model} · {bootstrap?.model_endpoint}
+              </p>
+              <p className="panel-description">
+                Отправим этот вопрос и публичные источники. История диалога и командный контекст не
+                передаются.
+              </p>
+              <blockquote>{pendingExternal.text}</blockquote>
+              <div className="button-row">
+                <button
+                  className="secondary-button"
+                  onClick={() => {
+                    setPendingExternal(null);
+                    closePanel();
+                  }}
+                >
+                  Отмена
+                </button>
+                <button
+                  className="primary-button"
+                  disabled={!bootstrap?.consent_to}
+                  onClick={() => {
+                    const request = pendingExternal;
+                    setPendingExternal(null);
+                    closePanel();
+                    void send(request.text, request.pending, bootstrap?.consent_to);
+                  }}
+                >
+                  Отправить вопрос
+                </button>
+              </div>
             </>
           )}
           {panel.kind === 'route' && (
@@ -756,16 +841,18 @@ export default function App() {
                 <h3>AI Buddy</h3>
               </div>
               <p className="panel-description">
-                Личный помощник Backend-стажёра в первые две недели: разрешённые источники, понятный
-                следующий шаг и действия с подтверждением.
+                Личный помощник стажёра: доступные источники, понятный следующий шаг и действия с
+                подтверждением.
               </p>
-              <div className="provenance">
-                <Icon name="info" />
-                <span>
-                  Это самостоятельный веб-прототип. Настоящие Mattermost, Confluence и Jira не
-                  подключены. Корпоративные действия выполняет отдельный тестовый HTTP-сервис.
-                </span>
-              </div>
+              {workspace.demo && (
+                <div className="provenance">
+                  <Icon name="info" />
+                  <span>
+                    Это самостоятельный веб-прототип. Настоящие Mattermost, Confluence и Jira не
+                    подключены. Корпоративные действия выполняет отдельный тестовый HTTP-сервис.
+                  </span>
+                </div>
+              )}
               <h3 className="panel-section-title">Что сохраняется</h3>
               <p className="panel-lead">
                 Диалог, подготовленные действия, заявки, черновик наставнику и отметки маршрута
