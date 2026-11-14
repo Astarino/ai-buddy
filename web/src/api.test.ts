@@ -64,6 +64,23 @@ it('uses same-origin credentials and the documented API verbs, payloads and cont
   expect(fetchMock).toHaveBeenLastCalledWith('/api/documents/source%2Fid', expect.anything());
   await api.draft();
   await api.draft('Вопрос наставнику');
+  await api.search('search-one', 'go', 'go.mod');
+  expect(fetchMock).toHaveBeenLastCalledWith(
+    '/api/search',
+    expect.objectContaining({ body: '{"id":"search-one","topic":"go","query":"go.mod"}' }),
+  );
+  await api.prepareRequest('request-one', 'mentor', 'Тесты', 'Проверил команду');
+  await api.changeRequest('request/id', 'reassign', 2, 'mikhail');
+  expect(fetchMock).toHaveBeenLastCalledWith(
+    '/api/requests/request%2Fid/change',
+    expect.objectContaining({ body: '{"command":"reassign","version":2,"recipient":"mikhail"}' }),
+  );
+  await api.replyRequest('request/id', 'reply-one', 'Текст ответа', 3);
+  await api.decideRequest('request/id', 'approved', 4);
+  expect(fetchMock).toHaveBeenLastCalledWith(
+    '/api/requests/request%2Fid/decision',
+    expect.objectContaining({ body: '{"status":"approved","version":4}' }),
+  );
   await api.event('operator-token', 'key', 'approved');
   expect(fetchMock).toHaveBeenLastCalledWith(
     '/api/demo/events',
@@ -77,6 +94,30 @@ it('uses same-origin credentials and the documented API verbs, payloads and cont
   expect(fetchMock).toHaveBeenLastCalledWith(
     '/api/session',
     expect.objectContaining({ method: 'DELETE' }),
+  );
+});
+
+it('does not restore the previous identity when a delayed state response arrives after profile switching', async () => {
+  await api.login('anton');
+  let resolveOld!: (value: Response) => void;
+  fetchMock.mockImplementationOnce(
+    () =>
+      new Promise<Response>((resolve) => {
+        resolveOld = resolve;
+      }),
+  );
+  const old = api.state();
+  await api.login('irina');
+  const current = workspace();
+  current.profile = profiles[1];
+  fetchMock.mockResolvedValueOnce(Response.json(current));
+  await api.state();
+  resolveOld(Response.json(workspace()));
+  await old;
+  await api.prepare('access', 'Изучить руководство');
+  expect(fetchMock).toHaveBeenLastCalledWith(
+    '/api/actions',
+    expect.objectContaining({ headers: expect.objectContaining({ 'X-Buddy-Context': 'irina' }) }),
   );
 });
 

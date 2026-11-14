@@ -12,12 +12,49 @@
       "space": "EXAMPLE",
       "project": "EXM",
       "issuer": "https://sso.example.invalid",
-      "subject": "replace-with-corporate-subject"
+      "subject": "replace-with-corporate-subject",
+      "audience": "intern",
+      "mentor_id": "employee-mentor",
+      "access_owner_id": "employee-owner"
+    },
+    {
+      "id": "employee-mentor",
+      "name": "Тестовый наставник",
+      "team": "example-team",
+      "team_name": "Пример команды",
+      "role": "Наставник",
+      "direction": "analytics",
+      "mentor": "",
+      "day": 1,
+      "space": "EXAMPLE",
+      "project": "EXM",
+      "issuer": "https://sso.example.invalid",
+      "subject": "replace-with-employee-mentor-subject",
+      "audience": "responsible",
+      "mentor_id": "",
+      "access_owner_id": ""
+    },
+    {
+      "id": "employee-owner",
+      "name": "Тестовый владелец вики",
+      "team": "example-team",
+      "team_name": "Пример команды",
+      "role": "Владелец ресурса",
+      "direction": "analytics",
+      "mentor": "",
+      "day": 1,
+      "space": "EXAMPLE",
+      "project": "EXM",
+      "issuer": "https://sso.example.invalid",
+      "subject": "replace-with-employee-owner-subject",
+      "audience": "responsible",
+      "mentor_id": "",
+      "access_owner_id": ""
     }
   ],
   "documents": [
     {
-      "id": "team-guide",
+      "id": "example-team-guide",
       "title": "Пример командного руководства",
       "body": "Синтетический пример схемы. Заменяется согласованным снимком источника.",
       "team": "example-team",

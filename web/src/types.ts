@@ -6,6 +6,9 @@ export interface Profile {
   role: string;
   direction?: string;
   mentor: string;
+  mentor_id?: string;
+  access_owner_id?: string;
+  audience?: string;
   day: number;
   space: string;
   project: string;
@@ -81,6 +84,35 @@ export interface Workspace {
   service_fresh: boolean;
   model: string;
   demo: boolean;
+  requests: HelpRequest[];
+  request_targets?: { kind: string; id: string; name: string }[];
+}
+
+export interface HelpRequest {
+  id: string;
+  requester_id: string;
+  requester: string;
+  assignee_id: string;
+  assignee: string;
+  kind: string;
+  subject: string;
+  body: string;
+  status: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  replies: { id: string; author_id: string; author: string; text: string; created_at: string }[];
+  operation_key?: string;
+  operation_status?: string;
+  pending_decision?: string;
+}
+
+export interface PublicSearch {
+  id: string;
+  topic: string;
+  query: string;
+  fetched_at: string;
+  documents: Source[];
 }
 export interface Bootstrap {
   profiles: Profile[];

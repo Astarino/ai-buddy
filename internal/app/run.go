@@ -19,6 +19,7 @@ import (
 	"github.com/Astarino/ai-buddy/internal/identity"
 	"github.com/Astarino/ai-buddy/internal/model"
 	"github.com/Astarino/ai-buddy/internal/outbound"
+	"github.com/Astarino/ai-buddy/internal/publicdocs"
 	"github.com/Astarino/ai-buddy/internal/storage"
 )
 
@@ -69,12 +70,18 @@ func RunContext(ctx context.Context, kind string) error {
 		if err != nil {
 			return err
 		}
+		if client, ok := llm.(*model.Client); ok {
+			client.CPUOnly = os.Getenv("MODEL_CPU_ONLY") == "true"
+		}
 		base := env("CORPORATE_BASE_URL", "http://127.0.0.1:8091")
 		if _, err := outbound.ValidateBaseURL(base); err != nil {
 			return err
 		}
 		corp := corporate.NewClient(base, token, operator)
 		api := &httpapi.API{Service: buddy.NewService(db, corp, llm), Sessions: db, DemoToken: operator, StaticDir: env("WEB_DIR", "web/dist"), SecureCookie: os.Getenv("SECURE_COOKIE") == "true"}
+		if env("PUBLIC_SEARCH_ENABLED", "true") == "true" {
+			api.Service.Searcher = publicdocs.New()
+		}
 		policy := env("MODEL_DATA_POLICY", "internal")
 		if policy != "internal" && policy != "public-only" {
 			return fmt.Errorf("unknown MODEL_DATA_POLICY")

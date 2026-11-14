@@ -29,6 +29,9 @@ type Profile struct {
 	Subject          string   `json:"subject,omitempty"`
 	InitialCompleted []string `json:"initial_completed,omitempty"`
 	Mentor           string   `json:"mentor"`
+	MentorID         string   `json:"mentor_id,omitempty"`
+	AccessOwnerID    string   `json:"access_owner_id,omitempty"`
+	Audience         string   `json:"audience,omitempty"`
 	Day              int      `json:"day"`
 	Space            string   `json:"space"`
 	Project          string   `json:"project"`
@@ -140,6 +143,7 @@ type State struct {
 	Completed map[string]bool `json:"completed"`
 	Events    []Event         `json:"events"`
 	Draft     string          `json:"draft"`
+	Searches  []PublicSearch  `json:"searches,omitempty"`
 }
 
 func EmptyState() State {
@@ -147,17 +151,19 @@ func EmptyState() State {
 }
 
 type View struct {
-	Profile      Profile     `json:"profile"`
-	Messages     []Message   `json:"messages"`
-	Actions      []Action    `json:"actions"`
-	Tasks        []Task      `json:"tasks"`
-	Operations   []Operation `json:"operations"`
-	Documents    []Document  `json:"documents"`
-	NextTaskID   string      `json:"next_task_id"`
-	Draft        string      `json:"draft"`
-	ServiceFresh bool        `json:"service_fresh"`
-	Model        string      `json:"model"`
-	Demo         bool        `json:"demo"`
+	Profile        Profile         `json:"profile"`
+	Messages       []Message       `json:"messages"`
+	Actions        []Action        `json:"actions"`
+	Tasks          []Task          `json:"tasks"`
+	Operations     []Operation     `json:"operations"`
+	Documents      []Document      `json:"documents"`
+	NextTaskID     string          `json:"next_task_id"`
+	Draft          string          `json:"draft"`
+	ServiceFresh   bool            `json:"service_fresh"`
+	Model          string          `json:"model"`
+	Demo           bool            `json:"demo"`
+	Requests       []HelpRequest   `json:"requests"`
+	RequestTargets []RequestTarget `json:"request_targets"`
 }
 
 type Repository interface {

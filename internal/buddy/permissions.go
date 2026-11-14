@@ -10,6 +10,29 @@ func ValidActionTarget(p Profile, a Action) bool {
 }
 
 func (s *Service) allowedDocuments(ctx context.Context, p Profile, ops []Operation) ([]Document, bool) {
+	documents, fresh := s.catalogDocuments(ctx, p, ops)
+	if s.Authorizer == nil && !s.Demo {
+		return documents, false
+	}
+	state, err := s.Repo.Read(ctx, p.ID)
+	if err != nil {
+		return documents, false
+	}
+	for _, run := range state.Searches {
+		if s.Authorizer != nil {
+			if err := s.Authorizer.Check(ctx, p, Resource{System: "ai-buddy", Kind: "search", ID: run.ID}, "read"); err != nil {
+				if !errors.Is(err, ErrForbidden) {
+					fresh = false
+				}
+				continue
+			}
+		}
+		documents = append(documents, run.Documents...)
+	}
+	return documents, fresh
+}
+
+func (s *Service) catalogDocuments(ctx context.Context, p Profile, ops []Operation) ([]Document, bool) {
 	if s.Authorizer == nil {
 		if !s.Demo {
 			return []Document{}, false
@@ -29,6 +52,9 @@ func (s *Service) allowedDocuments(ctx context.Context, p Profile, ops []Operati
 }
 
 func (s *Service) authorizeAction(ctx context.Context, p Profile, kind string) error {
+	if p.Audience == "responsible" {
+		return ErrForbidden
+	}
 	if s.Authorizer == nil {
 		if s.Demo {
 			return nil

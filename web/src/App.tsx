@@ -12,15 +12,16 @@ import {
 import {
   DemoPanel,
   DiagnosticsPanel,
-  MentorPanel,
   RequestsPanel,
   SourcePanel,
   SourcesPanel,
   TaskPanel,
 } from './panels';
+import { HelpRequestsPanel, PublicSearchPanel } from './collaboration';
 import type { Bootstrap, Profile, Source, Workspace } from './types';
 
 type Panel =
+  | { kind: 'inbox'; id?: string }
   | { kind: 'source'; id: string; title: string }
   | { kind: 'task'; id: string }
   | {
@@ -34,7 +35,8 @@ type Panel =
         | 'profiles'
         | 'external'
         | 'route'
-        | 'menu';
+        | 'menu'
+        | 'search';
     }
   | null;
 
@@ -44,6 +46,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
+  const [syncError, setSyncError] = useState(false);
   const [busy, setBusy] = useState('');
   const [panel, setPanel] = useState<Panel>(null);
   const [composer, setComposer] = useState('');
@@ -85,6 +88,32 @@ export default function App() {
         block: 'end',
       });
   }, [workspace?.messages.length, sending]);
+
+  const ownerID = workspace?.profile.id;
+  useEffect(() => {
+    if (!ownerID) return;
+    let active = true;
+    const controller = new AbortController();
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      void api
+        .state(controller.signal)
+        .then((value) => {
+          if (active && value.profile.id === ownerID) {
+            setWorkspace(value);
+            setSyncError(false);
+          }
+        })
+        .catch(() => {
+          if (active && !controller.signal.aborted) setSyncError(true);
+        });
+    }, 15000);
+    return () => {
+      active = false;
+      controller.abort();
+      clearInterval(timer);
+    };
+  }, [ownerID]);
 
   async function login(profile: Profile) {
     setBusy('login');
@@ -257,6 +286,13 @@ export default function App() {
     );
 
   const profile = workspace.profile;
+  const assignedRequests = (workspace.requests ?? []).filter(
+    (item) => item.assignee_id === profile.id && item.status === 'waiting',
+  );
+  const waitingPeople = Array.from(new Set(assignedRequests.map((item) => item.requester_id)));
+  const requestAttention = (workspace.requests ?? []).filter((item) =>
+    item.requester_id === profile.id ? item.status === 'answered' : item.status === 'waiting',
+  ).length;
   const pendingCount = workspace.operations.filter((operation) =>
     ['pending', 'approved', 'assigned'].includes(operation.status),
   ).length;
@@ -274,6 +310,8 @@ export default function App() {
     external: 'Отправить вопрос внешней модели?',
     route: 'Мой маршрут',
     menu: 'Рабочее пространство',
+    search: 'Найти в документации',
+    inbox: profile.audience === 'responsible' ? 'Нужен мой ответ' : 'Вопросы команде',
   };
   const panelTitle =
     panel?.kind === 'source'
@@ -283,6 +321,19 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="workspace-bar">
+        {syncError && (
+          <button
+            className="sync-warning"
+            onClick={() =>
+              void perform('refresh', async () => {
+                setWorkspace(await api.state());
+                setSyncError(false);
+              })
+            }
+          >
+            Статусы не обновились · повторить
+          </button>
+        )}
         <a href="/" className="brand" aria-label="AI Buddy — главная">
           <BuddyMark small />
           <strong>AI Buddy</strong>
@@ -320,32 +371,47 @@ export default function App() {
               <strong>AI Buddy</strong>
             </span>
           </button>
-          <button className="contact" onClick={() => setPanel({ kind: 'mentor' })}>
-            <Avatar name={profile.mentor} mentor />
-            <span>
-              <strong>{profile.mentor}</strong>
-              <span>Твой наставник</span>
-            </span>
-          </button>
+          {profile.mentor && (
+            <button className="contact" onClick={() => setPanel({ kind: 'mentor' })}>
+              <Avatar name={profile.mentor} mentor />
+              <span>
+                <strong>{profile.mentor}</strong>
+                <span>Твой наставник</span>
+              </span>
+            </button>
+          )}
         </div>
         <div className="sidebar-section navigation-links">
           <span className="eyebrow">ПОД РУКОЙ</span>
-          <button onClick={() => setPanel({ kind: 'route' })}>
-            <Icon name="route" />
-            Мой маршрут
-            <span className="nav-count">
-              {workspace.tasks.filter((task) => task.status === 'completed').length}/
-              {workspace.tasks.length}
-            </span>
-          </button>
+          {profile.audience !== 'responsible' && (
+            <button onClick={() => setPanel({ kind: 'route' })}>
+              <Icon name="route" />
+              Мой маршрут
+              <span className="nav-count">
+                {workspace.tasks.filter((task) => task.status === 'completed').length}/
+                {workspace.tasks.length}
+              </span>
+            </button>
+          )}
           <button onClick={() => setPanel({ kind: 'sources' })}>
             <Icon name="book" />
             База знаний
           </button>
-          <button onClick={() => setPanel({ kind: 'requests' })}>
-            <Icon name="clock" />
-            Мои заявки{pendingCount > 0 && <span className="nav-count">{pendingCount}</span>}
+          <button onClick={() => setPanel({ kind: 'search' })}>
+            <Icon name="search" />
+            Найти в документации
           </button>
+          <button onClick={() => setPanel({ kind: 'inbox' })}>
+            <Icon name="chat" />
+            {profile.audience === 'responsible' ? 'Нужен мой ответ' : 'Вопросы команде'}
+            {requestAttention > 0 && <span className="nav-count">{requestAttention}</span>}
+          </button>
+          {profile.audience !== 'responsible' && (
+            <button onClick={() => setPanel({ kind: 'requests' })}>
+              <Icon name="clock" />
+              Мои заявки{pendingCount > 0 && <span className="nav-count">{pendingCount}</span>}
+            </button>
+          )}
         </div>
         <div className="workspace-context">
           <p>
@@ -388,18 +454,23 @@ export default function App() {
           <div className="chat-header-actions">
             <button
               className="secondary-button compact requests-trigger"
-              onClick={() => setPanel({ kind: 'requests' })}
+              onClick={() =>
+                setPanel({ kind: profile.audience === 'responsible' ? 'inbox' : 'requests' })
+              }
             >
               <Icon name="clock" size={17} />
-              Мои заявки{pendingCount > 0 && <span>{pendingCount}</span>}
+              {profile.audience === 'responsible' ? 'Нужен мой ответ' : 'Мои заявки'}
+              {pendingCount > 0 && <span>{pendingCount}</span>}
             </button>
-            <button
-              className="icon-button route-trigger"
-              aria-label="Открыть маршрут"
-              onClick={() => setPanel({ kind: 'route' })}
-            >
-              <Icon name="route" />
-            </button>
+            {profile.audience !== 'responsible' && (
+              <button
+                className="icon-button route-trigger"
+                aria-label="Открыть маршрут"
+                onClick={() => setPanel({ kind: 'route' })}
+              >
+                <Icon name="route" />
+              </button>
+            )}
             <button
               className="icon-button desktop-diagnostics"
               aria-label="Открыть диагностику"
@@ -429,33 +500,45 @@ export default function App() {
                 Привет, {profile.name.split(' ')[0]}
                 <span className="greeting-dot">.</span>
               </h2>
-              <div className="next-step">
-                <div>
-                  <h3>
-                    {workspace.tasks.find((task) => task.id === 'space-access')?.status ===
-                    'completed'
-                      ? 'Доступ к материалам открыт'
-                      : 'Доступ к командной базе'}
-                  </h3>
-                  <button
-                    className="text-button"
-                    disabled={sending}
-                    onClick={() =>
-                      workspace.documents.some((source) => source.id === `${profile.team}-guide`)
-                        ? openSource(`${profile.team}-guide`)
-                        : void send('Не открывается командная вики')
-                    }
-                  >
-                    {workspace.documents.some((source) => source.id === `${profile.team}-guide`)
-                      ? 'Открыть руководство'
-                      : 'Разобраться с доступом'}
-                    <Icon name="chevron" size={15} />
-                  </button>
+              {profile.audience === 'responsible' ? (
+                <div className="next-step">
+                  <div>
+                    <h3>Запросы стажёров</h3>
+                    <button className="text-button" onClick={() => setPanel({ kind: 'inbox' })}>
+                      Нужен мой ответ
+                      <Icon name="chevron" size={15} />
+                    </button>
+                  </div>
                 </div>
-                <span className="next-step-art" aria-hidden="true">
-                  <Icon name="book" size={36} />
-                </span>
-              </div>
+              ) : (
+                <div className="next-step">
+                  <div>
+                    <h3>
+                      {workspace.tasks.find((task) => task.id === 'space-access')?.status ===
+                      'completed'
+                        ? 'Доступ к материалам открыт'
+                        : 'Доступ к командной базе'}
+                    </h3>
+                    <button
+                      className="text-button"
+                      disabled={sending}
+                      onClick={() =>
+                        workspace.documents.some((source) => source.id === `${profile.team}-guide`)
+                          ? openSource(`${profile.team}-guide`)
+                          : void send('Не открывается командная вики')
+                      }
+                    >
+                      {workspace.documents.some((source) => source.id === `${profile.team}-guide`)
+                        ? 'Открыть руководство'
+                        : 'Разобраться с доступом'}
+                      <Icon name="chevron" size={15} />
+                    </button>
+                  </div>
+                  <span className="next-step-art" aria-hidden="true">
+                    <Icon name="book" size={36} />
+                  </span>
+                </div>
+              )}
             </div>
             {workspace.messages.map((message) => (
               <article className={`message message-${message.role}`} key={message.id}>
@@ -569,14 +652,15 @@ export default function App() {
             </p>
           )}
           <div className="quick-prompts">
-            {['Что делать дальше?', 'Не открывается вики', 'Как подготовиться к ревью?'].map(
-              (prompt) => (
-                <button key={prompt} disabled={sending} onClick={() => void send(prompt)}>
-                  {prompt}
-                  <Icon name="chevron" size={13} />
-                </button>
-              ),
-            )}
+            {(profile.audience === 'responsible'
+              ? ['Кому нужна помощь из моих стажёров?']
+              : ['Что делать дальше?', 'Не открывается вики', 'Как подготовиться к ревью?']
+            ).map((prompt) => (
+              <button key={prompt} disabled={sending} onClick={() => void send(prompt)}>
+                {prompt}
+                <Icon name="chevron" size={13} />
+              </button>
+            ))}
           </div>
           <form
             className="composer"
@@ -619,11 +703,37 @@ export default function App() {
       </main>
 
       <div className="desktop-route">
-        <RoutePanel
-          workspace={workspace}
-          onTask={(task) => setPanel({ kind: 'task', id: task.id })}
-          onMentor={() => setPanel({ kind: 'mentor' })}
-        />
+        {profile.audience === 'responsible' ? (
+          <section className="responsible-overview">
+            <h2>Нужен мой ответ</h2>
+            {waitingPeople.length === 0 && <p className="fine-print">Новых запросов пока нет.</p>}
+            {waitingPeople.map((id) => {
+              const items = assignedRequests.filter((item) => item.requester_id === id);
+              return (
+                <button
+                  className="request-row"
+                  key={id}
+                  onClick={() => setPanel({ kind: 'inbox', id: items[0].id })}
+                >
+                  <span>
+                    <strong>{items[0].requester}</strong>
+                    <small>
+                      {items[0].subject}
+                      {items.length > 1 ? ` · ещё ${items.length - 1}` : ''}
+                    </small>
+                  </span>
+                  <Icon name="chevron" size={16} />
+                </button>
+              );
+            })}
+          </section>
+        ) : (
+          <RoutePanel
+            workspace={workspace}
+            onTask={(task) => setPanel({ kind: 'task', id: task.id })}
+            onMentor={() => setPanel({ kind: 'mentor' })}
+          />
+        )}
       </div>
 
       {panel && (
@@ -695,14 +805,24 @@ export default function App() {
           )}
           {panel.kind === 'menu' && (
             <div className="navigation-links mobile-menu">
+              <button onClick={() => setPanel({ kind: 'search' })}>
+                <Icon name="search" />
+                Найти в документации
+              </button>
+              <button onClick={() => setPanel({ kind: 'inbox' })}>
+                <Icon name="chat" />
+                {profile.audience === 'responsible' ? 'Нужен мой ответ' : 'Вопросы команде'}
+              </button>
               <button onClick={() => setPanel({ kind: 'sources' })}>
                 <Icon name="book" />
                 База знаний
               </button>
-              <button onClick={() => setPanel({ kind: 'mentor' })}>
-                <Icon name="chat" />
-                Вопрос наставнику
-              </button>
+              {profile.mentor && (
+                <button onClick={() => setPanel({ kind: 'mentor' })}>
+                  <Icon name="chat" />
+                  Вопрос наставнику
+                </button>
+              )}
               <button disabled={sending || !!busy} onClick={() => setPanel({ kind: 'profiles' })}>
                 <Icon name="logout" />
                 {workspace.demo ? 'Сменить профиль' : 'Учётная запись'}
@@ -743,10 +863,30 @@ export default function App() {
             />
           )}
           {panel.kind === 'mentor' && (
-            <MentorPanel
+            <HelpRequestsPanel
+              key={profile.id}
               workspace={workspace}
-              busy={busy === 'draft'}
-              onDraft={() => void perform('draft', () => api.draft())}
+              initialCompose
+              onRefresh={async () => setWorkspace(await api.state())}
+            />
+          )}
+          {panel.kind === 'inbox' && (
+            <HelpRequestsPanel
+              key={`${profile.id}-${panel.id ?? ''}`}
+              initialSelected={panel.id}
+              workspace={workspace}
+              onRefresh={async () => setWorkspace(await api.state())}
+            />
+          )}
+          {panel.kind === 'search' && (
+            <PublicSearchPanel
+              key={profile.id}
+              onRefresh={async () => setWorkspace(await api.state())}
+              onSource={openSource}
+              onAsk={(question) => {
+                setPanel(null);
+                void send(question);
+              }}
             />
           )}
           {panel.kind === 'demo' && workspace.demo && (

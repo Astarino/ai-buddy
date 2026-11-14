@@ -439,9 +439,29 @@ export function ProfilePicker({
   onSelect: (profile: Profile) => void;
   busy: boolean;
 }) {
+  const [audience, setAudience] = useState('intern');
+  const visible = profiles.filter(
+    (profile) => (profile.audience === 'responsible') === (audience === 'responsible'),
+  );
   return (
     <div className="profile-options">
-      {profiles.map((profile) => (
+      <div className="segmented-control profile-audience">
+        <button
+          aria-pressed={audience === 'intern'}
+          className={audience === 'intern' ? 'selected' : ''}
+          onClick={() => setAudience('intern')}
+        >
+          Стажёр
+        </button>
+        <button
+          aria-pressed={audience === 'responsible'}
+          className={audience === 'responsible' ? 'selected' : ''}
+          onClick={() => setAudience('responsible')}
+        >
+          Ответственный
+        </button>
+      </div>
+      {visible.map((profile) => (
         <button
           className="profile-option"
           key={profile.id}

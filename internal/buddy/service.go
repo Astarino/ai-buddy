@@ -21,6 +21,8 @@ type Service struct {
 	Operator        DemoOperator
 	Demo            bool
 	ModelDataPolicy string
+	Searcher        PublicSearcher
+	Requests        RequestStore
 }
 
 func NewService(repo Repository, corporate Corporate, model Model) *Service {
@@ -80,6 +82,11 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 			return View{}, err
 		}
 	}
+	for _, op := range ops {
+		if err := s.ensureAccessRequest(ctx, p, op); err != nil {
+			return View{}, err
+		}
+	}
 	allowed, permissionsFresh := s.allowedDocuments(ctx, p, ops)
 	docs := slices.Clone(allowed)
 	for i := range docs {
@@ -96,7 +103,15 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 			return View{}, ErrUnavailable
 		}
 	}
-	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh && permissionsFresh, Model: s.Model.Name(), Demo: s.Demo}, nil
+	requests, err := s.ListRequests(ctx, p)
+	if err != nil {
+		requests = []HelpRequest{}
+		permissionsFresh = false
+	}
+	if p.Audience == "responsible" {
+		tasks, next = []Task{}, ""
+	}
+	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh && permissionsFresh, Model: s.Model.Name(), Demo: s.Demo, Requests: requests, RequestTargets: s.requestTargets(ctx, p)}, nil
 }
 
 func (s *Service) Document(ctx context.Context, p Profile, id string) (Document, error) {
@@ -283,7 +298,10 @@ func (s *Service) recordResult(ctx context.Context, p Profile, a Action, op Oper
 		st.Events = append(st.Events, Event{Type: "action_completed", ObjectID: op.ID, At: s.Now()})
 		return nil
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	return s.ensureAccessRequest(ctx, p, op)
 }
 
 func (s *Service) Complete(ctx context.Context, p Profile, taskID string) error {
@@ -398,6 +416,21 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 	msg := Message{ID: NewID(), Role: "assistant", CreatedAt: s.Now(), ReplyTo: id, SourceIDs: []string{}, Kind: "workflow", ContextVersion: contextVersion}
 	lower := strings.ToLower(question)
 	switch {
+	case p.Audience == "responsible" && containsAny(lower, "кому нужна", "мои стаж", "кто ждёт", "ждет ответа", "ждёт ответа"):
+		requests, err := s.ListRequests(ctx, p)
+		if err != nil {
+			return Message{}, err
+		}
+		count := 0
+		for _, r := range requests {
+			if r.AssigneeID == p.ID && r.Status == "waiting" {
+				count++
+			}
+		}
+		msg.Text = fmt.Sprintf("Твоего ответа ждут запросы: %d. Открой «Нужен мой ответ» — там они разделены по стажёрам.", count)
+	case containsAny(lower, "не запускаются тесты", "не могу запустить тесты") && !containsAny(lower, "go.mod", "pattern", "go test", "ошибка:", "пишет"):
+		msg.Text = "Какую команду запускаешь и что пишет в ответ?"
+		msg.Kind = "clarification"
 	case credentialRequest(question):
 		msg.Text = "Не присылай пароли и токены в чат. Как получить доступ, подскажет владелец сервиса; могу подготовить ему вопрос."
 		msg.Kind = "policy"
@@ -454,7 +487,21 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 	default:
 		ops, _ := s.operations(ctx, p)
 		allowed, _ := s.allowedDocuments(ctx, p, ops)
-		docs := Search(allowed, question)
+		docs := conversationDocuments(allowed, state.Messages, id, question)
+		for i := len(state.Searches) - 1; i >= 0; i-- {
+			if state.Searches[i].Query != question {
+				continue
+			}
+			docs = []Document{}
+			for _, snapshot := range state.Searches[i].Documents {
+				for _, doc := range allowed {
+					if doc.ID == snapshot.ID {
+						docs = append(docs, doc)
+					}
+				}
+			}
+			break
+		}
 		if len(docs) == 0 {
 			msg.Text = "В доступных материалах нет надёжного ответа. Уточни, с какой задачей или инструментом связан вопрос и что уже получилось проверить. Можно подготовить вопрос наставнику."
 			msg.Kind = "clarification"

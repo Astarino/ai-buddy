@@ -44,10 +44,23 @@ func New(base, token string) (*Client, error) {
 }
 
 func (c *Client) Check(ctx context.Context, p buddy.Profile, resource buddy.Resource, permission string) error {
-	if p.Issuer == "" || p.Subject == "" || resource.System == "" || resource.Kind == "" || resource.ID == "" {
+	if p.ID == "" || p.Issuer == "" || p.Subject == "" || resource.System == "" || resource.Kind == "" || resource.ID == "" {
 		return buddy.ErrForbidden
 	}
-	if permission != "read" && permission != "request_access" && permission != "assign_self" {
+	allowed := permission == "read"
+	switch permission {
+	case "request_access", "decide_access":
+		allowed = resource.System == "confluence" && resource.Kind == "space"
+	case "assign_self":
+		allowed = resource.System == "jira" && resource.Kind == "issue"
+	case "request_help":
+		allowed = resource.System == "ai-buddy" && resource.Kind == "person"
+	case "reply":
+		allowed = resource.System == "ai-buddy" && resource.Kind == "request"
+	case "use":
+		allowed = resource.System == "ai-buddy" && resource.Kind == "tool" && resource.ID == "public-search"
+	}
+	if !allowed {
 		return buddy.ErrForbidden
 	}
 	if _, err := outbound.ValidateBaseURL(c.BaseURL); err != nil {

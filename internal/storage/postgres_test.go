@@ -98,8 +98,8 @@ func TestPostgresPersistenceSessionsAndConcurrentUpdates(t *testing.T) {
 	if _, err = db.Update(ctx, "bad", func(*buddy.State) error { return nil }); err == nil {
 		t.Fatal("corrupt update accepted")
 	}
-	if _, err = db.Metrics(ctx); err == nil {
-		t.Fatal("corrupt events accepted")
+	if metrics, err = db.Metrics(ctx); err != nil || metrics["tested"] != 12 {
+		t.Fatal("audit metrics depend on corrupt conversation state", metrics, err)
 	}
 }
 

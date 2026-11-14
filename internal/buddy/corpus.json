@@ -13,7 +13,10 @@
       "direction": "backend",
       "initial_completed": [
         "meet-team"
-      ]
+      ],
+      "audience": "intern",
+      "mentor_id": "dasha",
+      "access_owner_id": "wiki-owner"
     },
     {
       "id": "irina",
@@ -28,7 +31,130 @@
       "direction": "backend",
       "initial_completed": [
         "meet-team"
-      ]
+      ],
+      "audience": "intern",
+      "mentor_id": "mikhail",
+      "access_owner_id": "wiki-owner"
+    },
+    {
+      "id": "lera",
+      "name": "Лера Петрова",
+      "team": "catalog",
+      "team_name": "Каталог",
+      "role": "Backend-стажёр",
+      "mentor": "Даша Волкова",
+      "day": 3,
+      "space": "CATALOG",
+      "project": "CAT",
+      "direction": "backend",
+      "initial_completed": [
+        "meet-team"
+      ],
+      "audience": "intern",
+      "mentor_id": "dasha",
+      "access_owner_id": "wiki-owner"
+    },
+    {
+      "id": "nikita",
+      "name": "Никита Морозов",
+      "team": "catalog",
+      "team_name": "Каталог",
+      "role": "Backend-стажёр",
+      "mentor": "Даша Волкова",
+      "day": 3,
+      "space": "CATALOG",
+      "project": "CAT",
+      "direction": "backend",
+      "initial_completed": [
+        "meet-team"
+      ],
+      "audience": "intern",
+      "mentor_id": "dasha",
+      "access_owner_id": "wiki-owner"
+    },
+    {
+      "id": "sofia",
+      "name": "София Ким",
+      "team": "catalog",
+      "team_name": "Каталог",
+      "role": "Backend-стажёр",
+      "mentor": "Даша Волкова",
+      "day": 3,
+      "space": "CATALOG",
+      "project": "CAT",
+      "direction": "backend",
+      "initial_completed": [
+        "meet-team"
+      ],
+      "audience": "intern",
+      "mentor_id": "dasha",
+      "access_owner_id": "wiki-owner"
+    },
+    {
+      "id": "timur",
+      "name": "Тимур Алиев",
+      "team": "catalog",
+      "team_name": "Каталог",
+      "role": "Backend-стажёр",
+      "mentor": "Даша Волкова",
+      "day": 3,
+      "space": "CATALOG",
+      "project": "CAT",
+      "direction": "backend",
+      "initial_completed": [
+        "meet-team"
+      ],
+      "audience": "intern",
+      "mentor_id": "dasha",
+      "access_owner_id": "wiki-owner"
+    },
+    {
+      "id": "dasha",
+      "name": "Даша Волкова",
+      "team": "catalog",
+      "team_name": "Каталог",
+      "role": "Наставник",
+      "mentor": "",
+      "day": 3,
+      "space": "CATALOG",
+      "project": "CAT",
+      "direction": "backend",
+      "initial_completed": [],
+      "audience": "responsible",
+      "mentor_id": "",
+      "access_owner_id": ""
+    },
+    {
+      "id": "mikhail",
+      "name": "Михаил Орлов",
+      "team": "delivery",
+      "team_name": "Доставка",
+      "role": "Наставник",
+      "mentor": "",
+      "day": 3,
+      "space": "DELIVERY",
+      "project": "DLV",
+      "direction": "backend",
+      "initial_completed": [],
+      "audience": "responsible",
+      "mentor_id": "",
+      "access_owner_id": ""
+    },
+    {
+      "id": "wiki-owner",
+      "name": "Алексей Смирнов",
+      "team": "catalog",
+      "team_name": "Каталог",
+      "role": "Владелец вики",
+      "mentor": "",
+      "day": 3,
+      "space": "CATALOG",
+      "project": "CAT",
+      "direction": "backend",
+      "initial_completed": [],
+      "audience": "responsible",
+      "mentor_id": "",
+      "access_owner_id": ""
     }
   ],
   "documents": [

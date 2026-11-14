@@ -59,6 +59,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("DELETE /api/session", a.logout)
 	mux.HandleFunc("GET /api/state", a.withProfile(a.state))
 	mux.HandleFunc("POST /api/refresh", a.withProfile(a.state))
+	a.requestRoutes(mux)
 	mux.HandleFunc("GET /api/documents/{id}", a.withProfile(func(w http.ResponseWriter, r *http.Request, p buddy.Profile) {
 		doc, err := a.Service.Document(r.Context(), p, r.PathValue("id"))
 		if err != nil {

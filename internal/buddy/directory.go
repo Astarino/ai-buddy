@@ -62,5 +62,5 @@ func (c Catalog) CorporateProfile(issuer, subject string) (Profile, error) {
 }
 
 func ProfileBinding(p Profile) string {
-	return fingerprint([]string{p.ID, p.Issuer, p.Subject, p.Team, p.Role, p.Direction, p.Space, p.Project})
+	return fingerprint([]string{p.ID, p.Issuer, p.Subject, p.Team, p.Role, p.Direction, p.Space, p.Project, p.Audience})
 }

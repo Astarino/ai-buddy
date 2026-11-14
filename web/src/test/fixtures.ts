@@ -24,6 +24,7 @@ export function workspace(): Workspace {
     service_fresh: true,
     model: 'ollama:qwen3.5:4b',
     demo: true,
+    requests: [],
   };
 }
 export const profiles = corpus.profiles;

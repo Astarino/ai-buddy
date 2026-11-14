@@ -112,6 +112,9 @@ func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 					if body["think"] != false || body["format"] == nil || body["options"].(map[string]any)["num_ctx"] != float64(4096) {
 						t.Error(body)
 					}
+					if body["options"].(map[string]any)["num_gpu"] != float64(0) {
+						t.Error("CPU option was not explicit")
+					}
 					if r.URL.Path != "/api/chat" {
 						t.Error(r.URL)
 					}
@@ -132,6 +135,7 @@ func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			m.(*Client).CPUOnly = provider == "ollama"
 			answer, err := m.Answer(context.Background(), buddy.AnswerInput{Question: "Как получить доступ?", History: []buddy.Message{{Text: strings.Repeat("x", 1000)}}})
 			if err != nil || answer.Text != "Тестовый ответ" {
 				t.Fatal(answer, err)

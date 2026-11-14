@@ -1,6 +1,16 @@
-import type { Action, Bootstrap, Message, Operation, Source, Workspace } from './types';
+import type {
+  Action,
+  Bootstrap,
+  HelpRequest,
+  Message,
+  Operation,
+  PublicSearch,
+  Source,
+  Workspace,
+} from './types';
 
 let contextID = '';
+let sessionEpoch = 0;
 
 export class ApiError extends Error {
   constructor(
@@ -52,15 +62,18 @@ const post = <T>(path: string, body: unknown, headers?: Record<string, string>) 
 export const api = {
   bootstrap: (signal?: AbortSignal) => request<Bootstrap>('/bootstrap', { signal }),
   state: async (signal?: AbortSignal) => {
+    const epoch = sessionEpoch;
     const state = await request<Workspace>('/state', { signal });
-    contextID = state.profile.id;
+    if (epoch === sessionEpoch) contextID = state.profile.id;
     return state;
   },
   login: (profile: string) => {
+    sessionEpoch++;
     contextID = '';
     return post<{ ok: boolean }>('/session', { profile_id: profile });
   },
   logout: () => {
+    sessionEpoch++;
     contextID = '';
     return request<{ ok: boolean }>('/session', { method: 'DELETE', body: '{}' });
   },
@@ -76,6 +89,24 @@ export const api = {
   refresh: () => post<Workspace>('/refresh', {}),
   source: (id: string) => request<Source>(`/documents/${encodeURIComponent(id)}`),
   draft: (question = '') => post<{ draft: string }>('/draft', { question }),
+  search: (id: string, topic: string, query: string) =>
+    post<PublicSearch>('/search', { id, topic, query }),
+  prepareRequest: (id: string, kind: string, subject: string, body: string) =>
+    post<HelpRequest>('/requests', { id, kind, subject, body }),
+  changeRequest: (id: string, command: string, version: number, recipient = '') =>
+    post<HelpRequest>(`/requests/${encodeURIComponent(id)}/change`, {
+      command,
+      version,
+      ...(recipient ? { recipient } : {}),
+    }),
+  replyRequest: (id: string, replyID: string, text: string, version: number) =>
+    post<HelpRequest>(`/requests/${encodeURIComponent(id)}/replies`, {
+      id: replyID,
+      text,
+      version,
+    }),
+  decideRequest: (id: string, status: string, version: number) =>
+    post<HelpRequest>(`/requests/${encodeURIComponent(id)}/decision`, { status, version }),
   event: (token: string, key: string, status: string) =>
     post<Workspace>('/demo/events', { key, status }, { 'X-Demo-Token': token }),
   diagnostics: () => request<Record<string, unknown>>('/diagnostics'),

@@ -84,3 +84,7 @@ func (c *Client) Execute(ctx context.Context, owner string, a buddy.Action) (bud
 func (c *Client) Event(ctx context.Context, owner, key, status string) error {
 	return c.call(ctx, http.MethodPost, "/events", c.OperatorToken, map[string]string{"user_id": owner, "key": key, "status": status}, nil)
 }
+
+func (c *Client) Decide(ctx context.Context, actor, owner, key, status string) error {
+	return c.call(ctx, http.MethodPost, "/decisions", c.Token, map[string]string{"actor_id": actor, "user_id": owner, "key": key, "status": status}, nil)
+}

@@ -43,7 +43,7 @@ func open(ctx context.Context, dsn string, migrate bool) (*Postgres, error) {
 		return nil, err
 	}
 	if !migrate {
-		_, err = db.Exec(ctx, `SELECT context_hash FROM buddy_sessions LIMIT 0; SELECT id FROM buddy_audit LIMIT 0; SELECT state_hash FROM buddy_logins LIMIT 0; SELECT profile_id FROM buddy_principals LIMIT 0; SELECT user_id FROM buddy_states LIMIT 0`)
+		_, err = db.Exec(ctx, `SELECT context_hash FROM buddy_sessions LIMIT 0; SELECT id FROM buddy_audit LIMIT 0; SELECT state_hash FROM buddy_logins LIMIT 0; SELECT profile_id FROM buddy_principals LIMIT 0; SELECT user_id FROM buddy_states LIMIT 0; SELECT id FROM buddy_requests LIMIT 0`)
 		if err != nil {
 			db.Close()
 			return nil, err
@@ -152,24 +152,19 @@ func (p *Postgres) DeleteSession(ctx context.Context, token string) error {
 }
 
 func (p *Postgres) Metrics(ctx context.Context) (map[string]int, error) {
-	rows, err := p.Pool.Query(ctx, "SELECT body->'events' FROM buddy_states")
+	rows, err := p.Pool.Query(ctx, "SELECT event_type,count(*) FROM buddy_audit GROUP BY event_type")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	counts := map[string]int{}
 	for rows.Next() {
-		var raw []byte
-		if err = rows.Scan(&raw); err != nil {
+		var kind string
+		var count int
+		if err = rows.Scan(&kind, &count); err != nil {
 			return nil, err
 		}
-		var events []buddy.Event
-		if err = json.Unmarshal(raw, &events); err != nil {
-			return nil, err
-		}
-		for _, event := range events {
-			counts[event.Type]++
-		}
+		counts[kind] = count
 	}
 	return counts, rows.Err()
 }

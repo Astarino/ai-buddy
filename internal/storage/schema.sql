@@ -37,6 +37,15 @@ CREATE TABLE IF NOT EXISTS buddy_logins (
     expires_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS buddy_logins_expiry ON buddy_logins(expires_at);
+CREATE TABLE IF NOT EXISTS buddy_requests (
+    id text PRIMARY KEY,
+    requester_id text NOT NULL,
+    assignee_id text NOT NULL,
+    body jsonb NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS buddy_requests_requester ON buddy_requests(requester_id);
+CREATE INDEX IF NOT EXISTS buddy_requests_assignee ON buddy_requests(assignee_id);
 CREATE TABLE IF NOT EXISTS buddy_principals (
     profile_id text PRIMARY KEY,
     issuer text NOT NULL,

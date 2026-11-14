@@ -82,6 +82,51 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
+	if r.URL.Path == "/decisions" {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		var input struct {
+			ActorID string `json:"actor_id"`
+			UserID  string `json:"user_id"`
+			Key     string `json:"key"`
+			Status  string `json:"status"`
+		}
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096))
+		decoder.DisallowUnknownFields()
+		if decoder.Decode(&input) != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		requester, err := s.Catalog.Profile(input.UserID)
+		if err != nil || requester.AccessOwnerID == "" || requester.AccessOwnerID != input.ActorID || input.ActorID == input.UserID {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		ops, err := s.list(r.Context(), input.UserID)
+		if err != nil {
+			write(w, nil, err)
+			return
+		}
+		valid := false
+		for _, op := range ops {
+			if op.Key == input.Key && op.Kind == "access" && op.Resource == requester.Space {
+				valid = true
+			}
+		}
+		if !valid || (input.Status != "approved" && input.Status != "granted" && input.Status != "rejected" && input.Status != "revoked") {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		if s.fault(input.UserID) == "unavailable" {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		err = s.transition(buddy.WithAudit(r.Context(), input.ActorID, correlation), input.UserID, input.Key, input.Status)
+		write(w, map[string]bool{"ok": err == nil}, err)
+		return
+	}
 	if r.URL.Path != "/operations" {
 		w.WriteHeader(http.StatusNotFound)
 		return

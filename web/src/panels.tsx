@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
-import { Avatar, Icon, OperationCard, Status } from './components';
+import { Icon, OperationCard, Status } from './components';
 import type { Source, Task, Workspace } from './types';
 
 export function SourcePanel({ id }: { id: string }) {
@@ -52,8 +52,10 @@ export function SourcePanel({ id }: { id: string }) {
         <div>
           <dt>Версия</dt>
           <dd>
-            {source.version} · снимок{' '}
-            {new Date(`${source.updated_at}T00:00:00`).toLocaleDateString('ru-RU')}
+            {source.version.slice(0, 16)} · снимок{' '}
+            {new Date(
+              source.updated_at.includes('T') ? source.updated_at : `${source.updated_at}T00:00:00`,
+            ).toLocaleDateString('ru-RU')}
           </dd>
         </div>
         <div>
@@ -252,73 +254,6 @@ export function RequestsPanel({
         «Согласовано» и «доступ выдан» — разные этапы. В тестовом контуре события воспроизводит
         оператор демонстрации.
       </p>
-    </>
-  );
-}
-
-export function MentorPanel({
-  workspace,
-  onDraft,
-  busy,
-}: {
-  workspace: Workspace;
-  onDraft: () => void;
-  busy: boolean;
-}) {
-  const [copied, setCopied] = useState(false);
-  const [copyError, setCopyError] = useState(false);
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(workspace.draft);
-      setCopied(true);
-      setCopyError(false);
-    } catch {
-      setCopyError(true);
-    }
-  }
-  return (
-    <>
-      <div className="mentor-intro">
-        <Avatar name={workspace.profile.mentor} mentor />
-        <div>
-          <h3>{workspace.profile.mentor}</h3>
-          <p>Наставник · {workspace.profile.team_name}</p>
-        </div>
-      </div>
-      {workspace.draft ? (
-        <>
-          <label className="field-label" htmlFor="mentor-draft">
-            Сохранённый черновик
-          </label>
-          <textarea
-            id="mentor-draft"
-            className="draft-text"
-            value={workspace.draft}
-            readOnly
-            rows={10}
-          />
-          <div className="button-row">
-            <button className="primary-button" onClick={() => void copy()}>
-              <Icon name={copied ? 'check' : 'copy'} size={17} />
-              {copied ? 'Скопировано' : 'Скопировать'}
-            </button>
-            <button className="secondary-button" disabled={busy} onClick={onDraft}>
-              Обновить черновик
-            </button>
-          </div>
-          {copyError && (
-            <p role="status" className="fine-print">
-              Буфер обмена недоступен. Выдели и скопируй текст вручную.
-            </p>
-          )}
-        </>
-      ) : (
-        <button className="primary-button" onClick={onDraft} disabled={busy}>
-          {busy ? 'Готовим…' : 'Подготовить черновик'}
-          <Icon name="chevron" size={16} />
-        </button>
-      )}
-      <p className="fine-print">Черновик не отправляется автоматически.</p>
     </>
   );
 }

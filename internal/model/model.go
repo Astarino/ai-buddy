@@ -44,6 +44,7 @@ type Client struct {
 	Model           string
 	Key             string
 	HTTP            *http.Client
+	CPUOnly         bool
 	gate            chan struct{}
 	externalAllowed bool
 }
@@ -122,6 +123,9 @@ func (c *Client) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Ans
 	if c.Provider == "ollama" {
 		body["format"], body["think"], body["keep_alive"] = schema, false, 0
 		body["options"] = map[string]any{"num_ctx": 4096, "num_predict": 512, "temperature": 0.2, "seed": 42}
+		if c.CPUOnly {
+			body["options"].(map[string]any)["num_gpu"] = 0
+		}
 	} else {
 		path = "/chat/completions"
 		body["response_format"] = map[string]any{"type": "json_object"}

@@ -3,6 +3,7 @@ package buddy
 import (
 	_ "embed"
 	"encoding/json"
+	"slices"
 	"sort"
 	"strings"
 	"unicode"
@@ -149,6 +150,42 @@ func Search(docs []Document, query string) []Document {
 		result = append(result, m.doc)
 	}
 	return result
+}
+
+func conversationDocuments(docs []Document, messages []Message, current, query string) []Document {
+	found := Search(docs, query)
+	if len([]rune(query)) > 120 {
+		return found
+	}
+	followup := false
+	generic := true
+	for _, word := range words(query) {
+		if slices.Contains([]string{"это", "так", "там", "подробнее", "поясни"}, word) {
+			followup = true
+		}
+		if !slices.Contains([]string{"а", "почему", "как", "это", "так", "там", "подробнее", "поясни", "объясни", "что", "зачем", "ещё", "еще", "можешь", "расскажи", "сделать", "работает", "поподробнее"}, word) {
+			generic = false
+		}
+	}
+	if !followup || (len(found) > 0 && !generic) {
+		return found
+	}
+	history := modelHistory(docs, messages, current)
+	for i := len(history) - 1; i >= 0; i-- {
+		old := history[i]
+		if old.Role != "assistant" || len(old.SourceIDs) == 0 {
+			continue
+		}
+		for _, id := range old.SourceIDs {
+			for _, doc := range docs {
+				if doc.ID == id && len(found) < 3 {
+					found = append(found, doc)
+				}
+			}
+		}
+		return found
+	}
+	return found
 }
 
 func (c Catalog) Route(p Profile, state State, ops []Operation) ([]Task, string) {

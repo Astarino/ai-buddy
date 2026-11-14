@@ -1,0 +1,51 @@
+{
+  "documents": [
+    {
+      "id": "",
+      "title": "Go Modules Reference",
+      "body": "A module is identified by a [module path](#glos-module-path), which is declared\nin a [`go.mod` file](#go-mod-file), together with information about the\nmodule's dependencies. The module root directory is the directory\nthat contains the `go.mod` file. The main module is the module\ncontaining the directory where the `go` command is invoked.\n\n* The `-module` flag changes the module's path (the `go.mod` file's module\n  line).\n* The `-go=version` flag sets the expected Go language version.\n* The `-require=path@version` and `-droprequire=path` flags add and drop a\n  requirement on the given module path and version. Note that `-require`\n  overrides any existing requirements on `path`. These flags are mainly for\n  tools that understand the module graph. Users should prefer `go get\n  path@version` or `go get path@none`, which make other `go.mod` adjustments as\n  needed to satisfy constraints impo",
+      "team": "",
+      "scope": "public",
+      "data_class": "public",
+      "origin": "Официальная документация; свежий снимок из https://raw.githubusercontent.com/golang/website/master/_content/ref/mod.md",
+      "url": "https://go.dev/ref/mod",
+      "version": "b3176abbe34fca9ab499843e378b5c5f04b2ea3e46e2071d1195495995f08e37",
+      "updated_at": "2026-11-14T14:51:55Z",
+      "synthetic": false,
+      "keywords": "go"
+    },
+    {
+      "id": "",
+      "title": "Создать модуль Go",
+      "body": "Create a greetings directory for your Go module source code.\n\n$ go mod init example.com/greetings\ngo: creating new go.mod: module example.com/greetings\n\nThe go mod init command creates a go.mod file to track your\n      code's dependencies. So far, the file includes only the name of your\n      module and the Go version your code supports. But as you add dependencies,\n      the go.mod file will list the versions your code depends on. This keeps\n      builds reproducible and gives you direct control over which module\n      versions to use.",
+      "team": "",
+      "scope": "public",
+      "data_class": "public",
+      "origin": "Официальная документация; свежий снимок из https://raw.githubusercontent.com/golang/website/master/_content/doc/tutorial/create-module.html",
+      "url": "https://go.dev/doc/tutorial/create-module",
+      "version": "e86bbbcbb07dbd6aa9a5e3e00ddf7525888f8f4298299818b9c7cf7b2407d144",
+      "updated_at": "2026-11-14T14:51:55Z",
+      "synthetic": false,
+      "keywords": "go"
+    },
+    {
+      "id": "",
+      "title": "Тесты в Go",
+      "body": "Note: This topic is part of a multi-part tutorial that begins\n  with Create a Go module.\n\nIn the greetings directory, create a file called greetings_test.go.\n\nAt the command line in the greetings directory, run the\n    go test command\n    to execute the test.",
+      "team": "",
+      "scope": "public",
+      "data_class": "public",
+      "origin": "Официальная документация; свежий снимок из https://raw.githubusercontent.com/golang/website/master/_content/doc/tutorial/add-a-test.html",
+      "url": "https://go.dev/doc/tutorial/add-a-test",
+      "version": "d5ea155f25736df5051fddc35df81af3600b57700972d8fde4c344345c9a0ca0",
+      "updated_at": "2026-11-14T14:51:55Z",
+      "synthetic": false,
+      "keywords": "go"
+    }
+  ],
+  "elapsed_ms": 527,
+  "evaluated_at": "2026-11-14T14:51:55.393098Z",
+  "network": true,
+  "passed": true,
+  "scope": "live official Go/Git documentation snapshots; local passage ranking; question never sent to websites"
+}

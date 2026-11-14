@@ -96,3 +96,31 @@ func TestResourceDecisionsAreBoundToActorActionAndResource(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestToolAndCollaborationPermissionsKeepResourceTypes(t *testing.T) {
+	actor := buddy.Profile{ID: "employee", Issuer: "https://idp.example", Subject: "subject"}
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		var request Request
+		if json.NewDecoder(r.Body).Decode(&request) != nil {
+			t.Fatal("request")
+		}
+		json.NewEncoder(w).Encode(Decision{ActorID: request.ActorID, Resource: request.Resource, Permission: request.Permission, Allowed: true, ExpiresAt: time.Now().Add(time.Minute), PolicyVersion: "v1"})
+	}))
+	defer server.Close()
+	c, _ := New(server.URL, "service-token")
+	for _, tc := range []struct{ permission, system, kind, id string }{
+		{"request_help", "ai-buddy", "person", "mentor"}, {"reply", "ai-buddy", "request", "request-1"}, {"use", "ai-buddy", "tool", "public-search"}, {"decide_access", "confluence", "space", "CATALOG"}, {"request_access", "confluence", "space", "CATALOG"}, {"assign_self", "jira", "issue", "CAT-101"},
+	} {
+		r := buddy.Resource{System: tc.system, Kind: tc.kind, ID: tc.id}
+		if err := c.Check(context.Background(), actor, r, tc.permission); err != nil {
+			t.Fatal(tc, err)
+		}
+		count := calls
+		r.Kind = "unrelated"
+		if err := c.Check(context.Background(), actor, r, tc.permission); !errors.Is(err, buddy.ErrForbidden) || calls != count {
+			t.Fatal("permission crossed resource type", tc, err)
+		}
+	}
+}

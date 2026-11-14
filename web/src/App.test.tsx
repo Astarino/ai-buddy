@@ -249,15 +249,13 @@ describe('Рабочее пространство стажёра', () => {
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument());
   });
 
-  it('prepares a saved mentor draft and allows a profile change and sign-out', async () => {
+  it('opens a private question form and allows a profile change and sign-out', async () => {
     await start();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Подготовить вопрос' }));
-    await user.click(screen.getByRole('button', { name: 'Подготовить черновик' }));
-    await screen.findByRole('textbox', { name: 'Сохранённый черновик' });
-    expect(mock.draft).toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Скопировать' }));
-    await screen.findByRole('button', { name: 'Скопировано' });
+    await screen.findByRole('textbox', { name: 'Что передать' });
+    expect(screen.getByRole('textbox', { name: 'Что передать' })).toHaveValue('');
+    expect(mock.prepareRequest).not.toHaveBeenCalled();
     await close();
     await user.click(screen.getByRole('button', { name: /Антон Соколов.*Backend-стажёр/ }));
     state.profile = profiles[1];

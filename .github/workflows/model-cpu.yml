@@ -1,0 +1,36 @@
+name: CPU model verification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Validate configuration
+        run: sh scripts/jury.sh --check
+      - name: Start actual CPU model and application
+        run: sh scripts/jury.sh --model
+      - name: Verify actual inference and main workflow
+        run: |
+          python3 scripts/verify_model.py http://127.0.0.1:8090
+          python3 scripts/smoke.py http://127.0.0.1:8090
+      - if: always()
+        name: Save verification evidence
+        run: |
+          docker compose -f compose.yaml -f compose.cpu.yaml exec -T app wget -qO- http://ollama:11434/api/version > reports/model-cpu.runtime.json
+          docker compose -f compose.yaml -f compose.cpu.yaml exec -T app wget -qO- http://ollama:11434/api/tags > reports/model-cpu.tags.json
+          free -m
+          lscpu
+      - if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: cpu-verification
+          path: reports/model-cpu*.json
+          retention-days: 7
+      - if: always()
+        run: docker compose -f compose.yaml -f compose.cpu.yaml logs --tail=100
+      - if: always()
+        run: docker compose -f compose.yaml -f compose.cpu.yaml down -v

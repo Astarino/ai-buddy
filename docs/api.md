@@ -15,6 +15,13 @@
 | `POST /tasks/{id}/complete` | `{}` | самоотчёт по доступному шагу, затем актуальное состояние |
 | `POST /refresh` | `{}` | фактические операции и обновлённые права/маршрут |
 | `POST /draft` | `question` или пустая строка | сохранённый черновик наставнику без отправки |
+| `POST /search` | `id, topic: go/git, query` | свежие официальные фрагменты, ссылки, хеши, время; повтор ключа возвращает снимок |
+| `GET /requests` | сессия | только собственные или назначенные карточки; черновики только автору |
+| `POST /requests` | `id, kind: mentor/owner, subject, body` | сохранённый черновик с доверенным получателем, без отправки |
+| `GET /requests/{id}` | сессия | карточка и обсуждение; чужая карточка — 404 |
+| `POST /requests/{id}/change` | `command: send/resolve/reassign, version`; для reassign `recipient` | подтверждение отправки, самоотчёт о решении либо передача текущему ответственному |
+| `POST /requests/{id}/replies` | `id, text, version` | идемпотентный ответ участника; версия защищает от устаревшей карточки |
+| `POST /requests/{id}/decision` | `status, version` | только назначенный владелец; фактический результат корпоративного API |
 | `GET /diagnostics` | сессия | события своей сессии, версия промпта и имя модели, без промптов и ключей |
 | `POST /demo/events` | `key, status`, `X-Demo-Token` | тестовое событие владельца ресурса |
 | `GET /demo/metrics` | `X-Demo-Token` | технические счётчики без текстов переписки |
@@ -29,7 +36,7 @@
 
 `GET /login` начинает OIDC-вход, `GET /login/callback` завершает проверку state/cookie, PKCE, nonce и ID token. Bootstrap не перечисляет профили; `POST /session` не создаёт демо-сессию, `/demo/*` не зарегистрированы. Cookie называется `__Host-buddy_session`. Сессия привязана к issuer/subject и контексту профиля; изменения требуют нового входа. В диагностике — последние 200 записей отдельного журнала своего пользователя.
 
-`Authorizer` использует собственный согласуемый HTTP-контракт: `POST <AUTHORIZATION_BASE_URL>/authorize`, серверный Bearer `AUTHORIZATION_TOKEN`, JSON `{actor_id, issuer, subject, resource:{system,kind,id}, permission}`. Разрешены `read`, `request_access`, `assign_self`. Ответ: `{actor_id, resource, permission, allowed, expires_at, policy_version}`. Все поля привязки должны совпасть, срок быть действующим, версия непустой; ошибка и неизвестные поля дают отказ. На каждом запросе проверяется также `read` для `{system:"ai-buddy",kind:"account",id:<profile-id>}`. Это контракт для корпоративного адаптера, а не заявленная совместимость с произвольным IAM API.
+`Authorizer` использует собственный согласуемый HTTP-контракт: `POST <AUTHORIZATION_BASE_URL>/authorize`, серверный Bearer `AUTHORIZATION_TOKEN`, JSON `{actor_id, issuer, subject, resource:{system,kind,id}, permission}`. Разрешены `read`, `request_access`, `assign_self`, `request_help`, `reply`, `use`, `decide_access`. Для новых инструментов проверяются ресурсы `ai-buddy/tool/public-search`, `ai-buddy/search/<id>`, `ai-buddy/person/<assignee-id>`, `ai-buddy/request/<id>` и точное пространство Confluence. Ответ: `{actor_id, resource, permission, allowed, expires_at, policy_version}`. Все поля привязки должны совпасть, срок быть действующим, версия непустой; ошибка и неизвестные поля дают отказ. На каждом запросе проверяется также `read` для `{system:"ai-buddy",kind:"account",id:<profile-id>}`. Это контракт для корпоративного адаптера, а не заявленная совместимость с произвольным IAM API.
 
 ## Имитация корпоративного сервиса
 
@@ -42,3 +49,5 @@
 `POST /events` получает `{user_id, key, status}` от тестового оператора. Допустимы `pending → approved → granted`, `pending/approved → rejected`, `granted → revoked`; для Jira — `assigned → done`. Повтор того же события идемпотентен. Удаление ресурса, merge и production-действия отсутствуют.
 
 Для демонстрации сбоев событие с пустым `key` выбирает режим своего пользователя: `normal`, `unavailable`, `lost_response`. Последний сохраняет операцию, но задерживает ответ за пределами тайм-аута клиента. Настоящий результат восстанавливается по прежнему ключу, без новой заявки.
+
+`POST /decisions` получает `{actor_id, user_id, key, status}` с сервисным токеном. Имитация повторно сверяет назначенного владельца в доверенном каталоге, ресурс и допустимый переход. Внешний эффект не выполняется внутри SQL-транзакции карточки: сначала сохраняется конкретное намерение. Конкурирующее другое решение отклоняется; потерянный ответ восстанавливается чтением операции. Повтор одного статуса идемпотентен.
