@@ -1,0 +1,9 @@
+# Ports are exposed only for the ephemeral CI runner's Go evaluation process.
+# The normal jury deployment does not publish PostgreSQL or Ollama.
+services:
+  db:
+    ports:
+      - 127.0.0.1:5433:5432
+  ollama:
+    ports:
+      - 127.0.0.1:11434:11434

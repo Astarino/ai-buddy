@@ -141,6 +141,8 @@ func (c *Client) fetch(ctx context.Context, raw string) (string, error) {
 }
 
 var tags = regexp.MustCompile(`<[^>]*>`)
+var markdownLink = regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`)
+var gitReference = regexp.MustCompile(`linkgit:([a-z0-9-]+)\[[0-9]+\]`)
 
 func excerpt(body, query string) string {
 	// This extracts plain search text; no fetched markup is ever rendered as HTML.
@@ -163,6 +165,9 @@ func excerpt(body, query string) string {
 	chunks := []chunk{}
 	for i, p := range strings.Split(body, "\n\n") {
 		p = strings.TrimSpace(html.UnescapeString(tags.ReplaceAllString(p, "")))
+		p = markdownLink.ReplaceAllString(p, "$1")
+		p = gitReference.ReplaceAllString(p, "$1")
+		p = strings.ReplaceAll(p, "`", "")
 		if p == "" || strings.HasPrefix(p, "---") || strings.HasPrefix(p, "{{") {
 			continue
 		}

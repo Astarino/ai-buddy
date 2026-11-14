@@ -27,6 +27,28 @@ PostgreSQL. После изменения Go перезапусти команд
 
 ## Docker
 
+Для настоящей Qwen без GPU:
+
+```sh
+sh scripts/jury.sh --model
+```
+
+Команда использует `compose.cpu.yaml`: скачивает около 3,3 ГБ Linux-весов
+в отдельный том, запускает Ollama 0.40.16 с лимитом 6 GiB и одним запросом.
+Для всей установки нужны дополнительные память и диск для Docker, PostgreSQL
+и сборки приложения. Модель остаётся загруженной до 300 секунд после ответа;
+порт Ollama наружу не публикуется. API-ключ не нужен. Первый ответ может
+занять около минуты. `sh scripts/jury.sh --check` только проверяет конфигурацию.
+Полная приёмка CPU-конфигурации сохраняется отдельно от нативной в `reports/`.
+
+Остановка с сохранением данных и весов:
+
+```sh
+docker compose -f compose.yaml -f compose.cpu.yaml down
+```
+
+Быстрая проверка интерфейса и операций без LLM:
+
 ```sh
 docker compose --env-file .env.docker.example up --build
 ```
@@ -67,6 +89,8 @@ API выбирается явно и требует отдельного раз�
 | `DEMO_OPERATOR_TOKEN` | полномочие тестового оператора; пустое значение блокирует события |
 | `MODEL_PROVIDER` | `ollama`, `compatible`, `fixture` |
 | `MODEL_BASE_URL`, `MODEL_NAME` | явный endpoint и модель |
+| `MODEL_CPU_ONLY` | `true` передаёт Ollama `num_gpu=0` |
+| `MODEL_KEEP_ALIVE_SECONDS` | 0 по умолчанию; 1–300 разрешены только при CPU-only |
 | `MODEL_API_KEY` | ключ внешнего провайдера, никогда не frontend |
 | `ALLOW_EXTERNAL_MODEL` | `true` при осознанном выборе внешнего inference |
 | `MODEL_DATA_POLICY` | `internal` по умолчанию; `public-only` для одобренного внешнего провайдера |

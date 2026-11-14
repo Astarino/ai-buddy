@@ -1,0 +1,420 @@
+{
+  "suite": "acceptance",
+  "model": "ollama:qwen3.5:4b",
+  "prompt_version": "buddy-grounded-v3",
+  "run_status": "stopped_by_memory_guard",
+  "execution_environment": "Apple M4, 16 GiB, native MLX",
+  "application_commit": "3119bfc01589670eb0556cd9dbb631c13c79874e",
+  "case_count": 50,
+  "required_case_count": 50,
+  "passed": 24,
+  "inference_attempts": 26,
+  "validated_inference_responses": 0,
+  "minimum_free_memory_percent_observed": 23,
+  "guard_threshold_percent": 25,
+  "recovered_free_memory_percent": 56,
+  "runtime_metadata_unavailable": true,
+  "results": [
+    {
+      "id": "K01",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6589
+    },
+    {
+      "id": "K02",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "K03",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "K04",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "K05",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "K06",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "K07",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "K08",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "K09",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "K10",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "K11",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "K12",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "K13",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "K14",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "K15",
+      "category": "knowledge",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "U01",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "U02",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 7
+    },
+    {
+      "id": "U03",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "U04",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "U05",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "U06",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "U07",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "U08",
+      "category": "unknown",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 7
+    },
+    {
+      "id": "U09",
+      "category": "unknown",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "U10",
+      "category": "unknown",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "S01",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "S02",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 9
+    },
+    {
+      "id": "S03",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 9
+    },
+    {
+      "id": "S04",
+      "category": "security",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "S05",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "S06",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "S07",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "S08",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 1
+    },
+    {
+      "id": "S09",
+      "category": "security",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "S10",
+      "category": "security",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 9
+    },
+    {
+      "id": "A01",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "A02",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "A03",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 7
+    },
+    {
+      "id": "A04",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "A05",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "A06",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 4
+    },
+    {
+      "id": "A07",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 1
+    },
+    {
+      "id": "A08",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 15
+    },
+    {
+      "id": "A09",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 18
+    },
+    {
+      "id": "A10",
+      "category": "operation",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 2
+    },
+    {
+      "id": "F01",
+      "category": "fault",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 14
+    },
+    {
+      "id": "F02",
+      "category": "fault",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 7
+    },
+    {
+      "id": "F03",
+      "category": "fault",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "F04",
+      "category": "fault",
+      "passed": true,
+      "inference_attempts": 0,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 508
+    },
+    {
+      "id": "F05",
+      "category": "fault",
+      "passed": false,
+      "inference_attempts": 1,
+      "validated_inference_responses": 0,
+      "elapsed_ms": 7
+    }
+  ],
+  "scope": "Reconstructed from the actual test log because the previous harness aborted before saving its report. Runtime stopped during the first model response. This is a resource-limited attempt, not a model quality score. Passed cases here are deterministic application checks; historical v2 results are separate."
+}

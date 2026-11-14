@@ -192,13 +192,13 @@ type Authorizer interface {
 
 type AnswerInput struct {
 	ApprovedExternal bool       `json:"-"`
-	Question         string     `json:"question"`
 	Team             string     `json:"team"`
 	Day              int        `json:"day"`
 	Documents        []Document `json:"documents"`
 	History          []Message  `json:"history"`
 	Direction        string     `json:"direction"`
 	Role             string     `json:"role"`
+	Question         string     `json:"question"`
 }
 
 type Answer struct {

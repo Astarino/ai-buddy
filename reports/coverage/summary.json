@@ -1,10 +1,10 @@
 {
   "backend_lines": {
-    "covered": 2637,
-    "total": 3089,
-    "pct": 85.37
+    "covered": 2644,
+    "total": 3096,
+    "pct": 85.4
   },
-  "backend_statements_pct": 88.2,
+  "backend_statements_pct": 88.3,
   "frontend_lines": {
     "total": 465,
     "covered": 410,

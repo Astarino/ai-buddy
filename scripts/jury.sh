@@ -11,7 +11,7 @@ case "${1:-}" in
     printf 'Настоящая Qwen 4B на CPU. Первый запуск загружает около 4 ГБ весов.\n'
     docker compose -f compose.yaml -f compose.cpu.yaml up --build --wait --wait-timeout 900
     ;;
-  --check) docker compose -f compose.yaml -f compose.cpu.yaml config --quiet ;;
+  --check) docker compose -f compose.yaml -f compose.cpu.yaml config --quiet; printf 'Конфигурация корректна.\n'; exit 0 ;;
   '') docker compose up --build --wait ;;
   *) printf 'Использование: sh scripts/jury.sh [--model|--check]\n' >&2; exit 1 ;;
 esac

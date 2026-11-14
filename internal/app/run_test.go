@@ -195,6 +195,14 @@ func TestConfigurationFailuresAndBindError(t *testing.T) {
 		t.Fatal("missing service token accepted")
 	}
 	t.Setenv("CORPORATE_TOKEN", "test")
+	t.Setenv("MODEL_PROVIDER", "ollama")
+	for _, value := range []string{"-1", "301", "invalid", "300"} {
+		t.Setenv("MODEL_KEEP_ALIVE_SECONDS", value)
+		if err := RunContext(context.Background(), "server"); err == nil {
+			t.Fatal("invalid or non-CPU keep-alive accepted", value)
+		}
+	}
+	t.Setenv("MODEL_KEEP_ALIVE_SECONDS", "0")
 	t.Setenv("MODEL_PROVIDER", "unsupported")
 	if err := RunContext(context.Background(), "server"); err == nil {
 		t.Fatal("unsupported provider accepted")

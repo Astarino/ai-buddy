@@ -1,0 +1,54 @@
+{
+  "case_count": 1,
+  "generated_at": "2026-11-11T11:58:00Z",
+  "inference_calls": 1,
+  "model": "ollama:qwen3.5:4b",
+  "ollama_tags": {
+    "models": [
+      {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "modified_at": "2026-11-11T13:54:20.872238386+03:00",
+        "size": 3973305013,
+        "digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+        "details": {
+          "parent_model": "",
+          "format": "safetensors",
+          "family": "",
+          "families": null,
+          "parameter_size": "",
+          "quantization_level": "nvfp4",
+          "runner": "mlx"
+        },
+        "capabilities": [
+          "completion",
+          "vision",
+          "thinking",
+          "tools"
+        ]
+      }
+    ]
+  },
+  "ollama_version": {
+    "version": "0.40.16"
+  },
+  "pass_percent": 100,
+  "passed": 1,
+  "prompt_version": "buddy-grounded-v2",
+  "results": [
+    {
+      "id": "R01",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 5736,
+      "answer": "На вторую неделю отводится изучение командных материалов и внесение целей в инструмент отслеживания прогресса.",
+      "sources": [
+        "checklist"
+      ]
+    }
+  ],
+  "scope": "Application acceptance cases; actual inference calls are counted. Deliberate dependency failures and deterministic workflows do not claim model inference. Not a human user study.",
+  "security_violations": 0,
+  "suite": "regression"
+}

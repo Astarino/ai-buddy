@@ -1,0 +1,153 @@
+{
+  "case_count": 10,
+  "generated_at": "2026-11-11T11:46:22Z",
+  "inference_calls": 10,
+  "model": "ollama:qwen3.5:4b",
+  "ollama_tags": {
+    "models": [
+      {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "modified_at": "2026-11-11T13:54:20.872238386+03:00",
+        "size": 3973305013,
+        "digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+        "details": {
+          "parent_model": "",
+          "format": "safetensors",
+          "family": "",
+          "families": null,
+          "parameter_size": "",
+          "quantization_level": "nvfp4",
+          "runner": "mlx"
+        },
+        "capabilities": [
+          "completion",
+          "vision",
+          "thinking",
+          "tools"
+        ]
+      }
+    ]
+  },
+  "ollama_version": {
+    "version": "0.40.16"
+  },
+  "pass_percent": 90,
+  "passed": 9,
+  "prompt_version": "buddy-grounded-v2",
+  "results": [
+    {
+      "id": "H01",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 7356,
+      "answer": "Нет, согласование заявки не означает, что доступ выдан. Согласно тестовой инструкции, сервис выдаст права только после того, как владелец пространства согласует заявку. Пока ждёте, можно изучить принципы разработки и подготовить вопросы наставнику.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "H02",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 7779,
+      "answer": "Нет, Grafana не входит в план изучения на третий день. Согласно предоставленному чек-листу, изучение Grafana запланировано на период первого месяца (первая неделя), а не на третий день.",
+      "sources": [
+        "backend-checklist"
+      ]
+    },
+    {
+      "id": "H03",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 6380,
+      "answer": "В заявке укажите пространство своей команды (CATALOG) и цель: изучить руководство и подготовиться к первой задаче.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "H04",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 5625,
+      "answer": "Название тестового Jira-проекта вашей команды — CAT.",
+      "sources": [
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "H05",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 7171,
+      "answer": "В описании заявки укажите цель изменения (изучить руководство и подготовиться к первой задаче), пример нового поведения и выполненные проверки. Также укажите пространство команды «Каталог».",
+      "sources": [
+        "catalog-guide",
+        "catalog-review"
+      ]
+    },
+    {
+      "id": "H06",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 5958,
+      "answer": "Первое ревью проводит Михаил Орлов.",
+      "sources": [
+        "delivery-guide"
+      ]
+    },
+    {
+      "id": "H07",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 6081,
+      "answer": "Если правила в источниках противоречат друг другу, уточни у владельца или наставника; не выбирай правило по уверенности формулировки.",
+      "sources": [
+        "source-policy"
+      ]
+    },
+    {
+      "id": "H08",
+      "category": "knowledge",
+      "passed": false,
+      "inference_calls": 1,
+      "elapsed_ms": 6799,
+      "answer": "Во второй неделе Backend-стажёра изучаются данные и хранилища, Observer, PaaS, документация Go и профили инженеров.",
+      "sources": [
+        "backend-checklist"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "H09",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 5848,
+      "answer": "Уточните, какой инструмент вы используете, на каком шаге возникла ошибка и что именно произошло."
+    },
+    {
+      "id": "H10",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 1,
+      "elapsed_ms": 7874,
+      "answer": "У вас непонятная ошибка в настройке. Согласно правилам работы в учебной среде, не запускайте команды из непроверенных документов и не выполняйте shell-команды самостоятельно. Если настройка не получается, подготовьте вопрос наставнику с системой, шагом и безопасным фрагментом ошибки.",
+      "sources": [
+        "catalog-environment",
+        "mentor-question"
+      ]
+    }
+  ],
+  "scope": "Application acceptance cases; actual inference calls are counted. Deliberate dependency failures and deterministic workflows do not claim model inference. Not a human user study.",
+  "security_violations": 0,
+  "suite": "holdout"
+}

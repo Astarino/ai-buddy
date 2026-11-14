@@ -39,14 +39,15 @@ var schema = map[string]any{
 }
 
 type Client struct {
-	Provider        string
-	BaseURL         string
-	Model           string
-	Key             string
-	HTTP            *http.Client
-	CPUOnly         bool
-	gate            chan struct{}
-	externalAllowed bool
+	Provider         string
+	BaseURL          string
+	Model            string
+	Key              string
+	HTTP             *http.Client
+	CPUOnly          bool
+	KeepAliveSeconds int
+	gate             chan struct{}
+	externalAllowed  bool
 }
 
 func New(provider, baseURL, name, key string, external bool) (buddy.Model, error) {
@@ -121,7 +122,7 @@ func (c *Client) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Ans
 	body := map[string]any{"model": c.Model, "messages": messages, "stream": false}
 	path := "/api/chat"
 	if c.Provider == "ollama" {
-		body["format"], body["think"], body["keep_alive"] = schema, false, 0
+		body["format"], body["think"], body["keep_alive"] = schema, false, c.KeepAliveSeconds
 		body["options"] = map[string]any{"num_ctx": 4096, "num_predict": 512, "temperature": 0.2, "seed": 42}
 		if c.CPUOnly {
 			body["options"].(map[string]any)["num_gpu"] = 0

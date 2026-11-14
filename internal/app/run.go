@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -72,6 +73,11 @@ func RunContext(ctx context.Context, kind string) error {
 		}
 		if client, ok := llm.(*model.Client); ok {
 			client.CPUOnly = os.Getenv("MODEL_CPU_ONLY") == "true"
+			seconds, err := strconv.Atoi(env("MODEL_KEEP_ALIVE_SECONDS", "0"))
+			if err != nil || seconds < 0 || seconds > 300 || (seconds > 0 && !client.CPUOnly) {
+				return fmt.Errorf("model keep-alive requires CPU-only mode and a value from 0 to 300 seconds")
+			}
+			client.KeepAliveSeconds = seconds
 		}
 		base := env("CORPORATE_BASE_URL", "http://127.0.0.1:8091")
 		if _, err := outbound.ValidateBaseURL(base); err != nil {

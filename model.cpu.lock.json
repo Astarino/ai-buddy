@@ -1,0 +1,21 @@
+{
+  "provider": "ollama",
+  "runtime_version": "0.40.16",
+  "runtime_distribution": "ollama/ollama:0.40.16 Linux container",
+  "model": "qwen3.5:4b",
+  "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+  "runner": "llamacpp",
+  "quantization": "Q4_K_M",
+  "download_bytes": 3324173934,
+  "context_tokens": 4096,
+  "max_output_tokens": 512,
+  "temperature": 0.2,
+  "seed": 42,
+  "thinking": false,
+  "concurrency": 1,
+  "keep_alive": 300,
+  "prompt_version": "buddy-grounded-v3",
+  "corpus_version": "2026-11-14-v3",
+  "cpu_only": true,
+  "container_memory_limit_bytes": 6442450944
+}

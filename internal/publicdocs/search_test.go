@@ -43,6 +43,9 @@ func TestLiveFetchRankingAndEgress(t *testing.T) {
 	if excerpt("<p>go &amp; test</p>", "test") != "go & test" {
 		t.Fatal("plain HTML extraction")
 	}
+	if cleaned := excerpt("The [module path](#module) in `go.mod`.\n\nSee linkgit:git-status[1].", "module git"); strings.Contains(cleaned, "](") || strings.Contains(cleaned, "`") || strings.Contains(cleaned, "linkgit:") {
+		t.Fatal("source markup leaked into plain text", cleaned)
+	}
 	root := excerpt("A module is identified by a module path. The module root directory is the directory that contains the go.mod file.\n\n"+strings.Repeat("go.mod directory prefix module command test ", 80)+"\n\nMore directory modules.", "go test ./...: directory prefix does not contain main module go.mod")
 	if !strings.Contains(root, "module root directory") {
 		t.Fatal("module-root definition lost", root)

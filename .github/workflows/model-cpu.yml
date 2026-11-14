@@ -6,31 +6,50 @@ permissions:
 jobs:
   inference:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 60
+    env:
+      COMPOSE_FILE: compose.yaml:compose.cpu.yaml:.github/compose.model-eval.yaml
+      TEST_DATABASE_URL: postgres://buddy:buddy-demo@127.0.0.1:5433/buddy?sslmode=disable
+      RUN_MODEL_EVAL: "true"
+      RUN_MODEL_PROBLEM: "true"
+      EVAL_MODEL_CPU_ONLY: "true"
+      EVAL_KEEP_ALIVE_SECONDS: "300"
+      EVAL_ENVIRONMENT: GitHub Actions ubuntu-24.04 CPU container, 6 GiB limit
     steps:
       - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version: 1.25.5
       - name: Validate configuration
         run: sh scripts/jury.sh --check
       - name: Start actual CPU model and application
-        run: sh scripts/jury.sh --model
+        run: docker compose up --build --wait --wait-timeout 900
       - name: Verify actual inference and main workflow
         run: |
           python3 scripts/verify_model.py http://127.0.0.1:8090
           python3 scripts/smoke.py http://127.0.0.1:8090
+      - name: Full quality and failure evaluation
+        run: |
+          failed=0
+          for suite in acceptance holdout regression; do
+            EVAL_SUITE="$suite" go test ./internal/buddy -run '^TestRealModelEvaluation$' -count=1 -timeout=40m -v || failed=1
+          done
+          go test ./internal/httpapi -run '^TestRealGoProblem$' -count=1 -timeout=8m -v || failed=1
+          exit "$failed"
       - if: always()
         name: Save verification evidence
         run: |
-          docker compose -f compose.yaml -f compose.cpu.yaml exec -T app wget -qO- http://ollama:11434/api/version > reports/model-cpu.runtime.json
-          docker compose -f compose.yaml -f compose.cpu.yaml exec -T app wget -qO- http://ollama:11434/api/tags > reports/model-cpu.tags.json
+          docker compose exec -T app wget -qO- http://ollama:11434/api/version > reports/model-cpu.runtime.json
+          docker compose exec -T app wget -qO- http://ollama:11434/api/tags > reports/model-cpu.tags.json
           free -m
           lscpu
       - if: always()
         uses: actions/upload-artifact@v7.0.2
         with:
           name: cpu-verification
-          path: reports/model-cpu*.json
+          path: reports/model-*.json
           retention-days: 7
       - if: always()
-        run: docker compose -f compose.yaml -f compose.cpu.yaml logs --tail=100
+        run: docker compose logs --tail=100
       - if: always()
-        run: docker compose -f compose.yaml -f compose.cpu.yaml down -v
+        run: docker compose down -v

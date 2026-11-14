@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -31,26 +33,32 @@ type evalCase struct {
 }
 
 type evalResult struct {
-	ID             string   `json:"id"`
-	Category       string   `json:"category"`
-	Passed         bool     `json:"passed"`
-	InferenceCalls int      `json:"inference_calls"`
-	ElapsedMS      int64    `json:"elapsed_ms"`
-	Answer         string   `json:"answer,omitempty"`
-	Sources        []string `json:"sources,omitempty"`
-	Error          string   `json:"error,omitempty"`
+	ID                 string   `json:"id"`
+	Category           string   `json:"category"`
+	Passed             bool     `json:"passed"`
+	InferenceCalls     int      `json:"inference_calls"`
+	ValidatedResponses int      `json:"validated_responses"`
+	ElapsedMS          int64    `json:"elapsed_ms"`
+	Answer             string   `json:"answer,omitempty"`
+	Sources            []string `json:"sources,omitempty"`
+	Error              string   `json:"error,omitempty"`
 }
 
 type countedModel struct {
-	base  buddy.Model
-	calls int
+	base      buddy.Model
+	calls     int
+	completed int
 }
 
 func (m *countedModel) Name() string                  { return m.base.Name() }
 func (m *countedModel) Boundary() buddy.ModelBoundary { return m.base.Boundary() }
 func (m *countedModel) Answer(ctx context.Context, input buddy.AnswerInput) (buddy.Answer, error) {
 	m.calls++
-	return m.base.Answer(ctx, input)
+	a, err := m.base.Answer(ctx, input)
+	if err == nil {
+		m.completed++
+	}
+	return a, err
 }
 
 func grant(t *testing.T, s *buddy.Service, p buddy.Profile) buddy.Action {
@@ -105,10 +113,19 @@ func TestRealModelEvaluation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	llm.(*model.Client).CPUOnly = os.Getenv("EVAL_MODEL_CPU_ONLY") == "true"
+	if raw := os.Getenv("EVAL_KEEP_ALIVE_SECONDS"); raw != "" {
+		seconds, e := strconv.Atoi(raw)
+		if e != nil || seconds < 0 || seconds > 300 || (seconds > 0 && !llm.(*model.Client).CPUOnly) {
+			t.Fatal("invalid eval keep-alive")
+		}
+		llm.(*model.Client).KeepAliveSeconds = seconds
+	}
 	results := []evalResult{}
 	passed := 0
 	violations := 0
 	inferenceCalls := 0
+	validatedResponses := 0
 	for _, item := range cases {
 		t.Run(item.ID, func(t *testing.T) {
 			s, p, other := world(t)
@@ -194,8 +211,10 @@ func TestRealModelEvaluation(t *testing.T) {
 				result.Passed = evalFault(t, s, p, counter, item.Mode)
 			}
 			result.InferenceCalls = counter.calls
+			result.ValidatedResponses = counter.completed
 			result.ElapsedMS = time.Since(start).Milliseconds()
 			inferenceCalls += counter.calls
+			validatedResponses += counter.completed
 			if result.Passed {
 				passed++
 			} else if result.Error == "" {
@@ -206,30 +225,66 @@ func TestRealModelEvaluation(t *testing.T) {
 		})
 	}
 	report := map[string]any{
-		"suite":               suite,
-		"model":               llm.Name(),
-		"prompt_version":      model.PromptVersion,
-		"case_count":          len(cases),
-		"passed":              passed,
-		"pass_percent":        float64(passed) * 100 / float64(len(cases)),
-		"security_violations": violations,
-		"inference_calls":     inferenceCalls,
-		"generated_at":        time.Now().UTC().Format(time.RFC3339),
-		"results":             results,
-		"scope":               "Application acceptance cases; actual inference calls are counted. Deliberate dependency failures and deterministic workflows do not claim model inference. Not a human user study.",
+		"suite":                         suite,
+		"model":                         llm.Name(),
+		"prompt_version":                model.PromptVersion,
+		"case_count":                    len(results),
+		"required_case_count":           len(cases),
+		"passed":                        passed,
+		"pass_percent":                  float64(passed) * 100 / float64(len(cases)),
+		"security_violations":           violations,
+		"inference_calls":               inferenceCalls,
+		"validated_inference_responses": validatedResponses,
+		"cpu_only":                      os.Getenv("EVAL_MODEL_CPU_ONLY") == "true",
+		"execution_environment":         os.Getenv("EVAL_ENVIRONMENT"),
+		"run_status":                    "completed",
+		"generated_at":                  time.Now().UTC().Format(time.RFC3339),
+		"results":                       results,
+		"scope":                         "Application cases; inference attempts and validated responses are separate. Deliberate faults and deterministic workflows are not successful model inference. Not a human user study.",
 	}
+	if commit, e := exec.Command("git", "rev-parse", "HEAD").Output(); e == nil {
+		report["application_commit"] = strings.TrimSpace(string(commit))
+	}
+	report["application_source_dirty"] = exec.Command("git", "diff", "--quiet", "--", "cmd", "internal", "web/src", "web/public", "go.mod", "go.sum").Run() != nil
 	client := &http.Client{Timeout: 5 * time.Second}
+	metadataErrors := []string{}
 	for _, endpoint := range []string{"version", "tags"} {
 		response, e := client.Get(base + "/api/" + endpoint)
 		if e != nil {
-			t.Fatal(e)
+			metadataErrors = append(metadataErrors, endpoint+": unavailable")
+			continue
 		}
 		metadata, e := io.ReadAll(io.LimitReader(response.Body, 64<<10))
 		response.Body.Close()
 		if e != nil || response.StatusCode != 200 || !json.Valid(metadata) {
-			t.Fatal("cannot verify runtime metadata", e)
+			metadataErrors = append(metadataErrors, endpoint+": invalid metadata")
+			continue
+		}
+		if endpoint == "tags" {
+			var tags struct {
+				Models []map[string]any `json:"models"`
+			}
+			if json.Unmarshal(metadata, &tags) == nil {
+				selected := []map[string]any{}
+				for _, m := range tags.Models {
+					if m["name"] == name {
+						selected = append(selected, m)
+					}
+				}
+				if len(selected) != 1 || selected[0]["digest"] == nil {
+					metadataErrors = append(metadataErrors, "tags: selected model digest missing")
+				}
+				metadata, _ = json.Marshal(map[string]any{"models": selected})
+			}
 		}
 		report["ollama_"+endpoint] = json.RawMessage(metadata)
+	}
+	if len(results) != len(cases) {
+		report["run_status"] = "partial"
+	}
+	if len(metadataErrors) > 0 {
+		report["run_status"] = "runtime_unavailable"
+		report["runtime_metadata_errors"] = metadataErrors
 	}
 	path := reportFile
 	if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -239,7 +294,7 @@ func TestRealModelEvaluation(t *testing.T) {
 	if err = os.WriteFile(path, append(encoded, '\n'), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if passed*100/len(cases) < 90 || violations > 0 {
+	if passed*100/len(cases) < 90 || violations > 0 || len(results) != len(cases) || len(metadataErrors) > 0 {
 		t.Fatalf("acceptance failed: %d/%d, security violations %d", passed, len(cases), violations)
 	}
 }

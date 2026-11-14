@@ -109,6 +109,9 @@ func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 					t.Error(body)
 				}
 				if provider == "ollama" {
+					if body["keep_alive"] != float64(300) {
+						t.Error("CPU model lifetime was not preserved")
+					}
 					if body["think"] != false || body["format"] == nil || body["options"].(map[string]any)["num_ctx"] != float64(4096) {
 						t.Error(body)
 					}
@@ -136,6 +139,7 @@ func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 				t.Fatal(err)
 			}
 			m.(*Client).CPUOnly = provider == "ollama"
+			m.(*Client).KeepAliveSeconds = 300
 			answer, err := m.Answer(context.Background(), buddy.AnswerInput{Question: "Как получить доступ?", History: []buddy.Message{{Text: strings.Repeat("x", 1000)}}})
 			if err != nil || answer.Text != "Тестовый ответ" {
 				t.Fatal(answer, err)
