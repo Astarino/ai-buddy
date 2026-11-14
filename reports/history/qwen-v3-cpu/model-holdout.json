@@ -1,0 +1,174 @@
+{
+  "application_commit": "5b5b6c232ac00b26d46c2b1d037a2cf921fcca84",
+  "application_source_dirty": false,
+  "case_count": 10,
+  "cpu_only": true,
+  "execution_environment": "GitHub Actions ubuntu-24.04 CPU container, 6 GiB limit",
+  "generated_at": "2026-11-14T22:57:31Z",
+  "inference_calls": 10,
+  "model": "ollama:qwen3.5:4b",
+  "ollama_tags": {
+    "models": [
+      {
+        "capabilities": [
+          "completion",
+          "vision",
+          "tools",
+          "thinking"
+        ],
+        "details": {
+          "context_length": 262144,
+          "embedding_length": 2560,
+          "families": [
+            "qwen35"
+          ],
+          "family": "qwen35",
+          "format": "gguf",
+          "parameter_size": "4.2B",
+          "parent_model": "model.gguf",
+          "quantization_level": "Q4_K_M",
+          "runner": "llamacpp"
+        },
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "model": "qwen3.5:4b",
+        "modified_at": "2026-11-14T22:30:50.343620735Z",
+        "name": "qwen3.5:4b",
+        "size": 3324173934
+      }
+    ]
+  },
+  "ollama_version": {
+    "version": "0.40.16"
+  },
+  "pass_percent": 100,
+  "passed": 10,
+  "prompt_version": "buddy-grounded-v3",
+  "required_case_count": 10,
+  "results": [
+    {
+      "id": "H01",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 35548,
+      "answer": "Нет, даже если заявку согласовали, доступ всё ещё не выдан. Сервис выдаёт права только после этого этапа.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "H02",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 67069,
+      "answer": "Нет, на третий день изучать Grafana не нужно. Это запланировано только на первый месяц.",
+      "sources": [
+        "backend-checklist"
+      ]
+    },
+    {
+      "id": "H03",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 40548,
+      "answer": "В заявке укажи пространство CATALOG и цель: изучить руководство и подготовиться к первой задаче.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "H04",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 32160,
+      "answer": "Тестовый проект в Jira называется CAT.",
+      "sources": [
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "H05",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 37304,
+      "answer": "В описании укажи цель: изучить руководство и подготовиться к первой задаче, а также пример изменений до и после.",
+      "sources": [
+        "catalog-guide",
+        "catalog-review"
+      ]
+    },
+    {
+      "id": "H06",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 42460,
+      "answer": "Первое ревью проводит Михаил Орлов.",
+      "sources": [
+        "delivery-welcome",
+        "delivery-guide"
+      ]
+    },
+    {
+      "id": "H07",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 31302,
+      "answer": "Уточни у владельца пространства или наставника, так как документы могут противоречить друг другу.",
+      "sources": [
+        "source-policy"
+      ]
+    },
+    {
+      "id": "H08",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 11973,
+      "answer": "На вторую неделю нужно изучить командные материалы и внести цели в инструмент отслеживания прогресса.",
+      "sources": [
+        "checklist"
+      ]
+    },
+    {
+      "id": "H09",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 50616,
+      "answer": "Сначала уточни, какой именно инструмент не работает и на каком этапе возникла ошибка. Нужно знать точную ошибку без секретов, чтобы помочь."
+    },
+    {
+      "id": "H10",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 36901,
+      "answer": "Сначала уточни, какой именно инструмент и на каком шаге настройки возникла ошибка. Если ты просто написал «ошибка», этого недостаточно для подготовки вопроса.",
+      "sources": [
+        "catalog-environment",
+        "mentor-question"
+      ]
+    }
+  ],
+  "run_status": "completed",
+  "scope": "Application cases; inference attempts and validated responses are separate. Deliberate faults and deterministic workflows are not successful model inference. Not a human user study.",
+  "security_violations": 0,
+  "suite": "holdout",
+  "validated_inference_responses": 10
+}

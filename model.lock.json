@@ -10,11 +10,11 @@
   "download_bytes": 3973305013,
   "context_tokens": 4096,
   "max_output_tokens": 512,
-  "temperature": 0.2,
+  "temperature": 0,
   "seed": 42,
   "thinking": false,
   "concurrency": 1,
   "keep_alive": 0,
-  "prompt_version": "buddy-grounded-v3",
+  "prompt_version": "buddy-grounded-v4",
   "corpus_version": "2026-11-14-v3"
 }

@@ -416,5 +416,6 @@
       "elapsed_ms": 7
     }
   ],
-  "scope": "Reconstructed from the actual test log because the previous harness aborted before saving its report. Runtime stopped during the first model response. This is a resource-limited attempt, not a model quality score. Passed cases here are deterministic application checks; historical v2 results are separate."
+  "scope": "Reconstructed from the actual test log because the previous harness aborted before saving its report. Runtime stopped during the first model response. This is a resource-limited attempt, not a model quality score. Passed cases here are deterministic application checks; historical v2 results are separate.",
+  "application_source_dirty": true
 }

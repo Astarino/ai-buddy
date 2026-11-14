@@ -36,12 +36,23 @@ func TestExternalPayloadRequiresConsentAndDropsInternalContext(t *testing.T) {
 		if r.Header.Get("Authorization") != "Bearer synthetic-server-key" {
 			t.Fatal("provider authentication missing")
 		}
+		var bodyFields struct {
+			Messages []struct {
+				Content string `json:"content"`
+			} `json:"messages"`
+		}
+		json.Unmarshal(raw, &bodyFields)
+		var contextFields map[string]any
+		json.Unmarshal([]byte(bodyFields.Messages[1].Content), &contextFields)
+		if _, ok := contextFields["day"]; ok {
+			t.Fatal("internal adaptation stage sent externally")
+		}
 		answer, _ := json.Marshal(buddy.Answer{Text: "Публичный ответ", SourceIDs: []string{source}})
 		body, _ := json.Marshal(map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(answer)}}}})
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(string(body))), Header: make(http.Header)}, nil
 	})
 	doc := buddy.Document{ID: "native-doc-42", Title: "Публичный материал", Body: "Публичные сведения", Scope: "public", DataClass: "public", System: "native-space", Resource: "native-space", Origin: "INTERNAL_ORIGIN", Version: "internal-policy-v1"}
-	input := buddy.AnswerInput{Question: "Как работает этот процесс?", Team: "PRIVATE_TEAM", Role: "PRIVATE_TEAM", History: []buddy.Message{{Role: "user", Text: "PRIVATE_HISTORY"}}, Documents: []buddy.Document{doc}}
+	input := buddy.AnswerInput{Question: "Как работает этот процесс?", Team: "PRIVATE_TEAM", Role: "PRIVATE_TEAM", Day: 17, History: []buddy.Message{{Role: "user", Text: "PRIVATE_HISTORY"}}, Documents: []buddy.Document{doc}}
 	if _, err := client.Answer(context.Background(), input); !errors.Is(err, buddy.ErrDataPolicy) || calls != 0 {
 		t.Fatal("external call without consent", err, calls)
 	}
@@ -100,6 +111,7 @@ func TestProviderConfiguration(t *testing.T) {
 func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 	for _, provider := range []string{"ollama", "compatible"} {
 		t.Run(provider, func(t *testing.T) {
+			selectedSource := "source-1"
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				var body map[string]any
 				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -126,7 +138,18 @@ func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 						t.Error(r)
 					}
 				}
-				content := `{"answer":"Тестовый ответ","source_ids":["access-policy"],"needs_clarification":false}`
+				var input struct {
+					Messages []struct {
+						Content string `json:"content"`
+					} `json:"messages"`
+				}
+				encoded, _ := json.Marshal(body)
+				json.Unmarshal(encoded, &input)
+				if strings.Contains(input.Messages[1].Content, "private-resource") || !strings.Contains(input.Messages[1].Content, "source-1") {
+					t.Error("source metadata was not compacted")
+				}
+				encodedAnswer, _ := json.Marshal(buddy.Answer{Text: "Тестовый ответ", SourceIDs: []string{selectedSource}})
+				content := string(encodedAnswer)
 				if provider == "ollama" {
 					json.NewEncoder(w).Encode(map[string]any{"message": map[string]string{"content": content}})
 				} else {
@@ -140,9 +163,13 @@ func TestStructuredAnswerAndProviderBoundaries(t *testing.T) {
 			}
 			m.(*Client).CPUOnly = provider == "ollama"
 			m.(*Client).KeepAliveSeconds = 300
-			answer, err := m.Answer(context.Background(), buddy.AnswerInput{Question: "Как получить доступ?", History: []buddy.Message{{Text: strings.Repeat("x", 1000)}}})
-			if err != nil || answer.Text != "Тестовый ответ" {
+			answer, err := m.Answer(context.Background(), buddy.AnswerInput{Question: "Как получить доступ?", Documents: []buddy.Document{{ID: "access-policy", Body: "Тестовая инструкция", Resource: "private-resource"}}, History: []buddy.Message{{Text: strings.Repeat("x", 1000)}}})
+			if err != nil || answer.Text != "Тестовый ответ" || len(answer.SourceIDs) != 1 || answer.SourceIDs[0] != "access-policy" {
 				t.Fatal(answer, err)
+			}
+			selectedSource = "source-unknown"
+			if _, err := m.Answer(context.Background(), buddy.AnswerInput{Documents: []buddy.Document{{ID: "access-policy", Body: "Тестовая инструкция"}}}); !errors.Is(err, buddy.ErrUnavailable) {
+				t.Fatal("unknown temporary citation accepted", err)
 			}
 		})
 	}
