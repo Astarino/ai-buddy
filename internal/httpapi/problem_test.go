@@ -108,11 +108,30 @@ func TestRealGoProblem(t *testing.T) {
 	started := time.Now()
 	answer := readJSON[buddy.Message](t, b.expect("POST", "/api/messages", string(body), 200))
 	report["elapsed_ms"] = time.Since(started).Milliseconds()
-	report["answer"] = answer
+	report["first_answer"] = answer
+	report["model_responses"] = 1
 	report["real_inference"] = answer.Kind == "answer" && len(answer.SourceIDs) > 0
 	lower := strings.ToLower(answer.Text)
+	if strings.Contains(lower, "без точки") || strings.Contains(lower, "go mod init") {
+		t.Fatal("advice contradicts the already existing module", answer)
+	}
+	if !strings.Contains(lower, "hello") {
+		// A sourced general rule can be useful, but it is not yet a usable step.
+		// Keep it visible and ask for the concrete next step instead of counting it as success.
+		followup := "В какую именно папку мне перейти? Сейчас я в workspace, а go.mod лежит в workspace/hello."
+		report["followup_question"] = followup
+		body, _ = json.Marshal(map[string]string{"id": "problem-followup", "text": followup})
+		answer = readJSON[buddy.Message](t, b.expect("POST", "/api/messages", string(body), 200))
+		report["model_responses"] = 2
+		lower = strings.ToLower(answer.Text)
+	}
+	report["elapsed_ms"] = time.Since(started).Milliseconds()
+	report["answer"] = answer
 	if answer.Kind != "answer" || len(answer.SourceIDs) == 0 || !strings.Contains(lower, "hello") || !(strings.Contains(lower, "каталог") || strings.Contains(lower, "папк") || strings.Contains(lower, "cd ")) {
 		t.Fatal("answer did not identify the existing module directory", answer)
+	}
+	if strings.Contains(lower, "go mod init") || strings.Contains(lower, "без точки") {
+		t.Fatal("unsafe or irrelevant change to the existing module", answer)
 	}
 	for _, source := range answer.SourceIDs {
 		found := false
