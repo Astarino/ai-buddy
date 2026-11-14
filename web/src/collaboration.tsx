@@ -315,9 +315,13 @@ export function HelpRequestsPanel({
             <strong>{current.requester}</strong>
             <span>{stamp(current.created_at)}</span>
           </div>
-          <span className={`request-status request-status-${current.status}`}>
-            {labels[current.status]}
-          </span>
+          {current.operation_status ? (
+            <Status value={current.operation_status} />
+          ) : (
+            <span className={`request-status request-status-${current.status}`}>
+              {labels[current.status]}
+            </span>
+          )}
         </div>
         <h3>{current.subject}</h3>
         <p className="fine-print">Ответственный: {current.assignee}</p>
@@ -338,12 +342,6 @@ export function HelpRequestsPanel({
             </button>
           )}
         <p className="shared-text">{current.body}</p>
-        {current.operation_status && (
-          <div className="request-operation">
-            <span>Доступ к вики</span>
-            <Status value={current.operation_status} />
-          </div>
-        )}
         <div className="request-replies" aria-label="Обсуждение запроса">
           {current.replies.map((message) => (
             <div className="request-reply" key={message.id}>

@@ -224,7 +224,10 @@ it('shows approval and grant as separate owner actions and keeps service failure
   await screen.findByRole('alert');
   expect(screen.queryByRole('button', { name: 'Выдать доступ' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Согласовать' }));
-  await user.click(await screen.findByRole('button', { name: 'Выдать доступ' }));
+  const grant = await screen.findByRole('button', { name: 'Выдать доступ' });
+  expect(screen.getAllByText('Согласовано, ждём выдачи')).toHaveLength(1);
+  expect(screen.queryByText('Ждёт ответа')).not.toBeInTheDocument();
+  await user.click(grant);
   await screen.findByRole('button', { name: 'Отозвать доступ' });
   expect(screen.queryByRole('button', { name: 'Проблема решена' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Отозвать доступ' }));
