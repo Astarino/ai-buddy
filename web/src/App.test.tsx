@@ -201,22 +201,32 @@ describe('Рабочее пространство стажёра', () => {
     await screen.findByText(/buddy-grounded-v2/);
   });
 
-  it('keeps input on model failure and retries with the same message id', async () => {
+  it('clears sent input immediately and preserves a new draft through failure and retry', async () => {
     await start();
     const user = userEvent.setup();
-    mock.message.mockRejectedValueOnce(new ApiError('unavailable', 'Модель не ответила', 503));
+    let reject!: (reason: Error) => void;
+    mock.message.mockReturnValueOnce(
+      new Promise((_resolve, fail) => {
+        reject = fail;
+      }),
+    );
     const input = screen.getByRole('textbox', { name: 'Сообщение AI Buddy' });
     await user.type(input, 'Что означает ревью?');
     await user.keyboard('{Shift>}{Enter}{/Shift}');
     expect(input).toHaveValue('Что означает ревью?\n');
     await user.keyboard('{Enter}');
+    expect(input).toHaveValue('');
+    await user.type(input, 'Новый вопрос');
+    await act(async () => reject(new ApiError('model_unavailable', 'Модель не ответила', 503)));
     await screen.findByRole('alert');
-    expect(input).toHaveValue('Что означает ревью?');
+    expect(input).toHaveValue('Новый вопрос');
     const firstID = mock.message.mock.calls[0][0];
     await user.click(screen.getByRole('button', { name: 'Повторить вопрос' }));
     await screen.findByText('Проверь параметры перед отправкой.');
     expect(mock.message.mock.calls[1][0]).toBe(firstID);
-    expect(input).toHaveValue('');
+    expect(mock.message.mock.calls[1][1]).toBe('Что означает ревью?');
+    expect(input).toHaveValue('Новый вопрос');
+    expect(within(screen.getByRole('log')).getAllByText('Что означает ревью?')).toHaveLength(1);
     await user.click(
       screen.getByRole('button', { name: /Как получить доступ к пространству команды/ }),
     );
@@ -237,6 +247,8 @@ describe('Рабочее пространство стажёра', () => {
     await user.click(screen.getByRole('button', { name: 'База знаний' }));
     expect(screen.getByRole('dialog')).toHaveTextContent('Только материалы');
     await close();
+    const composer = screen.getByRole('textbox', { name: 'Сообщение AI Buddy' });
+    await user.type(composer, 'Черновик следующего вопроса');
     await act(async () =>
       resolve({
         id: 'answer',
@@ -247,6 +259,7 @@ describe('Рабочее пространство стажёра', () => {
       }),
     );
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument());
+    expect(composer).toHaveValue('Черновик следующего вопроса');
   });
 
   it('opens a private question form and allows a profile change and sign-out', async () => {

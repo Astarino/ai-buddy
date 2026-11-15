@@ -9,6 +9,39 @@ import (
 	"github.com/Astarino/ai-buddy/internal/buddy"
 )
 
+func TestShortRouteQuestionsWorkWithoutTheModel(t *testing.T) {
+	s, p, _ := world(t)
+	s.Model = answerFunc(func(context.Context, buddy.AnswerInput) (buddy.Answer, error) {
+		t.Fatal("route question reached the unavailable model")
+		return buddy.Answer{}, buddy.ErrUnavailable
+	})
+	for i, question := range []string{"что делать", "Что мне делать?!", "что мне делать дальше", "с чего мне начать"} {
+		msg, err := s.Chat(context.Background(), p, "route-question-"+string(rune('a'+i)), question)
+		if err != nil || msg.Kind != "workflow" || !strings.Contains(msg.Text, "Ближайший доступный шаг") {
+			t.Fatal(msg, err)
+		}
+	}
+}
+
+func TestToolQuestionIsNotReplacedByTheRoute(t *testing.T) {
+	s, p, _ := world(t)
+	s.Catalog.Documents = append(s.Catalog.Documents, buddy.Document{ID: "go-help", Title: "Запуск тестов Go", Body: "Go test запускают из корня модуля с go.mod.", Scope: "public", DataClass: "public", Keywords: "go test module"})
+	calls := 0
+	s.Model = answerFunc(func(_ context.Context, in buddy.AnswerInput) (buddy.Answer, error) {
+		calls++
+		return buddy.Answer{Text: "Перейди в папку с go.mod и повтори go test.", SourceIDs: []string{"go-help"}}, nil
+	})
+	for i, question := range []string{"В Go команда go test не видит go.mod. Что делать дальше?", "С чего начать проверку go test с ошибкой go.mod?"} {
+		msg, err := s.Chat(context.Background(), p, "tool-route-question-"+string(rune('a'+i)), question)
+		if err != nil || msg.Kind != "answer" || !strings.Contains(msg.Text, "go.mod") {
+			t.Fatal(msg, err)
+		}
+	}
+	if calls != 2 {
+		t.Fatal(calls)
+	}
+}
+
 func TestVagueProblemsAndConflictingSourcesAreClarifiedBeforeInference(t *testing.T) {
 	s, p, _ := world(t)
 	s.Model = answerFunc(func(context.Context, buddy.AnswerInput) (buddy.Answer, error) {

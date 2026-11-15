@@ -9,6 +9,18 @@ import (
 var projectCode = regexp.MustCompile(`(?i)проект\s+Jira\s*:\s*([A-Z][A-Z0-9_-]{1,40})`)
 var missingInformation = regexp.MustCompile(`(?i)нет (информации|сведений|точных|достоверн|доступа к URL)|не содерж(ит|ат).{0,70}(информац|инструкц|команд)|точн(ой|ая|ых) команд.{0,70}нет|в (документе|документах|источниках).{0,90}нет`)
 
+func routeQuestion(query string) bool {
+	if containsAny(query, "мой план", "мой маршрут", "план адаптации") {
+		return true
+	}
+	query = strings.Join(strings.Fields(strings.Trim(query, " .?!…\n\r\t")), " ")
+	switch query {
+	case "что делать", "что мне делать", "что дальше", "что делать дальше", "что мне делать дальше", "что сейчас делать", "что мне делать сейчас", "с чего начать", "с чего мне начать":
+		return true
+	}
+	return false
+}
+
 func vagueProblem(query string) bool {
 	if !containsAny(query, "ошиб", "настрой", "не понима", "помог", "не получ", "сломал", "проблем") {
 		return false

@@ -50,7 +50,7 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
     if (error instanceof ApiError) throw error;
     if (error instanceof DOMException && error.name === 'AbortError')
       throw new ApiError('timeout', 'Запрос остановлен. Обнови состояние перед повтором.', 0);
-    throw new ApiError('network', 'Нет связи с сервером. Введённый текст сохранён в поле.', 0);
+    throw new ApiError('network', 'Нет связи с сервером. Попробуй ещё раз.', 0);
   } finally {
     clearTimeout(timeout);
   }

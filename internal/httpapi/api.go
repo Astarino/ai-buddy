@@ -370,6 +370,8 @@ func failure(w http.ResponseWriter, err error) {
 		status, code, message = http.StatusPreconditionRequired, "external_consent", "Подтверди отправку этого вопроса внешней модели."
 	case errors.Is(err, buddy.ErrDataPolicy):
 		status, code, message = http.StatusForbidden, "data_policy", "Для этого вопроса нужна модель во внутреннем контуре. Командные материалы наружу не отправлены."
+	case errors.Is(err, buddy.ErrModelUnavailable):
+		status, code, message = http.StatusServiceUnavailable, "model_unavailable", "Модель сейчас недоступна. Вопрос сохранён — его можно повторить."
 	case errors.Is(err, buddy.ErrUnavailable), errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled):
 		status, code, message = http.StatusServiceUnavailable, "unavailable", "Модель или сервис не ответили. Если отправлял заявку, сначала обнови её состояние: результат мог сохраниться."
 	}

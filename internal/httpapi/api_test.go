@@ -84,6 +84,38 @@ func apiWorld(t *testing.T) (browser, *API) {
 	return browser{t, &http.Client{Jar: jar}, server.URL}, a
 }
 
+func TestModelFailurePreservesTheQuestionForRetry(t *testing.T) {
+	b, api := apiWorld(t)
+	b.expect("POST", "/api/session", `{"profile_id":"anton"}`, http.StatusOK)
+	unavailable := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	t.Cleanup(unavailable.Close)
+	client, err := model.New("ollama", unavailable.URL, "test-model", "", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	api.Service.Model = client
+	question := `{"id":"offline-model-question","text":"В какой период нужно изучать Grafana?"}`
+	raw := b.expect("POST", "/api/messages", question, http.StatusServiceUnavailable)
+	result := readJSON[map[string]string](t, raw)
+	if result["code"] != "model_unavailable" || strings.Contains(result["message"], "заявк") {
+		t.Fatal(result)
+	}
+	api.Service.Model = model.Fixture{}
+	b.expect("POST", "/api/messages", question, http.StatusOK)
+	state := readJSON[buddy.View](t, b.expect("GET", "/api/state", "", http.StatusOK))
+	count := 0
+	for _, message := range state.Messages {
+		if message.ID == "offline-model-question" {
+			count++
+		}
+	}
+	if count != 1 || len(state.Messages) != 2 {
+		t.Fatal(state.Messages)
+	}
+}
+
 func TestHTTPJourneyAndPersistedState(t *testing.T) {
 	b, a := apiWorld(t)
 	b.expect("GET", "/api/health", "", 200)

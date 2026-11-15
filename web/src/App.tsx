@@ -158,6 +158,7 @@ export default function App() {
     setSending(true);
     setError('');
     setRetry({ id, text });
+    setComposer((draft) => (draft.trim() === text ? '' : draft));
     if (!workspace.messages.some((message) => message.id === id))
       setWorkspace({
         ...workspace,
@@ -170,11 +171,9 @@ export default function App() {
       if (consentTo) await api.message(id, text, consentTo);
       else await api.message(id, text);
       setWorkspace(await api.state());
-      setComposer('');
       setRetry(null);
     } catch (reason) {
       setError((reason as Error).message);
-      setComposer(text);
       if (reason instanceof ApiError && reason.code === 'external_consent') {
         try {
           const current = await api.bootstrap();

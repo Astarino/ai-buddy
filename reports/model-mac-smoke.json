@@ -1,0 +1,212 @@
+{
+  "generated_at": "2026-11-15T08:50:37.834314+00:00",
+  "status": 200,
+  "elapsed_seconds": 7.659,
+  "reply": {
+    "id": "11c01d26c7c4a6ec4367c2866d4ed6bb",
+    "role": "assistant",
+    "text": "Период изучения Grafana — это первый месяц.",
+    "created_at": "2026-11-15T11:50:30.177114+03:00",
+    "source_ids": [
+      "backend-checklist"
+    ],
+    "reply_to": "mac-trial-probe-20261115",
+    "kind": "answer",
+    "duration_ms": 7637
+  },
+  "scope": "One guarded Mac check after permitted Safari quit, separate synthetic profile Irina. No weights downloaded.",
+  "real_inference": true,
+  "passed": true,
+  "model": "qwen3.5:4b",
+  "model_digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+  "runtime_version": "0.40.16",
+  "prompt_version": "buddy-grounded-v4",
+  "application_commit_before_changes": "02d34f3bd6a4c002a2b96cc913c90c1c4eed9555",
+  "application_source_dirty": true,
+  "memory_guard_percent": 25,
+  "new_weights_downloaded": false,
+  "platform": "Apple M4, macOS, 16 GiB, native MLX",
+  "verified_binary_sha256": "bdca9664878c1ba7024c6c4b1b63e5cd903f659a0fc071bd66ab3e5e7d2fcec0",
+  "source_files": [
+    {
+      "file": "cmd/corporate/main.go",
+      "sha256": "c389ade3ef88dfbc8c1f7c41d3e25236ef204639da4b3f45470f054d2f849304"
+    },
+    {
+      "file": "cmd/server/main.go",
+      "sha256": "d08969257a15b61a00f01ec49cb3d8ee25c812432c47f0f61ab2e3db682c58e7"
+    },
+    {
+      "file": "go.mod",
+      "sha256": "a41ecc167d5af251ee1ab6c81fa204f36c172c1aee35b197a021f2eba425511e"
+    },
+    {
+      "file": "go.sum",
+      "sha256": "cf1de11f9419e02b02b439473da6087811bec025cbb98a57323f9b6bf3e06ac1"
+    },
+    {
+      "file": "internal/app/run.go",
+      "sha256": "e9eb6e554c0106d1085d221a62d2df6285794de604c148ad1658be8a75cf6cc8"
+    },
+    {
+      "file": "internal/authorization/client.go",
+      "sha256": "282a3de79ce4a17263edbf44b5bc4394e658ee20608546c9e16afedd390c5762"
+    },
+    {
+      "file": "internal/buddy/answers.go",
+      "sha256": "b2bf63ae359a64d6f112021c605d99b093c07f0566b9d9e0375d89af27240d9e"
+    },
+    {
+      "file": "internal/buddy/audit.go",
+      "sha256": "2d9c69a3fd3485b608649fe9decbf1b33f310ea5a35c0f93ce460a2cb7734fc0"
+    },
+    {
+      "file": "internal/buddy/catalog.go",
+      "sha256": "5d9c2d4c5c32a1edb06d70b75c81c53ff5e5e004eaffbd23f69caab22a6677e8"
+    },
+    {
+      "file": "internal/buddy/context.go",
+      "sha256": "48caffa95496fd471ee0087d3129a59cc7a177802acb8ccd93b6ac3c253bfe6b"
+    },
+    {
+      "file": "internal/buddy/corpus.json",
+      "sha256": "a9c540930e72e00d65a618553ae7e7ea9c757bdfa6c4f8dc65bfd6c7ba686470"
+    },
+    {
+      "file": "internal/buddy/directory.go",
+      "sha256": "8e97c6522673dc2378b69c53576baccd7fb446f228c0637b76c5ce57b9a4512e"
+    },
+    {
+      "file": "internal/buddy/permissions.go",
+      "sha256": "8935809de5b615c534930d6b89321d2f893db8a818ac9cf272d76eae3c3d9909"
+    },
+    {
+      "file": "internal/buddy/public_search.go",
+      "sha256": "bc89d533a22d238fce0e2231b69db72ff8582a6e439475ff0540303034fdc2fa"
+    },
+    {
+      "file": "internal/buddy/requests.go",
+      "sha256": "a3d834df78384ee7a96fb63e5ec64b8d7f43bf04c5708b740b24adf5fc13c5e2"
+    },
+    {
+      "file": "internal/buddy/service.go",
+      "sha256": "e45dda420e98c9957333fcb014846ee1025c9a1204d0c832555644bc6900df02"
+    },
+    {
+      "file": "internal/buddy/types.go",
+      "sha256": "628cbb7a4021ce41a6c7b47923e137980df26ef711a66d585a4df4c4311b5612"
+    },
+    {
+      "file": "internal/corporate/client.go",
+      "sha256": "f9bae33bea349631bd92a019df47c08aca3c04c4685014b4d47d63a612059fd6"
+    },
+    {
+      "file": "internal/corporate/server.go",
+      "sha256": "37b13fe077baa322b1d54e5c01c1c9c84f178e128517aeff1c1a379383a579da"
+    },
+    {
+      "file": "internal/httpapi/api.go",
+      "sha256": "c1637194329643c7088117e65f28472c60162e16a81a2f0661691909b05674af"
+    },
+    {
+      "file": "internal/httpapi/audit.go",
+      "sha256": "830f2053bc231795b67873413dfd1b7e2226779d0ff0c00049355f912ba2eae4"
+    },
+    {
+      "file": "internal/httpapi/login.go",
+      "sha256": "9507b9679b2a50e7b98270b5daa5be0784802d5e4720ba501af5be1b18793da5"
+    },
+    {
+      "file": "internal/httpapi/requests.go",
+      "sha256": "5fa1fbe154bf67df9cd925651dcde43d6928a0e1226ba8d2c004e6041e5980cf"
+    },
+    {
+      "file": "internal/identity/oidc.go",
+      "sha256": "104f7357de1b12e5cab30f0f8156b1242bce964a2e637a967b0aae6fcdc1ace3"
+    },
+    {
+      "file": "internal/model/model.go",
+      "sha256": "789d0f956a84a7348a407425bdda2b0c6a6af7958ff6554d62843d88126db0d9"
+    },
+    {
+      "file": "internal/outbound/http.go",
+      "sha256": "614db4eebf6a7367d5a9c7dcd665c83794213fb91108ccf8c67799b35fcd3c54"
+    },
+    {
+      "file": "internal/publicdocs/search.go",
+      "sha256": "41aed29464d26e257a1b934f6bbcd88883c28696b4bfd3fc54797469e66aface"
+    },
+    {
+      "file": "internal/storage/audit.go",
+      "sha256": "8398e2c4c8c18a1db7324ea2afc0296067858973a4341d8cca1c348320415d80"
+    },
+    {
+      "file": "internal/storage/login.go",
+      "sha256": "8444976d6abefc28c6b1439f6e1f5d689e01a98f6598a28b6ed1249d05a031cc"
+    },
+    {
+      "file": "internal/storage/postgres.go",
+      "sha256": "72980711c9e01213abf2bc9a7597b6d000cf58acb06c42e3adf1d7c25a6d77cf"
+    },
+    {
+      "file": "internal/storage/requests.go",
+      "sha256": "4471d6f62bac9c9440ac3232b0e188de512b5bc6a259e515baf19d7c4313e602"
+    },
+    {
+      "file": "internal/storage/schema.sql",
+      "sha256": "df7a1de196149b011516c66b092bc1f1201d4199c49d2aa052be73d670c92cad"
+    },
+    {
+      "file": "internal/testsupport/database.go",
+      "sha256": "c3e95f1f11791a16f7445bd8bc34b973faefa1aecd063159660f00472651cd21"
+    },
+    {
+      "file": "web/package.json",
+      "sha256": "d3df567006ae11b7d2e5bea20d696de2c306d7eab3912e05b8ab335edfb87e56"
+    },
+    {
+      "file": "web/pnpm-lock.yaml",
+      "sha256": "2818da389ac06900d16e001c2fba116ae58396013cb862b248b9dea923cc20b5"
+    },
+    {
+      "file": "web/src/App.tsx",
+      "sha256": "991e236135e9a69908e2c011fbb925cc93392fb46154c5b0e83075dbf76ba2b5"
+    },
+    {
+      "file": "web/src/api.ts",
+      "sha256": "24ab04762a147f0935e83e5590848c2b4478c9d520641a213eaa6a75cb8c3beb"
+    },
+    {
+      "file": "web/src/collaboration.tsx",
+      "sha256": "8409b0db126cc6d0d188a0f584278fddfbeb419283e0216a8b20e309c758a640"
+    },
+    {
+      "file": "web/src/components.tsx",
+      "sha256": "f735db6ef44be62cb9c4acb24bceb29c187f1ca29ffcac909f75038d3140f30d"
+    },
+    {
+      "file": "web/src/main.tsx",
+      "sha256": "09fd1578076708484fed5237752150734bd86e04f47135948ab46c914d797734"
+    },
+    {
+      "file": "web/src/panels.tsx",
+      "sha256": "831d25805238f7e95adc8b74367089d23132b37c4dd103d1f621676773e9ef03"
+    },
+    {
+      "file": "web/src/styles.css",
+      "sha256": "a319a74cd1fc3ab52601bef8d263a3a3598cf89911f161961a35e6c5d20759c1"
+    },
+    {
+      "file": "web/src/test/fixtures.ts",
+      "sha256": "76f11ab7f7773a821d4c754d56f5768838d0f788af9fe889a490001defa3cbf5"
+    },
+    {
+      "file": "web/src/test/setup.ts",
+      "sha256": "9c8c4c7c3c11219633bc2ef5546d383e0c368f385b356739e25d4a7522b62256"
+    },
+    {
+      "file": "web/src/types.ts",
+      "sha256": "fb9ab97c2ef18e7b08293d52787c9ca05defae3525882cd71f7b4800429bc7e8"
+    }
+  ]
+}

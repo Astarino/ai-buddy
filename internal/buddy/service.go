@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -484,7 +485,7 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 			msg.ActionID = a.ID
 			msg.Text = "Подготовил первую задачу. Проверь карточку и подтверди назначение."
 		}
-	case containsAny(lower, "мой план", "мой маршрут", "что дальше", "что делать дальше", "с чего начать", "план адаптации"):
+	case routeQuestion(lower):
 		ops, _ := s.operations(ctx, p)
 		tasks, next := s.Catalog.Route(p, state, ops)
 		msg.Text = "Маршрут первых двух недель открыт справа."
@@ -568,14 +569,17 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 			}
 			answer, modelErr := s.Model.Answer(ctx, input)
 			if modelErr != nil {
+				if errors.Is(modelErr, ErrUnavailable) || errors.Is(modelErr, context.DeadlineExceeded) || errors.Is(modelErr, context.Canceled) {
+					return Message{}, fmt.Errorf("%w: %w", ErrModelUnavailable, modelErr)
+				}
 				return Message{}, modelErr
 			}
 			if strings.TrimSpace(answer.Text) == "" || utf8.RuneCountInString(answer.Text) > 3000 {
-				return Message{}, ErrUnavailable
+				return Message{}, ErrModelUnavailable
 			}
 			for _, source := range answer.SourceIDs {
 				if !slices.ContainsFunc(docs, func(d Document) bool { return d.ID == source }) {
-					return Message{}, ErrUnavailable
+					return Message{}, ErrModelUnavailable
 				}
 			}
 			if s.Model.Name() != "fixture" && !answer.NeedsClarification && missingInformation.MatchString(answer.Text) {
@@ -585,7 +589,7 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 				guarded = true
 			}
 			if !answer.NeedsClarification && len(answer.SourceIDs) == 0 {
-				return Message{}, ErrUnavailable
+				return Message{}, ErrModelUnavailable
 			}
 			msg.Text, msg.SourceIDs = answer.Text, answer.SourceIDs
 			if answer.NeedsClarification {

@@ -3,19 +3,21 @@ package buddy
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
 var (
-	ErrNotFound        = errors.New("not found")
-	ErrForbidden       = errors.New("forbidden")
-	ErrConflict        = errors.New("conflict")
-	ErrInvalid         = errors.New("invalid input")
-	ErrExpired         = errors.New("confirmation expired")
-	ErrUnavailable     = errors.New("service unavailable")
-	ErrBusy            = errors.New("generation busy")
-	ErrConsentRequired = errors.New("external processing consent required")
-	ErrDataPolicy      = errors.New("model data policy denied")
+	ErrNotFound         = errors.New("not found")
+	ErrForbidden        = errors.New("forbidden")
+	ErrConflict         = errors.New("conflict")
+	ErrInvalid          = errors.New("invalid input")
+	ErrExpired          = errors.New("confirmation expired")
+	ErrUnavailable      = errors.New("service unavailable")
+	ErrModelUnavailable = fmt.Errorf("model unavailable: %w", ErrUnavailable)
+	ErrBusy             = errors.New("generation busy")
+	ErrConsentRequired  = errors.New("external processing consent required")
+	ErrDataPolicy       = errors.New("model data policy denied")
 )
 
 type Profile struct {
