@@ -122,7 +122,7 @@ func TestBlockedSecretStaysOutOfNextPrompt(t *testing.T) {
 	if err != nil || blocked.Kind != "policy" || calls != 0 {
 		t.Fatal("audit setup: initial secret was not blocked")
 	}
-	if _, err := s.Chat(ctx, p, "audit-normal-question", "Какой ключ проекта Jira у команды Каталог?"); err != nil {
+	if _, err := s.Chat(ctx, p, "audit-normal-question", "Как применить принципы разработки перед ревью?"); err != nil {
 		t.Fatal(err)
 	}
 	if calls != 1 {

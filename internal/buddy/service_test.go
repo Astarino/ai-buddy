@@ -377,7 +377,10 @@ func TestCredentialsDoNotReachTheModel(t *testing.T) {
 			t.Fatal(msg, err, calls)
 		}
 	}
-	if _, err := s.Chat(ctx, p, "project-key-question", "Какой ключ проекта Jira у команды Каталог?"); err != nil || calls != 1 {
+	if msg, err := s.Chat(ctx, p, "project-key-question", "Какой ключ проекта Jira у команды Каталог?"); err != nil || calls != 0 || msg.Kind != "source" || !strings.Contains(msg.Text, "CAT") {
+		t.Fatal(msg, err, calls)
+	}
+	if _, err := s.Chat(ctx, p, "normal-model-question", "Как применить принципы разработки перед ревью?"); err != nil || calls != 1 {
 		t.Fatal(err, calls)
 	}
 }

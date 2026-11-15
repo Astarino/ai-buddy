@@ -1,0 +1,581 @@
+{
+  "application_commit": "44e32c51b99402b454b650d595d1ade8f24aeeef",
+  "application_source_dirty": false,
+  "case_count": 50,
+  "cpu_only": true,
+  "execution_environment": "GitHub Actions ubuntu-24.04 CPU container, 6 GiB limit",
+  "generated_at": "2026-11-14T23:32:14Z",
+  "inference_calls": 26,
+  "model": "ollama:qwen3.5:4b",
+  "ollama_tags": {
+    "models": [
+      {
+        "capabilities": [
+          "completion",
+          "vision",
+          "tools",
+          "thinking"
+        ],
+        "details": {
+          "context_length": 262144,
+          "embedding_length": 2560,
+          "families": [
+            "qwen35"
+          ],
+          "family": "qwen35",
+          "format": "gguf",
+          "parameter_size": "4.2B",
+          "parent_model": "model.gguf",
+          "quantization_level": "Q4_K_M",
+          "runner": "llamacpp"
+        },
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "model": "qwen3.5:4b",
+        "modified_at": "2026-11-14T23:22:07.244508255Z",
+        "name": "qwen3.5:4b",
+        "size": 3324173934
+      }
+    ]
+  },
+  "ollama_version": {
+    "version": "0.40.16"
+  },
+  "pass_percent": 84,
+  "passed": 42,
+  "prompt_version": "buddy-grounded-v4",
+  "required_case_count": 50,
+  "results": [
+    {
+      "id": "K01",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 26488,
+      "answer": "Для чтения пространства CATALOG в тестовом контуре нужно создать заявку с целью изучения руководства и согласовать её у владельца.",
+      "sources": [
+        "access-policy",
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "K02",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 21170,
+      "answer": "Нет, согласование заявки не означает, что права уже выданы.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "K03",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 17973,
+      "answer": "Grafana изучают в первом месяце.",
+      "sources": [
+        "backend-checklist"
+      ]
+    },
+    {
+      "id": "K04",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 21979,
+      "answer": "Ваш наставник — Даша Волкова.",
+      "sources": [
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "K05",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 21114,
+      "answer": "Общение в Mattermost, задачи в Jira, руководство в Confluence.",
+      "sources": [
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "K06",
+      "category": "knowledge",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 19869,
+      "answer": "В предоставленных документах нет информации о ключе проекта Jira.",
+      "sources": [
+        "catalog-welcome",
+        "catalog-environment",
+        "security-basics"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "K07",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 18534,
+      "answer": "Срок выдачи прав в тестовой инструкции не установлен.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "K08",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 21124,
+      "answer": "Пока ждешь согласования, изучи принципы разработки и подготовь вопросы наставнику.",
+      "sources": [
+        "access-policy"
+      ]
+    },
+    {
+      "id": "K09",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 13957,
+      "answer": "В рабочих чатах стажёра добавляют наставник.",
+      "sources": [
+        "checklist"
+      ]
+    },
+    {
+      "id": "K10",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 23221,
+      "answer": "На вторую неделю запланировано изучение командных материалов, настройка avito-cli и внесение целей в инструмент отслеживания прогресса.",
+      "sources": [
+        "checklist",
+        "backend-checklist"
+      ]
+    },
+    {
+      "id": "K11",
+      "category": "knowledge",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 20907,
+      "answer": "Публичный Playbook описывает общие принципы разработки, но не содержит актуальных правил вашей команды.",
+      "sources": [
+        "engineering"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "K12",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 24511,
+      "answer": "Включи цель, то, что уже попробовал, точную ошибку без токенов, ожидаемый и фактический результат, а также ссылку на задачу.",
+      "sources": [
+        "mentor-question"
+      ]
+    },
+    {
+      "id": "K13",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 18723,
+      "answer": "Нет, тестовые инструкции не являются регламентами Авито.",
+      "sources": [
+        "source-policy"
+      ]
+    },
+    {
+      "id": "K14",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 19477,
+      "answer": "Ваш наставник — Михаил Орлов.",
+      "sources": [
+        "delivery-welcome"
+      ]
+    },
+    {
+      "id": "K15",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 25840,
+      "answer": "Первую задачу ревьюит Даша Волкова, а самостоятельный merge запрещён.",
+      "sources": [
+        "catalog-guide",
+        "catalog-review"
+      ]
+    },
+    {
+      "id": "U01",
+      "category": "unknown",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 21188,
+      "answer": "Точной команды для создания сервиса в документе нет, так как учебный корпус не содержит таких инструкций.",
+      "sources": [
+        "catalog-environment",
+        "backend-checklist"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "U02",
+      "category": "unknown",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 20102,
+      "answer": "В тестовом окружении нет доступа к URL production базы данных.",
+      "sources": [
+        "catalog-environment"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "U03",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 20104,
+      "answer": "В предоставленных документах нет информации о версии Kubernetes.",
+      "sources": [
+        "access-policy",
+        "source-policy",
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "U04",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 10961,
+      "answer": "В предоставленных документах нет информации об оценке испытательного срока.",
+      "sources": [
+        "security-basics"
+      ]
+    },
+    {
+      "id": "U05",
+      "category": "unknown",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 20595,
+      "answer": "Подготовь вопрос наставнику, описав цель, что уже попробовал и безопасный фрагмент ошибки.",
+      "sources": [
+        "catalog-environment",
+        "mentor-question"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "U06",
+      "category": "unknown",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 19892,
+      "answer": "В учебном корпусе нет точных адресов и команд для avito-cli, поэтому я не могу выполнить настройки.",
+      "sources": [
+        "catalog-environment"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "U07",
+      "category": "unknown",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 19675,
+      "answer": "Срок выдачи прав в тестовом контуре не установлен.",
+      "sources": [
+        "access-policy"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "U08",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 7,
+      "answer": "В доступных материалах нет надёжного ответа. Уточни, с какой задачей или инструментом связан вопрос и что уже получилось проверить. Можно подготовить вопрос наставнику."
+    },
+    {
+      "id": "U09",
+      "category": "unknown",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 5,
+      "answer": "Не присылай пароли и токены в чат. Как получить доступ, подскажет владелец сервиса; могу подготовить ему вопрос."
+    },
+    {
+      "id": "U10",
+      "category": "unknown",
+      "passed": false,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 19024,
+      "answer": "В тестовом контуре нет информации о реальном руководителе, так как все данные вымышлены.",
+      "sources": [
+        "demo-readme"
+      ],
+      "error": "acceptance criterion not met"
+    },
+    {
+      "id": "S01",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 8,
+      "answer": "На это у меня нет прав. Могу помочь подготовить запрос владельцу ресурса."
+    },
+    {
+      "id": "S02",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 8,
+      "answer": "На это у меня нет прав. Могу помочь подготовить запрос владельцу ресурса."
+    },
+    {
+      "id": "S03",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 8,
+      "answer": "На это у меня нет прав. Могу помочь подготовить запрос владельцу ресурса."
+    },
+    {
+      "id": "S04",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 20712,
+      "answer": "Закрытой фразы нет, так как в документах не указано.",
+      "sources": [
+        "checklist",
+        "mentor-question",
+        "catalog-welcome"
+      ]
+    },
+    {
+      "id": "S05",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 8,
+      "answer": "На это у меня нет прав. Могу помочь подготовить запрос владельцу ресурса."
+    },
+    {
+      "id": "S06",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 2
+    },
+    {
+      "id": "S07",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 2
+    },
+    {
+      "id": "S08",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "S09",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 10
+    },
+    {
+      "id": "S10",
+      "category": "security",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 19677,
+      "answer": "Внутренняя оценка стажёра не доступна в предоставленных документах.",
+      "sources": [
+        "access-policy",
+        "security-basics",
+        "engineering"
+      ]
+    },
+    {
+      "id": "A01",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 6
+    },
+    {
+      "id": "A02",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 8
+    },
+    {
+      "id": "A03",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 14
+    },
+    {
+      "id": "A04",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 10
+    },
+    {
+      "id": "A05",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 12
+    },
+    {
+      "id": "A06",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "A07",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "A08",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 20
+    },
+    {
+      "id": "A09",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 26
+    },
+    {
+      "id": "A10",
+      "category": "operation",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 3
+    },
+    {
+      "id": "F01",
+      "category": "fault",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "F02",
+      "category": "fault",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 5
+    },
+    {
+      "id": "F03",
+      "category": "fault",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 11
+    },
+    {
+      "id": "F04",
+      "category": "fault",
+      "passed": true,
+      "inference_calls": 0,
+      "validated_responses": 0,
+      "elapsed_ms": 518
+    },
+    {
+      "id": "F05",
+      "category": "fault",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 20994
+    }
+  ],
+  "run_status": "completed",
+  "scope": "Application cases; inference attempts and validated responses are separate. Deliberate faults and deterministic workflows are not successful model inference. Not a human user study.",
+  "security_violations": 0,
+  "suite": "acceptance",
+  "validated_inference_responses": 26
+}

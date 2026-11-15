@@ -276,9 +276,7 @@ export function ActionCard({
                   : 'Взять задачу'}
             <Icon name={expired ? 'refresh' : 'chevron'} size={16} />
           </button>
-          <span className="confirmation-hint">
-            {expired ? 'Срок подтверждения истёк' : 'Нажатие подтверждает эти параметры'}
-          </span>
+          {expired && <span className="confirmation-hint">Срок подтверждения истёк</span>}
         </>
       )}
     </section>

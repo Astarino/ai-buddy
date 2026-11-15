@@ -127,7 +127,7 @@ func TestRealGoProblem(t *testing.T) {
 	}
 	report["elapsed_ms"] = time.Since(started).Milliseconds()
 	report["answer"] = answer
-	if answer.Kind != "answer" || len(answer.SourceIDs) == 0 || !strings.Contains(lower, "hello") || !(strings.Contains(lower, "каталог") || strings.Contains(lower, "папк") || strings.Contains(lower, "cd ")) {
+	if answer.Kind != "answer" || len(answer.SourceIDs) == 0 || !strings.Contains(lower, "hello") || !(strings.Contains(lower, "каталог") || strings.Contains(lower, "папк") || strings.Contains(lower, "директори") || strings.Contains(lower, "cd ")) {
 		t.Fatal("answer did not identify the existing module directory", answer)
 	}
 	if strings.Contains(lower, "go mod init") || strings.Contains(lower, "без точки") {

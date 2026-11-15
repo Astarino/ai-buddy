@@ -1,0 +1,66 @@
+{
+  "application_commit": "44e32c51b99402b454b650d595d1ade8f24aeeef",
+  "application_source_dirty": false,
+  "case_count": 1,
+  "cpu_only": true,
+  "execution_environment": "GitHub Actions ubuntu-24.04 CPU container, 6 GiB limit",
+  "generated_at": "2026-11-14T23:35:44Z",
+  "inference_calls": 1,
+  "model": "ollama:qwen3.5:4b",
+  "ollama_tags": {
+    "models": [
+      {
+        "capabilities": [
+          "completion",
+          "vision",
+          "tools",
+          "thinking"
+        ],
+        "details": {
+          "context_length": 262144,
+          "embedding_length": 2560,
+          "families": [
+            "qwen35"
+          ],
+          "family": "qwen35",
+          "format": "gguf",
+          "parameter_size": "4.2B",
+          "parent_model": "model.gguf",
+          "quantization_level": "Q4_K_M",
+          "runner": "llamacpp"
+        },
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "model": "qwen3.5:4b",
+        "modified_at": "2026-11-14T23:22:07.244508255Z",
+        "name": "qwen3.5:4b",
+        "size": 3324173934
+      }
+    ]
+  },
+  "ollama_version": {
+    "version": "0.40.16"
+  },
+  "pass_percent": 100,
+  "passed": 1,
+  "prompt_version": "buddy-grounded-v4",
+  "required_case_count": 1,
+  "results": [
+    {
+      "id": "R01",
+      "category": "knowledge",
+      "passed": true,
+      "inference_calls": 1,
+      "validated_responses": 1,
+      "elapsed_ms": 13098,
+      "answer": "На вторую неделю нужно изучить командные материалы и внести цели в инструмент отслеживания прогресса.",
+      "sources": [
+        "checklist"
+      ]
+    }
+  ],
+  "run_status": "completed",
+  "scope": "Application cases; inference attempts and validated responses are separate. Deliberate faults and deterministic workflows are not successful model inference. Not a human user study.",
+  "security_violations": 0,
+  "suite": "regression",
+  "validated_inference_responses": 1
+}

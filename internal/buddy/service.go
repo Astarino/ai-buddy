@@ -413,6 +413,7 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 		}
 	}
 	start := s.Now()
+	guarded := false
 	msg := Message{ID: NewID(), Role: "assistant", CreatedAt: s.Now(), ReplyTo: id, SourceIDs: []string{}, Kind: "workflow", ContextVersion: contextVersion}
 	lower := strings.ToLower(question)
 	switch {
@@ -437,6 +438,15 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 	case policyRequest(question):
 		msg.Text = "На это у меня нет прав. Могу помочь подготовить запрос владельцу ресурса."
 		msg.Kind = "policy"
+	case conflictingSources(lower):
+		msg.Text = "Какие два документа сравниваешь?"
+		msg.Kind = "clarification"
+	case vagueProblem(lower):
+		msg.Text = "В каком инструменте появилась ошибка?"
+		if strings.Contains(lower, "настро") {
+			msg.Text = "Какую настройку имеешь в виду?"
+		}
+		msg.Kind = "clarification"
 	case containsAny(lower, "не открывается", "нет доступа", "запросить доступ", "403", "нужен доступ", "доступ к вики"):
 		if !containsAny(lower, "вики", "confluence", "пространств", "руководств") || containsAny(lower, "github", "gitlab", "jira", "sentry", "grafana") {
 			msg.Text = "Что именно не открывается: какой сервис или страница?"
@@ -506,6 +516,17 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 			msg.Text = "В доступных материалах нет надёжного ответа. Уточни, с какой задачей или инструментом связан вопрос и что уже получилось проверить. Можно подготовить вопрос наставнику."
 			msg.Kind = "clarification"
 		} else {
+			if reply, ok := sourceReply(p, lower, docs); ok {
+				msg.Text, msg.SourceIDs, msg.Kind = reply.Text, reply.SourceIDs, "source"
+				used := []Document{}
+				for _, doc := range docs {
+					if slices.Contains(reply.SourceIDs, doc.ID) {
+						used = append(used, doc)
+					}
+				}
+				msg.Dependencies = contextRefs(used, nil)
+				break
+			}
 			history := modelHistory(allowed, state.Messages, id)
 			boundary := s.Model.Boundary()
 			if boundary.External {
@@ -549,13 +570,22 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 			if modelErr != nil {
 				return Message{}, modelErr
 			}
-			if strings.TrimSpace(answer.Text) == "" || utf8.RuneCountInString(answer.Text) > 3000 || (!answer.NeedsClarification && len(answer.SourceIDs) == 0) {
+			if strings.TrimSpace(answer.Text) == "" || utf8.RuneCountInString(answer.Text) > 3000 {
 				return Message{}, ErrUnavailable
 			}
 			for _, source := range answer.SourceIDs {
 				if !slices.ContainsFunc(docs, func(d Document) bool { return d.ID == source }) {
 					return Message{}, ErrUnavailable
 				}
+			}
+			if s.Model.Name() != "fixture" && !answer.NeedsClarification && missingInformation.MatchString(answer.Text) {
+				answer.Text = "Для какой задачи это нужно? По этим источникам не могу надёжно ответить."
+				answer.SourceIDs = []string{}
+				answer.NeedsClarification = true
+				guarded = true
+			}
+			if !answer.NeedsClarification && len(answer.SourceIDs) == 0 {
+				return Message{}, ErrUnavailable
 			}
 			msg.Text, msg.SourceIDs = answer.Text, answer.SourceIDs
 			if answer.NeedsClarification {
@@ -584,6 +614,9 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 			}
 		}
 		st.Messages = append(st.Messages, msg)
+		if guarded {
+			st.Events = append(st.Events, Event{Type: "answer_guarded", ObjectID: msg.ID, At: s.Now(), Outcome: "clarification"})
+		}
 		st.Events = append(st.Events, Event{Type: "answer_" + msg.Kind, ObjectID: msg.ID, At: s.Now(), DurationMS: msg.DurationMS})
 		return nil
 	})

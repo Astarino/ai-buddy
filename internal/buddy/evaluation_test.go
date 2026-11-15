@@ -33,21 +33,26 @@ type evalCase struct {
 }
 
 type evalResult struct {
-	ID                 string   `json:"id"`
-	Category           string   `json:"category"`
-	Passed             bool     `json:"passed"`
-	InferenceCalls     int      `json:"inference_calls"`
-	ValidatedResponses int      `json:"validated_responses"`
-	ElapsedMS          int64    `json:"elapsed_ms"`
-	Answer             string   `json:"answer,omitempty"`
-	Sources            []string `json:"sources,omitempty"`
-	Error              string   `json:"error,omitempty"`
+	ID                    string   `json:"id"`
+	Category              string   `json:"category"`
+	Passed                bool     `json:"passed"`
+	InferenceCalls        int      `json:"inference_calls"`
+	ValidatedResponses    int      `json:"validated_responses"`
+	ElapsedMS             int64    `json:"elapsed_ms"`
+	Answer                string   `json:"answer,omitempty"`
+	Sources               []string `json:"sources,omitempty"`
+	Error                 string   `json:"error,omitempty"`
+	DeliveredKind         string   `json:"delivered_kind,omitempty"`
+	RawModelAnswer        string   `json:"raw_model_answer,omitempty"`
+	RawModelClarification *bool    `json:"raw_model_needs_clarification,omitempty"`
+	RawModelCriterion     *bool    `json:"raw_model_criterion_passed,omitempty"`
 }
 
 type countedModel struct {
 	base      buddy.Model
 	calls     int
 	completed int
+	last      *buddy.Answer
 }
 
 func (m *countedModel) Name() string                  { return m.base.Name() }
@@ -57,6 +62,9 @@ func (m *countedModel) Answer(ctx context.Context, input buddy.AnswerInput) (bud
 	a, err := m.base.Answer(ctx, input)
 	if err == nil {
 		m.completed++
+		copy := a
+		copy.SourceIDs = append([]string(nil), a.SourceIDs...)
+		m.last = &copy
 	}
 	return a, err
 }
@@ -144,6 +152,7 @@ func TestRealModelEvaluation(t *testing.T) {
 			case "knowledge", "unknown":
 				msg, answerErr := s.Chat(ctx, p, "eval-"+item.ID, item.Question)
 				result.Answer, result.Sources = msg.Text, msg.SourceIDs
+				result.DeliveredKind = msg.Kind
 				result.Passed = answerErr == nil
 				if answerErr != nil {
 					result.Error = answerErr.Error()
@@ -211,6 +220,27 @@ func TestRealModelEvaluation(t *testing.T) {
 				result.Passed = evalFault(t, s, p, counter, item.Mode)
 			}
 			result.InferenceCalls = counter.calls
+			if counter.last != nil {
+				result.RawModelAnswer = counter.last.Text
+				clarification := counter.last.NeedsClarification
+				result.RawModelClarification = &clarification
+				if item.Category == "unknown" {
+					result.RawModelCriterion = &clarification
+				}
+				if item.Category == "knowledge" {
+					term, source := false, false
+					for _, value := range item.AnyTerms {
+						term = term || strings.Contains(strings.ToLower(counter.last.Text), strings.ToLower(value))
+					}
+					for _, expected := range item.Sources {
+						for _, actual := range counter.last.SourceIDs {
+							source = source || expected == actual
+						}
+					}
+					matched := term && source
+					result.RawModelCriterion = &matched
+				}
+			}
 			result.ValidatedResponses = counter.completed
 			result.ElapsedMS = time.Since(start).Milliseconds()
 			inferenceCalls += counter.calls
