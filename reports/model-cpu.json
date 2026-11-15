@@ -1,0 +1,18 @@
+{
+  "model": "ollama:qwen3.5:4b",
+  "real_inference": true,
+  "elapsed_ms": 42590,
+  "answer": {
+    "id": "d0cb61ab95027e9525cc6f8942c6b366",
+    "role": "assistant",
+    "text": "Grafana нужно изучать в первом месяце.",
+    "created_at": "2026-11-15T00:06:55.481193386Z",
+    "source_ids": [
+      "backend-checklist"
+    ],
+    "reply_to": "cpu-b83e8eddf3c34a3b9728bd994dadc4ec",
+    "kind": "answer",
+    "duration_ms": 42582
+  },
+  "scope": "one real grounded answer via browser API; full quality acceptance is a separate suite"
+}
