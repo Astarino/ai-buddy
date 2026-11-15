@@ -67,7 +67,7 @@ export function SourcePanel({ id }: { id: string }) {
         </div>
       </dl>
       <div className="source-text">
-        {source.body.split('\n').map((paragraph, index) => (
+        {source.body.split(/\n\s*\n/).map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
         ))}
       </div>

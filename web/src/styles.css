@@ -1151,7 +1151,7 @@
   }
   .source-metadata > div {
     display: grid;
-    grid-template-columns: 100px 1fr;
+    grid-template-columns: 100px minmax(0, 1fr);
     gap: 14px;
   }
   .source-metadata dt {
@@ -1160,6 +1160,7 @@
   .source-metadata dd {
     margin: 0;
     color: #5d6b7c;
+    overflow-wrap: anywhere;
   }
   .source-metadata dd > a {
     display: inline-flex;
