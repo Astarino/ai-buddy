@@ -1,14 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, ApiError } from './api';
-import {
-  ActionCard,
-  Avatar,
-  BuddyMark,
-  Dialog,
-  Icon,
-  ProfilePicker,
-  RoutePanel,
-} from './components';
+import { BuddyMark, Dialog, Icon, ProfilePicker, RoutePanel } from './components';
 import {
   DemoPanel,
   DiagnosticsPanel,
@@ -19,26 +11,8 @@ import {
 } from './panels';
 import { HelpRequestsPanel, PublicSearchPanel } from './collaboration';
 import type { Bootstrap, Profile, Source, Workspace } from './types';
-
-type Panel =
-  | { kind: 'inbox'; id?: string }
-  | { kind: 'source'; id: string; title: string }
-  | { kind: 'task'; id: string }
-  | {
-      kind:
-        | 'sources'
-        | 'requests'
-        | 'mentor'
-        | 'demo'
-        | 'diagnostics'
-        | 'help'
-        | 'profiles'
-        | 'external'
-        | 'route'
-        | 'menu'
-        | 'search';
-    }
-  | null;
+import { Conversation } from './conversation';
+import { WorkspaceNavigation, WorkspaceOverview, type Panel } from './navigation';
 
 export default function App() {
   const [bootstrap, setBootstrap] = useState<Bootstrap | null>(null);
@@ -285,10 +259,6 @@ export default function App() {
     );
 
   const profile = workspace.profile;
-  const assignedRequests = (workspace.requests ?? []).filter(
-    (item) => item.assignee_id === profile.id && item.status === 'waiting',
-  );
-  const waitingPeople = Array.from(new Set(assignedRequests.map((item) => item.requester_id)));
   const requestAttention = (workspace.requests ?? []).filter((item) =>
     item.requester_id === profile.id ? item.status === 'answered' : item.status === 'waiting',
   ).length;
@@ -319,128 +289,21 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header className="workspace-bar">
-        {syncError && (
-          <button
-            className="sync-warning"
-            onClick={() =>
-              void perform('refresh', async () => {
-                setWorkspace(await api.state());
-                setSyncError(false);
-              })
-            }
-          >
-            Статусы не обновились · повторить
-          </button>
-        )}
-        <a href="/" className="brand" aria-label="AI Buddy — главная">
-          <BuddyMark small />
-          <strong>AI Buddy</strong>
-        </a>
-        <div className="workspace-bar-right">
-          {workspace.demo && (
-            <span className="demo-label">
-              <span />
-              Демонстрационный контур
-            </span>
-          )}
-          <button
-            className="icon-button"
-            aria-label="О прототипе"
-            onClick={() => setPanel({ kind: 'help' })}
-          >
-            <Icon name="info" size={19} />
-          </button>
-        </div>
-      </header>
-
-      <nav className="sidebar" aria-label="Рабочее пространство">
-        <div className="team-switch">
-          <span className="team-logo">{profile.project[0]}</span>
-          <div>
-            <strong>Команда {profile.team_name}</strong>
-            <span>{profile.role}</span>
-          </div>
-        </div>
-        <div className="sidebar-section">
-          <span className="eyebrow">ЛИЧНЫЕ СООБЩЕНИЯ</span>
-          <button className="contact active" aria-current="page" onClick={closePanel}>
-            <BuddyMark small />
-            <span>
-              <strong>AI Buddy</strong>
-            </span>
-          </button>
-          {profile.mentor && (
-            <button className="contact" onClick={() => setPanel({ kind: 'mentor' })}>
-              <Avatar name={profile.mentor} mentor />
-              <span>
-                <strong>{profile.mentor}</strong>
-                <span>Твой наставник</span>
-              </span>
-            </button>
-          )}
-        </div>
-        <div className="sidebar-section navigation-links">
-          <span className="eyebrow">ПОД РУКОЙ</span>
-          {profile.audience !== 'responsible' && (
-            <button onClick={() => setPanel({ kind: 'route' })}>
-              <Icon name="route" />
-              Мой маршрут
-              <span className="nav-count">
-                {workspace.tasks.filter((task) => task.status === 'completed').length}/
-                {workspace.tasks.length}
-              </span>
-            </button>
-          )}
-          <button onClick={() => setPanel({ kind: 'sources' })}>
-            <Icon name="book" />
-            База знаний
-          </button>
-          <button onClick={() => setPanel({ kind: 'search' })}>
-            <Icon name="search" />
-            Найти в документации
-          </button>
-          <button onClick={() => setPanel({ kind: 'inbox' })}>
-            <Icon name="chat" />
-            {profile.audience === 'responsible' ? 'Нужен мой ответ' : 'Вопросы команде'}
-            {requestAttention > 0 && <span className="nav-count">{requestAttention}</span>}
-          </button>
-          {profile.audience !== 'responsible' && (
-            <button onClick={() => setPanel({ kind: 'requests' })}>
-              <Icon name="clock" />
-              Мои заявки{pendingCount > 0 && <span className="nav-count">{pendingCount}</span>}
-            </button>
-          )}
-        </div>
-        <div className="workspace-context">
-          <p>
-            <span className="day-chip">{profile.day}</span>
-            <span>
-              <strong>День в команде</strong>
-            </span>
-          </p>
-        </div>
-        <div className="sidebar-bottom">
-          {workspace.demo && (
-            <button className="sidebar-demo" onClick={() => setPanel({ kind: 'demo' })}>
-              <Icon name="shield" size={16} />
-              Пульт демонстрации
-            </button>
-          )}
-          <button
-            className="profile-switch"
-            onClick={() => setPanel({ kind: 'profiles' })}
-            disabled={sending || !!busy}
-          >
-            <Avatar name={profile.name} />
-            <span>
-              <strong>{profile.name}</strong>
-              <span>{profile.role}</span>
-            </span>
-            <Icon name="more" size={18} />
-          </button>
-        </div>
-      </nav>
+      <WorkspaceNavigation
+        workspace={workspace}
+        syncError={syncError}
+        busy={busy}
+        sending={sending}
+        pendingCount={pendingCount}
+        requestAttention={requestAttention}
+        onNavigate={setPanel}
+        onRefresh={() =>
+          void perform('refresh', async () => {
+            setWorkspace(await api.state());
+            setSyncError(false);
+          })
+        }
+      />
 
       <main className="chat-main">
         <header className="chat-header">
@@ -486,128 +349,17 @@ export default function App() {
             </button>
           </div>
         </header>
-        <div
-          className="conversation"
-          role="log"
-          aria-label="Диалог с AI Buddy"
-          aria-live="polite"
-          aria-relevant="additions text"
-        >
-          <div className="conversation-inner">
-            <div className="welcome">
-              <h2>
-                Привет, {profile.name.split(' ')[0]}
-                <span className="greeting-dot">.</span>
-              </h2>
-              {profile.audience === 'responsible' ? (
-                <div className="next-step">
-                  <div>
-                    <h3>Запросы стажёров</h3>
-                    <button className="text-button" onClick={() => setPanel({ kind: 'inbox' })}>
-                      Нужен мой ответ
-                      <Icon name="chevron" size={15} />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="next-step">
-                  <div>
-                    <h3>
-                      {workspace.tasks.find((task) => task.id === 'space-access')?.status ===
-                      'completed'
-                        ? 'Доступ к материалам открыт'
-                        : 'Доступ к командной базе'}
-                    </h3>
-                    <button
-                      className="text-button"
-                      disabled={sending}
-                      onClick={() =>
-                        workspace.documents.some((source) => source.id === `${profile.team}-guide`)
-                          ? openSource(`${profile.team}-guide`)
-                          : void send('Не открывается командная вики')
-                      }
-                    >
-                      {workspace.documents.some((source) => source.id === `${profile.team}-guide`)
-                        ? 'Открыть руководство'
-                        : 'Разобраться с доступом'}
-                      <Icon name="chevron" size={15} />
-                    </button>
-                  </div>
-                  <span className="next-step-art" aria-hidden="true">
-                    <Icon name="book" size={36} />
-                  </span>
-                </div>
-              )}
-            </div>
-            {workspace.messages.map((message) => (
-              <article className={`message message-${message.role}`} key={message.id}>
-                {message.role === 'assistant' ? (
-                  <BuddyMark small />
-                ) : (
-                  <Avatar name={profile.name} />
-                )}
-                <div className="message-content">
-                  <div className="message-author">
-                    <strong>
-                      {message.role === 'assistant' ? 'AI Buddy' : profile.name.split(' ')[0]}
-                    </strong>
-                    <time dateTime={message.created_at}>
-                      {new Date(message.created_at).toLocaleTimeString('ru-RU', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </time>
-                    {message.kind === 'fixture' && (
-                      <span className="fixture-tag">Тестовый ответ</span>
-                    )}
-                  </div>
-                  <p className="message-text">{message.text}</p>
-                  {message.source_ids.length > 0 && (
-                    <div className="message-sources">
-                      {message.source_ids.map((id) => (
-                        <button key={id} onClick={() => openSource(id)}>
-                          <Icon name="book" size={13} />
-                          {workspace.documents.find((source) => source.id === id)?.title ??
-                            'Источник'}
-                          <Icon name="chevron" size={12} />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {message.action_id &&
-                    workspace.actions
-                      .filter((action) => action.id === message.action_id)
-                      .map((action) => (
-                        <ActionCard
-                          action={action}
-                          key={action.id}
-                          busy={busy === action.id}
-                          onConfirm={() => void perform(action.id, () => api.confirm(action.id))}
-                          onRecreate={() => prepare(action.kind)}
-                        />
-                      ))}
-                </div>
-              </article>
-            ))}
-            {sending && (
-              <div className="message message-assistant waiting-message" role="status">
-                <BuddyMark small />
-                <div>
-                  <strong>AI Buddy</strong>
-                  <p>
-                    <span className="typing-dots">
-                      <i />
-                      <i />
-                      <i />
-                    </span>
-                    Проверяю материалы и следующий шаг…
-                  </p>
-                </div>
-              </div>
-            )}
-            <div ref={endRef} />
-          </div>
-        </div>
+        <Conversation
+          workspace={workspace}
+          busy={busy}
+          sending={sending}
+          endRef={endRef}
+          onSource={openSource}
+          onConfirm={(id) => void perform(id, () => api.confirm(id))}
+          onPrepare={prepare}
+          onInbox={() => setPanel({ kind: 'inbox' })}
+          onSend={(text) => void send(text)}
+        />
         <div className="composer-area">
           {error && !panel && (
             <div className="error-banner" role="alert">
@@ -701,39 +453,7 @@ export default function App() {
         </div>
       </main>
 
-      <div className="desktop-route">
-        {profile.audience === 'responsible' ? (
-          <section className="responsible-overview">
-            <h2>Нужен мой ответ</h2>
-            {waitingPeople.length === 0 && <p className="fine-print">Новых запросов пока нет.</p>}
-            {waitingPeople.map((id) => {
-              const items = assignedRequests.filter((item) => item.requester_id === id);
-              return (
-                <button
-                  className="request-row"
-                  key={id}
-                  onClick={() => setPanel({ kind: 'inbox', id: items[0].id })}
-                >
-                  <span>
-                    <strong>{items[0].requester}</strong>
-                    <small>
-                      {items[0].subject}
-                      {items.length > 1 ? ` · ещё ${items.length - 1}` : ''}
-                    </small>
-                  </span>
-                  <Icon name="chevron" size={16} />
-                </button>
-              );
-            })}
-          </section>
-        ) : (
-          <RoutePanel
-            workspace={workspace}
-            onTask={(task) => setPanel({ kind: 'task', id: task.id })}
-            onMentor={() => setPanel({ kind: 'mentor' })}
-          />
-        )}
-      </div>
+      <WorkspaceOverview workspace={workspace} onNavigate={setPanel} />
 
       {panel && (
         <Dialog
