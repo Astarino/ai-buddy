@@ -13,6 +13,7 @@ AI Buddy помогает стажёрам разных направлений �
 
 [Видео сценариев, 2 минуты 46 секунд](docs/assets/demo.mp4) ·
 [Презентация PDF](docs/assets/AI-Buddy.pdf) ·
+[Редактируемые слайды](docs/assets/AI-Buddy.pptx) ·
 [Комплект для проверки](docs/submission.md)
 
 ## Возможности прототипа
@@ -76,6 +77,7 @@ make e2e
 - [Корпоративный вход и интеграции](specs/integrations.md)
 - [Запросы ответственным](specs/collaboration.md) · [Публичный поиск](specs/public-search.md)
 - [Метрики и пилот](docs/metrics.md)
+- [Речь для защиты и ответы жюри](docs/pitch.md)
 
 Версии зависимостей закреплены в `go.mod`, `go.sum`, `web/package.json` и
 `web/pnpm-lock.yaml`; проверенный CPU-вариант — в `model.cpu.lock.json`,
