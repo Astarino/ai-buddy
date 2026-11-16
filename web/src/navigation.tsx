@@ -1,4 +1,4 @@
-import { Avatar, BuddyMark, Icon, RoutePanel } from './components';
+import { Avatar, BuddyMark, StartMark, Icon, RoutePanel } from './components';
 import type { Workspace } from './types';
 
 export type Panel =
@@ -51,9 +51,9 @@ export function WorkspaceNavigation({
             Статусы не обновились · повторить
           </button>
         )}
-        <a href="/" className="brand" aria-label="AI Buddy — главная">
-          <BuddyMark small />
-          <strong>AI Buddy</strong>
+        <a href="/" className="brand" aria-label="Avito Start — главная">
+          <StartMark />
+          <strong>Avito Start</strong>
         </a>
         <div className="workspace-bar-right">
           {workspace.demo && (

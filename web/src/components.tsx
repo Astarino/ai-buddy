@@ -108,6 +108,19 @@ export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   );
 }
 
+export function StartMark() {
+  return (
+    <img
+      className="buddy-mark small"
+      src="/avito-mark.png"
+      width={32}
+      height={32}
+      alt=""
+      aria-hidden="true"
+    />
+  );
+}
+
 export function BuddyMark({ small = false }: { small?: boolean }) {
   return (
     <img

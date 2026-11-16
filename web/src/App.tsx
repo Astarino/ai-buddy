@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, ApiError } from './api';
-import { BuddyMark, Dialog, Icon, ProfilePicker, RoutePanel } from './components';
+import { BuddyMark, StartMark, Dialog, Icon, ProfilePicker, RoutePanel } from './components';
 import {
   DemoPanel,
   DiagnosticsPanel,
@@ -199,7 +199,7 @@ export default function App() {
   if (loading)
     return (
       <main className="launch-screen">
-        <BuddyMark />
+        <StartMark />
         <p role="status">Открываем рабочее пространство…</p>
       </main>
     );
@@ -207,8 +207,8 @@ export default function App() {
     return (
       <main className="login-screen">
         <div className="login-brand">
-          <BuddyMark />
-          <strong>AI Buddy</strong>
+          <StartMark />
+          <strong>Avito Start</strong>
         </div>
         <section className="login-card">
           <span className="eyebrow">
@@ -256,7 +256,7 @@ export default function App() {
           )}
         </section>
         {bootstrap?.demo !== false && (
-          <span className="login-caption">AI Buddy · прототип для Hack&amp;Change 2026</span>
+          <span className="login-caption">Avito Start · прототип с AI Buddy</span>
         )}
       </main>
     );
