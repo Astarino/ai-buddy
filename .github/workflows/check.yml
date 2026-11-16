@@ -46,6 +46,10 @@ jobs:
       - run: docker compose config --quiet
       - run: docker compose -f compose.yaml -f compose.cpu.yaml config --quiet
       - run: docker compose up --build --wait
+      - name: Verify the CPU cache is writable by the runtime user
+        run: >-
+          docker compose -f compose.yaml -f compose.cpu.yaml run --rm --no-deps --entrypoint sh app
+          -c 'test "$(id -u)" = 10001 && mkdir -m 700 /tmp/buddy && umask 077 && printf probe > /tmp/buddy/index.json && test "$(stat -c %a /tmp/buddy/index.json)" = 600'
       - run: python3 scripts/smoke.py http://127.0.0.1:8090
       - if: always()
         run: docker compose logs --tail=80
