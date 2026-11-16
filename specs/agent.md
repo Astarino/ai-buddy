@@ -1,6 +1,6 @@
 # Поведение агента и контракты инструментов
 
-Промпт ответов: `buddy-grounded-v4`; локальный агентный цикл: `buddy-tools-v1`.
+Промпт ответов: `buddy-grounded-v4`; локальный агентный цикл: `buddy-tools-v3`.
 Актуальные контракты выбора инструментов — [agent-loop.md](agent-loop.md),
 поиска — [retrieval.md](retrieval.md).
 

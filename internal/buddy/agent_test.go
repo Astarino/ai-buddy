@@ -304,12 +304,12 @@ func TestLiveAgentSelection(t *testing.T) {
 				res.Passed = res.Passed && m.ActionID != "" && slices.ContainsFunc(view.Actions, func(a buddy.Action) bool { return a.ID == m.ActionID && a.Kind == kind && a.Status == "ready" })
 			}
 			if tc.state == "pending" || tc.state == "approved" {
-				res.Passed = res.Passed && m.ActionID == "" && len(view.Operations) == 1
+				res.Passed = res.Passed && m.ActionID == "" && m.RequestID == "" && len(view.Operations) == 1
 				_, docErr := s.Document(ctx, p, p.Team+"-guide")
 				res.Passed = res.Passed && errors.Is(docErr, buddy.ErrNotFound)
 			}
 			if tc.state == "granted" {
-				res.Passed = res.Passed && m.ActionID == "" && slices.Contains(m.SourceIDs, p.Team+"-guide")
+				res.Passed = res.Passed && m.ActionID == "" && m.RequestID == "" && slices.Contains(m.SourceIDs, p.Team+"-guide")
 			}
 			if tc.state == "assigned" {
 				res.Passed = res.Passed && m.ActionID == "" && slices.Contains(m.SourceIDs, p.Team+"-review")
