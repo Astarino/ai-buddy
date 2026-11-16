@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -178,14 +179,16 @@ func TestAgentRequestDraftAndRevokedSources(t *testing.T) {
 
 type recordedAgent struct {
 	buddy.Model
-	next    buddy.AgentModel
-	Calls   []string
-	Outputs []string
+	next      buddy.AgentModel
+	Calls     []string
+	Outputs   []string
+	Decisions []buddy.ToolCall
 }
 
 func (r *recordedAgent) Next(ctx context.Context, turns []buddy.AgentTurn) (buddy.AgentTurn, error) {
 	turn, err := r.next.Next(ctx, turns)
 	r.Outputs = append(r.Outputs, turn.Content)
+	r.Decisions = append(r.Decisions, turn.Calls...)
 	for _, call := range turn.Calls {
 		r.Calls = append(r.Calls, call.Function.Name)
 	}
@@ -198,14 +201,16 @@ func TestLiveAgentSelection(t *testing.T) {
 		t.Skip("explicit real Qwen evaluation")
 	}
 	type result struct {
-		Question   string        `json:"question"`
-		State      string        `json:"state"`
-		Tools      []string      `json:"model_selected_tools"`
-		RawOutputs []string      `json:"model_outputs"`
-		Message    buddy.Message `json:"message"`
-		Error      string        `json:"error,omitempty"`
-		DurationMS int64         `json:"duration_ms"`
-		Passed     bool          `json:"passed"`
+		Question          string           `json:"question"`
+		State             string           `json:"state"`
+		Tools             []string         `json:"model_selected_tools"`
+		RawOutputs        []string         `json:"model_outputs"`
+		Message           buddy.Message    `json:"message"`
+		Error             string           `json:"error,omitempty"`
+		DurationMS        int64            `json:"duration_ms"`
+		Passed            bool             `json:"passed"`
+		ModelChoicePassed bool             `json:"model_choice_passed"`
+		Decisions         []buddy.ToolCall `json:"model_decisions"`
 	}
 	results := []result{}
 	defer func() {
@@ -222,7 +227,7 @@ func TestLiveAgentSelection(t *testing.T) {
 		{"Мне согласовали заявку. Можно уже читать руководство?", "approved", "get_context"},
 		{"Доступ выдан. Хочу разобраться в руководстве и начать первую задачу.", "granted", "search_knowledge"},
 		{"Руководство изучено, помоги приступить к первой задаче.", "read", "prepare_action"},
-		{"Я получил первую задачу. Как понять, что она готова к ревью, и где посмотреть требования команды?", "read", "search_knowledge"},
+		{"Я получил первую задачу. Как понять, что она готова к ревью, и где посмотреть требования команды?", "assigned", "search_knowledge"},
 		{"Подготовь наставнику вопрос: какие критерии готовности моей первой задачи?", "none", "prepare_request"},
 	} {
 		if mode == "smoke" && i > 0 {
@@ -247,15 +252,24 @@ func TestLiveAgentSelection(t *testing.T) {
 						t.Fatal(err)
 					}
 				}
-				if tc.state == "granted" || tc.state == "read" {
+				if tc.state == "granted" || tc.state == "read" || tc.state == "assigned" {
 					if err = s.Operator.Event(ctx, p.ID, a.ID, "granted"); err != nil {
 						t.Fatal(err)
 					}
 				}
-				if tc.state == "read" {
+				if tc.state == "read" || tc.state == "assigned" {
 					if err = s.Complete(ctx, p, "read-guide"); err != nil {
 						t.Fatal(err)
 					}
+				}
+			}
+			if tc.state == "assigned" {
+				a, err := s.Prepare(ctx, p, "issue", "Первая задача после изучения руководства")
+				if err != nil {
+					t.Fatal(err)
+				}
+				if _, err = s.Confirm(ctx, p, a.ID); err != nil {
+					t.Fatal(err)
 				}
 			}
 			llm, err := model.New("ollama", "http://127.0.0.1:11434", "qwen3.5:4b", "", false)
@@ -275,13 +289,40 @@ func TestLiveAgentSelection(t *testing.T) {
 			s.Retrieval = &buddy.Retriever{Embedding: embedding}
 			started := time.Now()
 			m, err := s.Chat(ctx, p, buddy.NewID(), tc.q)
-			res := result{Question: tc.q, State: tc.state, Tools: recorder.Calls, RawOutputs: recorder.Outputs, Message: m, DurationMS: time.Since(started).Milliseconds()}
+			res := result{Question: tc.q, State: tc.state, Tools: recorder.Calls, RawOutputs: recorder.Outputs, Decisions: recorder.Decisions, Message: m, DurationMS: time.Since(started).Milliseconds()}
 			if err != nil {
 				res.Error = err.Error()
 			}
-			res.Passed = err == nil && strings.Contains(strings.Join(recorder.Calls, ","), tc.want)
-			if tc.state == "none" && tc.want == "prepare_action" {
-				res.Passed = res.Passed && m.ActionID != ""
+			res.Passed = err == nil
+			view, viewErr := s.View(ctx, p)
+			res.Passed = res.Passed && viewErr == nil
+			if tc.want == "prepare_action" {
+				kind := "access"
+				if tc.state == "read" {
+					kind = "issue"
+				}
+				res.Passed = res.Passed && m.ActionID != "" && slices.ContainsFunc(view.Actions, func(a buddy.Action) bool { return a.ID == m.ActionID && a.Kind == kind && a.Status == "ready" })
+			}
+			if tc.state == "pending" || tc.state == "approved" {
+				res.Passed = res.Passed && m.ActionID == "" && len(view.Operations) == 1
+				_, docErr := s.Document(ctx, p, p.Team+"-guide")
+				res.Passed = res.Passed && errors.Is(docErr, buddy.ErrNotFound)
+			}
+			if tc.state == "granted" {
+				res.Passed = res.Passed && m.ActionID == "" && slices.Contains(m.SourceIDs, p.Team+"-guide")
+			}
+			if tc.state == "assigned" {
+				res.Passed = res.Passed && m.ActionID == "" && slices.Contains(m.SourceIDs, p.Team+"-review")
+			}
+			if tc.want == "prepare_request" {
+				requests, listErr := s.ListRequests(ctx, p)
+				res.Passed = res.Passed && listErr == nil && slices.ContainsFunc(requests, func(r buddy.HelpRequest) bool {
+					return r.ID == m.RequestID && r.Status == "draft" && r.AssigneeID == p.MentorID
+				})
+			}
+			res.ModelChoicePassed = res.Passed && slices.Contains(recorder.Calls, tc.want)
+			if tc.state == "pending" || tc.state == "approved" || tc.state == "granted" {
+				res.ModelChoicePassed = res.ModelChoicePassed && !slices.Contains(recorder.Calls, "prepare_action")
 			}
 			results = append(results, res)
 			if !res.Passed {
