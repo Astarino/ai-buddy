@@ -177,6 +177,7 @@ test('a lost response is reconciled by refresh without resending the action', as
   const cards = page.getByRole('region', { name: 'Заявка на доступ' });
   const latest = cards.last();
   await expect(latest).toContainText(person.space);
+  await expect(latest.getByRole('button', { name: 'Отправить заявку' })).toBeVisible();
   const ready: Workspace = await (await context.request.get('/api/state')).json();
   const action = ready.actions.find((action) => action.status === 'ready')!;
   await context.request.post('/api/demo/events', {
