@@ -17,5 +17,7 @@
   "prompt_version": "buddy-grounded-v4",
   "corpus_version": "2026-11-14-v3",
   "cpu_only": true,
-  "container_memory_limit_bytes": 6442450944
+  "container_memory_limit_bytes": 6442450944,
+  "agent_prompt_version": "buddy-tools-v2",
+  "agent_corpus_version": "2026-11-16-v4"
 }

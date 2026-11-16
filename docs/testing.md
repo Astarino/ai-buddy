@@ -98,3 +98,25 @@ RUN_LIVE_BROWSER=true make e2e
 
 Снимок реального сетевого поиска находится в `reports/public-search.json`.
 Он доказывает получение официальных фрагментов; это не отчёт о генерации Qwen.
+
+## Агент и гибридный поиск, 16 ноября
+
+Новые проверки контракта: `agent_test.go`, `retrieval_test.go`, `model/agent_test.go`.
+Проверяются отсутствие записи без подтверждения, чужая карточка, повтор, отзыв
+источника, запрет неизвестных инструментов и полей, ограничение цикла, сбой модели,
+обновление/удаление индекса, некорректные векторы и BM25 fallback.
+
+Настоящие прогоны запускаются отдельно от браузера и рендера на Mac с защитой
+25% свободной памяти. Нужны уже загруженные модели из lock-файлов.
+
+```sh
+RUN_RETRIEVAL_LIVE=true RETRIEVAL_REPORT="$PWD/reports/retrieval.json" go test ./internal/buddy -run '^TestLiveRetrievalComparison$' -count=1 -timeout=5m
+RUN_AGENT_LIVE=full AGENT_REPORT="$PWD/reports/agent-qwen.json" TEST_DATABASE_URL='postgres:///ai_buddy_test?host=/tmp' go test ./internal/buddy -run '^TestLiveAgentSelection$' -count=1 -timeout=15m
+```
+
+Отчёт агента различает список инструментов, выбранных Qwen, и серверные правила.
+Отчёт retrieval содержит 26 вопросов, 23 с эталонным ответом; случаи запрета и
+отсутствия ответа показаны отдельно. Recall@5 и MRR@10 рассчитаны по документам,
+а не по фрагментам. Baseline возвращает максимум три результата. Это малый
+синтетический набор, не доказательство улучшения на произвольных данных.
+Предыдущие CPU-отчёты относятся к grounded-v4 без нового агентного цикла.

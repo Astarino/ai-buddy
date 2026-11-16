@@ -24,7 +24,7 @@ export class ApiError extends Error {
 
 export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 95_000);
+  const timeout = setTimeout(() => controller.abort(), 125_000);
   try {
     const response = await fetch(`/api${path}`, {
       ...options,

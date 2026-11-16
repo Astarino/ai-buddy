@@ -24,6 +24,7 @@ type Service struct {
 	ModelDataPolicy string
 	Searcher        PublicSearcher
 	Requests        RequestStore
+	Retrieval       *Retriever
 }
 
 func NewService(repo Repository, corporate Corporate, model Model) *Service {
@@ -112,7 +113,17 @@ func (s *Service) View(ctx context.Context, p Profile) (View, error) {
 	if p.Audience == "responsible" {
 		tasks, next = []Task{}, ""
 	}
-	return View{Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh && permissionsFresh, Model: s.Model.Name(), Demo: s.Demo, Requests: requests, RequestTargets: s.requestTargets(ctx, p)}, nil
+	progress := []string{}
+	if len(state.Messages) > 0 && state.Messages[len(state.Messages)-1].Role == "user" {
+		pending := state.Messages[len(state.Messages)-1].ID
+		labels := map[string]string{"get_context": "Проверил маршрут и операции", "search_knowledge": "Проверил доступные материалы", "prepare_action": "Проверил параметры действия", "prepare_request": "Проверил вопрос ответственному"}
+		for _, event := range state.Events {
+			if event.CorrelationID == pending && event.Type == "agent_tool" && labels[event.ObjectID] != "" {
+				progress = append(progress, labels[event.ObjectID])
+			}
+		}
+	}
+	return View{Progress: progress, Profile: p, Messages: messages, Actions: state.Actions, Tasks: tasks, Operations: ops, Documents: docs, NextTaskID: next, Draft: state.Draft, ServiceFresh: fresh && permissionsFresh, Model: s.Model.Name(), Demo: s.Demo, Requests: requests, RequestTargets: s.requestTargets(ctx, p)}, nil
 }
 
 func (s *Service) Document(ctx context.Context, p Profile, id string) (Document, error) {
@@ -243,6 +254,11 @@ func (s *Service) ChatWithConsent(ctx context.Context, p Profile, id, question, 
 	msg := Message{ID: NewID(), Role: "assistant", CreatedAt: s.Now(), ReplyTo: id, SourceIDs: []string{}, Kind: "workflow", ContextVersion: contextVersion}
 	lower := strings.ToLower(question)
 	switch {
+	case s.canRunAgent(question):
+		msg, err = s.runAgent(ctx, p, state, id, question, msg)
+		if err != nil {
+			return Message{}, err
+		}
 	case p.Audience == "responsible" && containsAny(lower, "кому нужна", "мои стаж", "кто ждёт", "ждет ответа", "ждёт ответа"):
 		requests, err := s.ListRequests(ctx, p)
 		if err != nil {

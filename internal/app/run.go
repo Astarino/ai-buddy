@@ -96,6 +96,15 @@ func RunContext(ctx context.Context, kind string) error {
 			return fmt.Errorf("external model requires MODEL_DATA_POLICY=public-only")
 		}
 		api.Service.ModelDataPolicy = policy
+		api.Service.Retrieval = &buddy.Retriever{}
+		if os.Getenv("EMBEDDING_MODEL") != "" {
+			embedding, err := model.NewEmbedder(env("EMBEDDING_BASE_URL", "http://127.0.0.1:11434"), os.Getenv("EMBEDDING_MODEL"), os.Getenv("EMBEDDING_VERSION"), llm)
+			if err != nil {
+				return fmt.Errorf("invalid local embedding configuration: %w", err)
+			}
+			api.Service.Retrieval.Embedding = embedding
+			api.Service.Retrieval.CacheFile = env("EMBEDDING_CACHE_FILE", "tmp/embedding-index.json")
+		}
 		if mode == "corporate" {
 			if operator != "" || token == "local-demo-service" || provider == "fixture" || !api.SecureCookie {
 				return fmt.Errorf("corporate mode requires secure cookies, real service credentials and no demo controls")

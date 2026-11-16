@@ -34,6 +34,22 @@ services:
       MODEL_KEEP_ALIVE_SECONDS: "300"
       MODEL_DATA_POLICY: internal
       ALLOW_EXTERNAL_MODEL: "false"
+      EMBEDDING_MODEL: embeddinggemma:300m
+      EMBEDDING_BASE_URL: http://ollama:11434
+      EMBEDDING_VERSION: 85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1
+      EMBEDDING_CACHE_FILE: /tmp/buddy-embedding-index.json
+    tmpfs:
+      - /tmp:mode=0700,size=16m
+    depends_on:
+      model-init:
+        condition: service_completed_successfully
+      embedding-init:
+        condition: service_completed_successfully
+  embedding-init:
+    image: ollama/ollama:0.40.16
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    command: [pull, embeddinggemma:300m]
     depends_on:
       model-init:
         condition: service_completed_successfully

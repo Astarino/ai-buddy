@@ -1,0 +1,16 @@
+{
+  "provider": "ollama",
+  "runtime_version": "0.40.16",
+  "model": "embeddinggemma:300m",
+  "digest": "85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1",
+  "download_bytes": 621875917,
+  "dimensions": 768,
+  "context_tokens": 2048,
+  "keep_alive": 0,
+  "concurrency": 1,
+  "document_prefix": "title: {title} | text: {text}",
+  "query_prefix": "task: search result | query: {query}",
+  "chunk_characters": 700,
+  "chunk_overlap_characters": 100,
+  "rrf_k": 60
+}

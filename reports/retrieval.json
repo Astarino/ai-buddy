@@ -1,0 +1,2183 @@
+{
+  "acl_violations": 0,
+  "cases": [
+    {
+      "query": "Как получить доступ к Confluence?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "source-policy",
+        "catalog-welcome"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.077,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Не открывается вики, ошибка 403",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-environment",
+        "mentor-question"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.057,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Документация команды недоступна, хочу начать работу",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "engineering",
+        "access-policy",
+        "catalog-welcome"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.069,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Заявку согласовали: права уже выданы?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "security-basics",
+        "demo-readme"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.066,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Сколько ждать выдачи доступа?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "checklist",
+        "engineering"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.063,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Мой наставник в Каталоге",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "catalog-environment",
+        "checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.057,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какой ключ проекта Jira у команды?",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "security-basics",
+        "catalog-environment"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.06,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что нужно изучить в первые две недели?",
+      "Expected": [
+        "checklist"
+      ],
+      "Found": [
+        "checklist",
+        "catalog-welcome",
+        "access-policy"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.073,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Backend чек-лист: Grafana когда?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.001,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "На какой неделе знакомиться с Sentry?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.059,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где посмотреть принципы разработки?",
+      "Expected": [
+        "engineering"
+      ],
+      "Found": [
+        "engineering",
+        "access-policy",
+        "backend-checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.063,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как сформулировать полезный вопрос наставнику?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "mentor-question",
+        "access-policy",
+        "checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.068,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие данные приложить к описанию проблемы?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "backend-checklist",
+        "mentor-question",
+        "security-basics"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.068,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Два документа противоречат друг другу",
+      "Expected": [
+        "source-policy"
+      ],
+      "Found": [
+        "source-policy",
+        "engineering",
+        "backend-checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.063,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Можно ли прислать пароль в личный чат?",
+      "Expected": [
+        "security-basics"
+      ],
+      "Found": [
+        "security-basics",
+        "engineering",
+        "source-policy"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.102,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как устроена имитация корпоративного сервиса?",
+      "Expected": [
+        "demo-readme"
+      ],
+      "Found": [
+        "demo-readme",
+        "access-policy",
+        "mentor-question"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.066,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где работать над учебной задачей?",
+      "Expected": [
+        "catalog-environment"
+      ],
+      "Found": [
+        "catalog-environment",
+        "security-basics",
+        "access-policy"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.066,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какая первая задача в проекте CAT?",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "catalog-guide",
+        "catalog-welcome"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.079,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Хочу взять задачу про пустой поисковый запрос",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "access-policy",
+        "catalog-guide"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.094,
+      "Recall5": 1,
+      "MRR10": 0.3333333333333333,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как понять, что задача готова к ревью?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "mentor-question",
+        "catalog-guide"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.092,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что писать в описании pull request?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "access-policy",
+        "mentor-question"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.081,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что проверить перед передачей кода на проверку?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "access-policy",
+        "engineering"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.09,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как получит достп к конфлюенс?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "mentor-question",
+        "source-policy"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.06,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие требования к ревью в Доставке?",
+      "Expected": [],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "checklist"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.083,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "foreign-team",
+      "Fallback": false
+    },
+    {
+      "query": "Закрытые заметки наставника ACL_CANARY_CATALOG",
+      "Expected": [],
+      "Found": [
+        "catalog-welcome",
+        "checklist",
+        "mentor-question"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.08,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "forbidden",
+      "Fallback": false
+    },
+    {
+      "query": "Как оформить командировку в Антарктиду?",
+      "Expected": [],
+      "Found": [
+        "access-policy",
+        "mentor-question",
+        "source-policy"
+      ],
+      "Mode": "baseline",
+      "DurationMS": 0.065,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "no-answer",
+      "Fallback": false
+    },
+    {
+      "query": "Как получить доступ к Confluence?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-welcome"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.454,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Не открывается вики, ошибка 403",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-environment",
+        "mentor-question",
+        "security-basics",
+        "demo-readme",
+        "source-policy",
+        "backend-checklist",
+        "checklist",
+        "engineering",
+        "catalog-welcome"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.353,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Документация команды недоступна, хочу начать работу",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "engineering",
+        "security-basics",
+        "backend-checklist",
+        "catalog-welcome",
+        "checklist",
+        "catalog-environment",
+        "access-policy",
+        "demo-readme",
+        "source-policy"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.35,
+      "Recall5": 0,
+      "MRR10": 0.14285714285714285,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Заявку согласовали: права уже выданы?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "security-basics",
+        "access-policy",
+        "demo-readme"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.334,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Сколько ждать выдачи доступа?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "demo-readme",
+        "security-basics",
+        "backend-checklist",
+        "checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.589,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Мой наставник в Каталоге",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "mentor-question",
+        "checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.316,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какой ключ проекта Jira у команды?",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "security-basics",
+        "catalog-environment",
+        "access-policy",
+        "demo-readme",
+        "source-policy",
+        "engineering",
+        "checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.337,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что нужно изучить в первые две недели?",
+      "Expected": [
+        "checklist"
+      ],
+      "Found": [
+        "checklist",
+        "access-policy",
+        "backend-checklist",
+        "catalog-welcome",
+        "engineering"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.323,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Backend чек-лист: Grafana когда?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "checklist",
+        "catalog-welcome"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.311,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "На какой неделе знакомиться с Sentry?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "checklist",
+        "mentor-question"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.32,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где посмотреть принципы разработки?",
+      "Expected": [
+        "engineering"
+      ],
+      "Found": [
+        "engineering",
+        "access-policy",
+        "backend-checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.299,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как сформулировать полезный вопрос наставнику?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "mentor-question",
+        "catalog-environment",
+        "source-policy",
+        "engineering",
+        "access-policy",
+        "checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.316,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие данные приложить к описанию проблемы?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "security-basics",
+        "mentor-question",
+        "backend-checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.305,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Два документа противоречат друг другу",
+      "Expected": [
+        "source-policy"
+      ],
+      "Found": [
+        "source-policy",
+        "security-basics",
+        "catalog-environment"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.306,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Можно ли прислать пароль в личный чат?",
+      "Expected": [
+        "security-basics"
+      ],
+      "Found": [
+        "security-basics",
+        "access-policy"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.309,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как устроена имитация корпоративного сервиса?",
+      "Expected": [
+        "demo-readme"
+      ],
+      "Found": [
+        "demo-readme",
+        "engineering"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.312,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где работать над учебной задачей?",
+      "Expected": [
+        "catalog-environment"
+      ],
+      "Found": [
+        "catalog-environment",
+        "backend-checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.545,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какая первая задача в проекте CAT?",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "catalog-welcome",
+        "catalog-guide",
+        "catalog-review",
+        "engineering",
+        "access-policy",
+        "checklist",
+        "demo-readme",
+        "mentor-question",
+        "backend-checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.424,
+      "Recall5": 1,
+      "MRR10": 0.3333333333333333,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Хочу взять задачу про пустой поисковый запрос",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "catalog-review",
+        "security-basics",
+        "checklist",
+        "catalog-guide",
+        "demo-readme",
+        "mentor-question",
+        "engineering",
+        "catalog-welcome",
+        "access-policy"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.424,
+      "Recall5": 1,
+      "MRR10": 0.2,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как понять, что задача готова к ревью?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-guide",
+        "catalog-first-task",
+        "catalog-review",
+        "demo-readme",
+        "mentor-question",
+        "engineering",
+        "catalog-welcome",
+        "access-policy"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.429,
+      "Recall5": 1,
+      "MRR10": 0.3333333333333333,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что писать в описании pull request?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.428,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что проверить перед передачей кода на проверку?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "catalog-first-task",
+        "source-policy",
+        "checklist",
+        "mentor-question"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.428,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как получит достп к конфлюенс?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": null,
+      "Mode": "bm25",
+      "DurationMS": 0.352,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие требования к ревью в Доставке?",
+      "Expected": [],
+      "Found": [
+        "catalog-review",
+        "catalog-guide"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.421,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "foreign-team",
+      "Fallback": false
+    },
+    {
+      "query": "Закрытые заметки наставника ACL_CANARY_CATALOG",
+      "Expected": [],
+      "Found": [
+        "mentor-question",
+        "catalog-welcome",
+        "source-policy",
+        "engineering",
+        "catalog-environment",
+        "access-policy",
+        "checklist"
+      ],
+      "Mode": "bm25",
+      "DurationMS": 0.41,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "forbidden",
+      "Fallback": false
+    },
+    {
+      "query": "Как оформить командировку в Антарктиду?",
+      "Expected": [],
+      "Found": null,
+      "Mode": "bm25",
+      "DurationMS": 0.305,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "no-answer",
+      "Fallback": false
+    },
+    {
+      "query": "Как получить доступ к Confluence?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-welcome",
+        "security-basics",
+        "demo-readme",
+        "backend-checklist",
+        "catalog-environment",
+        "source-policy",
+        "checklist",
+        "engineering",
+        "mentor-question"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 1253.537,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Не открывается вики, ошибка 403",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "catalog-environment",
+        "access-policy",
+        "source-policy",
+        "security-basics",
+        "mentor-question",
+        "engineering",
+        "catalog-welcome",
+        "demo-readme",
+        "backend-checklist",
+        "checklist"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 286.096,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Документация команды недоступна, хочу начать работу",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-environment",
+        "catalog-welcome",
+        "checklist",
+        "engineering",
+        "security-basics",
+        "demo-readme",
+        "backend-checklist",
+        "mentor-question",
+        "source-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 548.997,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Заявку согласовали: права уже выданы?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "security-basics",
+        "source-policy",
+        "demo-readme",
+        "mentor-question",
+        "checklist",
+        "catalog-welcome",
+        "engineering",
+        "backend-checklist",
+        "catalog-environment"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 307.803,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Сколько ждать выдачи доступа?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "security-basics",
+        "backend-checklist",
+        "checklist",
+        "catalog-welcome",
+        "engineering",
+        "demo-readme",
+        "catalog-environment",
+        "source-policy",
+        "mentor-question"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 281.422,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Мой наставник в Каталоге",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "mentor-question",
+        "checklist",
+        "catalog-environment",
+        "security-basics",
+        "backend-checklist",
+        "access-policy",
+        "engineering",
+        "source-policy",
+        "demo-readme"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 545.303,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какой ключ проекта Jira у команды?",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-welcome",
+        "checklist",
+        "security-basics",
+        "engineering",
+        "backend-checklist",
+        "demo-readme",
+        "mentor-question",
+        "catalog-environment",
+        "source-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 284.254,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что нужно изучить в первые две недели?",
+      "Expected": [
+        "checklist"
+      ],
+      "Found": [
+        "checklist",
+        "backend-checklist",
+        "catalog-welcome",
+        "access-policy",
+        "engineering",
+        "catalog-environment",
+        "mentor-question",
+        "source-policy",
+        "security-basics",
+        "demo-readme"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 284.356,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Backend чек-лист: Grafana когда?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "catalog-welcome",
+        "checklist",
+        "demo-readme",
+        "engineering",
+        "access-policy",
+        "security-basics",
+        "mentor-question",
+        "source-policy",
+        "catalog-environment"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 557.969,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "На какой неделе знакомиться с Sentry?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "checklist",
+        "catalog-welcome",
+        "access-policy",
+        "security-basics",
+        "mentor-question",
+        "engineering",
+        "demo-readme",
+        "catalog-environment",
+        "source-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 293.193,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где посмотреть принципы разработки?",
+      "Expected": [
+        "engineering"
+      ],
+      "Found": [
+        "engineering",
+        "backend-checklist",
+        "catalog-welcome",
+        "access-policy",
+        "source-policy",
+        "checklist",
+        "security-basics",
+        "mentor-question",
+        "demo-readme",
+        "catalog-environment"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 284.054,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как сформулировать полезный вопрос наставнику?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "mentor-question",
+        "checklist",
+        "catalog-welcome",
+        "source-policy",
+        "access-policy",
+        "catalog-environment",
+        "security-basics",
+        "engineering",
+        "backend-checklist",
+        "demo-readme"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 285.791,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие данные приложить к описанию проблемы?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "mentor-question",
+        "catalog-environment",
+        "source-policy",
+        "security-basics",
+        "engineering",
+        "checklist",
+        "catalog-welcome",
+        "demo-readme",
+        "backend-checklist",
+        "access-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 283.269,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Два документа противоречат друг другу",
+      "Expected": [
+        "source-policy"
+      ],
+      "Found": [
+        "source-policy",
+        "engineering",
+        "access-policy",
+        "catalog-environment",
+        "checklist",
+        "security-basics",
+        "demo-readme",
+        "mentor-question",
+        "backend-checklist",
+        "catalog-welcome"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 544.014,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Можно ли прислать пароль в личный чат?",
+      "Expected": [
+        "security-basics"
+      ],
+      "Found": [
+        "security-basics",
+        "mentor-question",
+        "catalog-welcome",
+        "catalog-environment",
+        "access-policy",
+        "checklist",
+        "demo-readme",
+        "engineering",
+        "source-policy",
+        "backend-checklist"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 550.706,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как устроена имитация корпоративного сервиса?",
+      "Expected": [
+        "demo-readme"
+      ],
+      "Found": [
+        "demo-readme",
+        "access-policy",
+        "engineering",
+        "security-basics",
+        "catalog-welcome",
+        "mentor-question",
+        "backend-checklist",
+        "catalog-environment",
+        "checklist",
+        "source-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 285.898,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где работать над учебной задачей?",
+      "Expected": [
+        "catalog-environment"
+      ],
+      "Found": [
+        "catalog-environment",
+        "mentor-question",
+        "catalog-welcome",
+        "access-policy",
+        "security-basics",
+        "checklist",
+        "source-policy",
+        "engineering",
+        "demo-readme",
+        "backend-checklist"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 295.905,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какая первая задача в проекте CAT?",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "catalog-welcome",
+        "catalog-review",
+        "catalog-guide",
+        "checklist",
+        "catalog-environment",
+        "access-policy",
+        "mentor-question",
+        "security-basics",
+        "engineering"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 374.3,
+      "Recall5": 1,
+      "MRR10": 0.25,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Хочу взять задачу про пустой поисковый запрос",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "mentor-question",
+        "catalog-review",
+        "catalog-guide",
+        "access-policy",
+        "catalog-environment",
+        "checklist",
+        "catalog-welcome",
+        "security-basics",
+        "demo-readme"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 543.658,
+      "Recall5": 1,
+      "MRR10": 0.25,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как понять, что задача готова к ревью?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "catalog-first-task",
+        "mentor-question",
+        "access-policy",
+        "engineering",
+        "checklist",
+        "source-policy",
+        "catalog-welcome",
+        "security-basics"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 547.238,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что писать в описании pull request?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "engineering",
+        "mentor-question",
+        "catalog-first-task",
+        "access-policy",
+        "demo-readme",
+        "checklist",
+        "catalog-welcome",
+        "security-basics"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 296.912,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что проверить перед передачей кода на проверку?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "security-basics",
+        "source-policy",
+        "catalog-first-task",
+        "engineering",
+        "catalog-guide",
+        "mentor-question",
+        "checklist",
+        "catalog-environment",
+        "access-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 286.107,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как получит достп к конфлюенс?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "demo-readme",
+        "catalog-welcome",
+        "source-policy",
+        "mentor-question",
+        "security-basics",
+        "catalog-environment",
+        "engineering",
+        "checklist",
+        "backend-checklist"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 546.8,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие требования к ревью в Доставке?",
+      "Expected": [],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "engineering",
+        "source-policy",
+        "checklist",
+        "security-basics",
+        "backend-checklist",
+        "catalog-environment",
+        "demo-readme",
+        "catalog-welcome"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 361.389,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "foreign-team",
+      "Fallback": false
+    },
+    {
+      "query": "Закрытые заметки наставника ACL_CANARY_CATALOG",
+      "Expected": [],
+      "Found": [
+        "mentor-question",
+        "catalog-welcome",
+        "catalog-environment",
+        "catalog-review",
+        "catalog-first-task",
+        "checklist",
+        "backend-checklist",
+        "catalog-guide",
+        "security-basics",
+        "source-policy"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 293.347,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "forbidden",
+      "Fallback": false
+    },
+    {
+      "query": "Как оформить командировку в Антарктиду?",
+      "Expected": [],
+      "Found": [
+        "access-policy",
+        "source-policy",
+        "checklist",
+        "security-basics",
+        "engineering",
+        "catalog-welcome",
+        "mentor-question",
+        "catalog-environment",
+        "demo-readme",
+        "backend-checklist"
+      ],
+      "Mode": "embeddings",
+      "DurationMS": 281.961,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "no-answer",
+      "Fallback": false
+    },
+    {
+      "query": "Как получить доступ к Confluence?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-welcome",
+        "security-basics",
+        "demo-readme",
+        "backend-checklist",
+        "catalog-environment",
+        "source-policy",
+        "checklist",
+        "engineering",
+        "mentor-question"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 465.944,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Не открывается вики, ошибка 403",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "catalog-environment",
+        "mentor-question",
+        "security-basics",
+        "source-policy",
+        "demo-readme",
+        "engineering",
+        "backend-checklist",
+        "catalog-welcome",
+        "checklist"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 288.341,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Документация команды недоступна, хочу начать работу",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "engineering",
+        "catalog-welcome",
+        "access-policy",
+        "security-basics",
+        "catalog-environment",
+        "checklist",
+        "backend-checklist",
+        "demo-readme",
+        "source-policy",
+        "mentor-question"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 300.039,
+      "Recall5": 1,
+      "MRR10": 0.3333333333333333,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Заявку согласовали: права уже выданы?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "security-basics",
+        "demo-readme",
+        "source-policy",
+        "mentor-question",
+        "checklist",
+        "catalog-welcome",
+        "engineering",
+        "backend-checklist",
+        "catalog-environment"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 299.635,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Сколько ждать выдачи доступа?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "security-basics",
+        "backend-checklist",
+        "demo-readme",
+        "checklist",
+        "catalog-welcome",
+        "engineering",
+        "catalog-environment",
+        "source-policy",
+        "mentor-question"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 293.495,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Мой наставник в Каталоге",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "mentor-question",
+        "checklist",
+        "catalog-environment",
+        "security-basics",
+        "backend-checklist",
+        "access-policy",
+        "engineering",
+        "source-policy",
+        "demo-readme"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 292.39,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какой ключ проекта Jira у команды?",
+      "Expected": [
+        "catalog-welcome"
+      ],
+      "Found": [
+        "catalog-welcome",
+        "access-policy",
+        "security-basics",
+        "checklist",
+        "catalog-environment",
+        "engineering",
+        "demo-readme",
+        "source-policy",
+        "backend-checklist",
+        "mentor-question"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 281.131,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что нужно изучить в первые две недели?",
+      "Expected": [
+        "checklist"
+      ],
+      "Found": [
+        "checklist",
+        "backend-checklist",
+        "access-policy",
+        "catalog-welcome",
+        "engineering",
+        "catalog-environment",
+        "mentor-question",
+        "source-policy",
+        "security-basics",
+        "demo-readme"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 550.967,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Backend чек-лист: Grafana когда?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "checklist",
+        "catalog-welcome",
+        "demo-readme",
+        "engineering",
+        "access-policy",
+        "security-basics",
+        "mentor-question",
+        "source-policy",
+        "catalog-environment"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 290.63,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "На какой неделе знакомиться с Sentry?",
+      "Expected": [
+        "backend-checklist"
+      ],
+      "Found": [
+        "backend-checklist",
+        "checklist",
+        "mentor-question",
+        "catalog-welcome",
+        "access-policy",
+        "security-basics",
+        "engineering",
+        "demo-readme",
+        "catalog-environment",
+        "source-policy"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 283.199,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где посмотреть принципы разработки?",
+      "Expected": [
+        "engineering"
+      ],
+      "Found": [
+        "engineering",
+        "backend-checklist",
+        "access-policy",
+        "catalog-welcome",
+        "source-policy",
+        "checklist",
+        "security-basics",
+        "mentor-question",
+        "demo-readme",
+        "catalog-environment"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 548.909,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как сформулировать полезный вопрос наставнику?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "mentor-question",
+        "source-policy",
+        "checklist",
+        "catalog-environment",
+        "access-policy",
+        "engineering",
+        "catalog-welcome",
+        "security-basics",
+        "backend-checklist",
+        "demo-readme"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 285.199,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие данные приложить к описанию проблемы?",
+      "Expected": [
+        "mentor-question"
+      ],
+      "Found": [
+        "mentor-question",
+        "security-basics",
+        "backend-checklist",
+        "catalog-environment",
+        "source-policy",
+        "engineering",
+        "checklist",
+        "catalog-welcome",
+        "demo-readme",
+        "access-policy"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 551.162,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Два документа противоречат друг другу",
+      "Expected": [
+        "source-policy"
+      ],
+      "Found": [
+        "source-policy",
+        "catalog-environment",
+        "security-basics",
+        "engineering",
+        "access-policy",
+        "checklist",
+        "demo-readme",
+        "mentor-question",
+        "backend-checklist",
+        "catalog-welcome"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 546.373,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Можно ли прислать пароль в личный чат?",
+      "Expected": [
+        "security-basics"
+      ],
+      "Found": [
+        "security-basics",
+        "access-policy",
+        "mentor-question",
+        "catalog-welcome",
+        "catalog-environment",
+        "checklist",
+        "demo-readme",
+        "engineering",
+        "source-policy",
+        "backend-checklist"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 550.922,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как устроена имитация корпоративного сервиса?",
+      "Expected": [
+        "demo-readme"
+      ],
+      "Found": [
+        "demo-readme",
+        "engineering",
+        "access-policy",
+        "security-basics",
+        "catalog-welcome",
+        "mentor-question",
+        "backend-checklist",
+        "catalog-environment",
+        "checklist",
+        "source-policy"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 554.031,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Где работать над учебной задачей?",
+      "Expected": [
+        "catalog-environment"
+      ],
+      "Found": [
+        "catalog-environment",
+        "backend-checklist",
+        "mentor-question",
+        "catalog-welcome",
+        "access-policy",
+        "security-basics",
+        "checklist",
+        "source-policy",
+        "engineering",
+        "demo-readme"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 302.986,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какая первая задача в проекте CAT?",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "catalog-welcome",
+        "catalog-guide",
+        "catalog-review",
+        "checklist",
+        "access-policy",
+        "engineering",
+        "mentor-question",
+        "demo-readme",
+        "backend-checklist"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 363.409,
+      "Recall5": 1,
+      "MRR10": 0.3333333333333333,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Хочу взять задачу про пустой поисковый запрос",
+      "Expected": [
+        "catalog-guide"
+      ],
+      "Found": [
+        "catalog-first-task",
+        "catalog-review",
+        "mentor-question",
+        "catalog-guide",
+        "checklist",
+        "security-basics",
+        "access-policy",
+        "demo-readme",
+        "catalog-welcome",
+        "engineering"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 554.77,
+      "Recall5": 1,
+      "MRR10": 0.25,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как понять, что задача готова к ревью?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-guide",
+        "catalog-review",
+        "catalog-first-task",
+        "mentor-question",
+        "engineering",
+        "access-policy",
+        "demo-readme",
+        "catalog-welcome",
+        "checklist",
+        "source-policy"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 285.897,
+      "Recall5": 1,
+      "MRR10": 0.5,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что писать в описании pull request?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "engineering",
+        "mentor-question",
+        "catalog-first-task",
+        "access-policy",
+        "demo-readme",
+        "checklist",
+        "catalog-welcome",
+        "security-basics"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 296.154,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Что проверить перед передачей кода на проверку?",
+      "Expected": [
+        "catalog-review"
+      ],
+      "Found": [
+        "catalog-review",
+        "source-policy",
+        "catalog-first-task",
+        "catalog-guide",
+        "checklist",
+        "mentor-question",
+        "security-basics",
+        "engineering",
+        "catalog-environment",
+        "access-policy"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 299.765,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Как получит достп к конфлюенс?",
+      "Expected": [
+        "access-policy"
+      ],
+      "Found": [
+        "access-policy",
+        "demo-readme",
+        "catalog-welcome",
+        "source-policy",
+        "mentor-question",
+        "security-basics",
+        "catalog-environment",
+        "engineering",
+        "checklist",
+        "backend-checklist"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 549.206,
+      "Recall5": 1,
+      "MRR10": 1,
+      "Category": "",
+      "Fallback": false
+    },
+    {
+      "query": "Какие требования к ревью в Доставке?",
+      "Expected": [],
+      "Found": [
+        "catalog-review",
+        "catalog-guide",
+        "engineering",
+        "source-policy",
+        "checklist",
+        "security-basics",
+        "backend-checklist",
+        "catalog-environment",
+        "demo-readme",
+        "catalog-welcome"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 352.546,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "foreign-team",
+      "Fallback": false
+    },
+    {
+      "query": "Закрытые заметки наставника ACL_CANARY_CATALOG",
+      "Expected": [],
+      "Found": [
+        "mentor-question",
+        "catalog-welcome",
+        "catalog-environment",
+        "source-policy",
+        "checklist",
+        "engineering",
+        "access-policy",
+        "catalog-review",
+        "catalog-first-task",
+        "backend-checklist"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 287.872,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "forbidden",
+      "Fallback": false
+    },
+    {
+      "query": "Как оформить командировку в Антарктиду?",
+      "Expected": [],
+      "Found": [
+        "access-policy",
+        "source-policy",
+        "checklist",
+        "security-basics",
+        "engineering",
+        "catalog-welcome",
+        "mentor-question",
+        "catalog-environment",
+        "demo-readme",
+        "backend-checklist"
+      ],
+      "Mode": "hybrid",
+      "DurationMS": 552.945,
+      "Recall5": 0,
+      "MRR10": 0,
+      "Category": "no-answer",
+      "Fallback": false
+    }
+  ],
+  "cases_count": 26,
+  "limitations": "Small synthetic Backend corpus. Baseline returns at most 3 results. No-answer/forbidden cases are excluded from recall and retained for inspection. Ranking alone does not abstain or prove factual answer correctness. Cold document indexing and model load are included in latency.",
+  "metrics": {
+    "baseline": {
+      "answerable_cases": 23,
+      "fallback_count": 0,
+      "mean_ms": 0.06930769230769232,
+      "mrr_at_10": 0.9057971014492753,
+      "p95_ms": 0.092,
+      "recall_at_5": 1
+    },
+    "bm25": {
+      "answerable_cases": 23,
+      "fallback_count": 0,
+      "mean_ms": 0.37307692307692314,
+      "mrr_at_10": 0.7830227743271222,
+      "p95_ms": 0.454,
+      "recall_at_5": 0.9130434782608695
+    },
+    "embeddings": {
+      "answerable_cases": 23,
+      "fallback_count": 0,
+      "mean_ms": 411.70303846153854,
+      "mrr_at_10": 0.8913043478260869,
+      "p95_ms": 550.706,
+      "recall_at_5": 1
+    },
+    "hybrid": {
+      "answerable_cases": 23,
+      "fallback_count": 0,
+      "mean_ms": 393.3814230769231,
+      "mrr_at_10": 0.8876811594202899,
+      "p95_ms": 552.945,
+      "recall_at_5": 1
+    }
+  },
+  "model": "embeddinggemma:300m@85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1"
+}

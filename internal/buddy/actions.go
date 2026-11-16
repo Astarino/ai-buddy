@@ -176,7 +176,7 @@ func (s *Service) recordResult(ctx context.Context, p Profile, a Action, op Oper
 			text = fmt.Sprintf("Сервис подтвердил результат %s для пространства %s: %s. %s", op.ID, op.Resource, status, op.Note)
 		}
 		if op.Kind == "issue" {
-			text = fmt.Sprintf("Задача %s назначена на тебя в тестовой Jira. Начни с критериев готовности в руководстве; результат и ревью подтвердит наставник.", op.ID)
+			text = fmt.Sprintf("Задача %s назначена на тебя. Начни с критериев готовности в руководстве; результат и ревью подтвердит наставник.", op.ID)
 			if op.Status == "done" {
 				text = fmt.Sprintf("Тестовая Jira подтвердила завершение задачи %s и ревью.", op.ID)
 			}

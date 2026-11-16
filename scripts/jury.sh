@@ -8,7 +8,7 @@ fi
 docker compose version >/dev/null
 case "${1:-}" in
   --model)
-    printf 'Настоящая Qwen 4B на CPU. Первый запуск загружает около 4 ГБ весов.\n'
+    printf 'Qwen 4B и локальный поиск на CPU. Первая загрузка: около 3,3 ГБ + 622 МБ.\n'
     docker compose -f compose.yaml -f compose.cpu.yaml up --build --wait --wait-timeout 900
     ;;
   --check) docker compose -f compose.yaml -f compose.cpu.yaml config --quiet; printf 'Конфигурация корректна.\n'; exit 0 ;;

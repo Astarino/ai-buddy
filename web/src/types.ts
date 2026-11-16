@@ -46,6 +46,8 @@ export interface Message {
   created_at: string;
   source_ids: string[];
   action_id?: string;
+  request_id?: string;
+  search_mode?: string;
   reply_to?: string;
   kind?: string;
   duration_ms?: number;
@@ -73,6 +75,7 @@ export interface Operation {
   updated_at: string;
 }
 export interface Workspace {
+  progress?: string[];
   profile: Profile;
   messages: Message[];
   actions: Action[];

@@ -1,0 +1,64 @@
+name: Agent and hybrid search
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16.14-alpine
+        env:
+          POSTGRES_USER: buddy
+          POSTGRES_PASSWORD: buddy-test
+          POSTGRES_DB: buddy_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U buddy -d buddy_test"
+          --health-interval 2s --health-retries 20
+      ollama:
+        image: ollama/ollama:0.40.16
+        env:
+          OLLAMA_HOST: 0.0.0.0:11434
+          OLLAMA_NO_CLOUD: '1'
+          OLLAMA_NUM_PARALLEL: '1'
+          OLLAMA_MAX_LOADED_MODELS: '1'
+          OLLAMA_CONTEXT_LENGTH: '4096'
+        ports: ['11434:11434']
+        options: --memory=6g
+    env:
+      TEST_DATABASE_URL: postgres://buddy:buddy-test@127.0.0.1:5432/buddy_test?sslmode=disable
+      AGENT_MODEL_CPU_ONLY: 'true'
+      AGENT_MODEL_DIGEST: d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version: 1.25.5
+      - name: Download the pinned baseline and embedding model
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request
+          for model, digest in [('qwen3.5:4b','d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04'),('embeddinggemma:300m','85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1')]:
+              req=urllib.request.Request('http://127.0.0.1:11434/api/pull',data=json.dumps({'model':model,'stream':False}).encode(),headers={'Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=900) as response:
+                  assert json.load(response)['status']=='success'
+              with urllib.request.urlopen('http://127.0.0.1:11434/api/tags') as response:
+                  tags=json.load(response)['models']
+              assert any(item['name']==model and item['digest']==digest for item in tags), 'changed weights'
+          PY
+      - name: Evaluate model-selected tools and workflow outcomes
+        run: RUN_AGENT_LIVE=full AGENT_REPORT="$PWD/reports/agent-qwen.json" go test ./internal/buddy -run '^TestLiveAgentSelection$' -count=1 -v -timeout=20m
+      - name: Compare actual local retrieval methods
+        if: always()
+        run: RUN_RETRIEVAL_LIVE=true RETRIEVAL_REPORT="$PWD/reports/retrieval.json" go test ./internal/buddy -run '^TestLiveRetrievalComparison$' -count=1 -v -timeout=5m
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: agent-rag-results
+          path: |
+            reports/agent-qwen.json
+            reports/retrieval.json
+          retention-days: 7

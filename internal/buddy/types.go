@@ -81,6 +81,8 @@ type Message struct {
 	CreatedAt      time.Time     `json:"created_at"`
 	SourceIDs      []string      `json:"source_ids"`
 	ActionID       string        `json:"action_id,omitempty"`
+	RequestID      string        `json:"request_id,omitempty"`
+	SearchMode     string        `json:"search_mode,omitempty"`
 	ReplyTo        string        `json:"reply_to,omitempty"`
 	Kind           string        `json:"kind,omitempty"`
 	DurationMS     int64         `json:"duration_ms,omitempty"`
@@ -153,6 +155,7 @@ func EmptyState() State {
 }
 
 type View struct {
+	Progress       []string        `json:"progress,omitempty"`
 	Profile        Profile         `json:"profile"`
 	Messages       []Message       `json:"messages"`
 	Actions        []Action        `json:"actions"`

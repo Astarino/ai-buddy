@@ -59,7 +59,7 @@ export function WorkspaceNavigation({
           {workspace.demo && (
             <span className="demo-label">
               <span />
-              Демонстрационный контур
+              Тестовая среда
             </span>
           )}
           <button

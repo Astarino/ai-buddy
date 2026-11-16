@@ -1,0 +1,164 @@
+{
+  "cases": [
+    {
+      "question": "Привет! Хочу приступить к первой задаче, но у меня не открывается документация команды. Проверь, что мне нужно сделать, и помоги начать работу.",
+      "state": "none",
+      "model_selected_tools": [
+        "get_context",
+        "search_knowledge",
+        "prepare_action"
+      ],
+      "model_outputs": [
+        "",
+        "",
+        ""
+      ],
+      "message": {
+        "id": "6d80dca8d9c5c789ca75257fdc8f9cb7",
+        "role": "assistant",
+        "text": "Подготовил действие. Проверь параметры в карточке и подтверди отправку.",
+        "created_at": "2026-11-16T12:39:16.865404+03:00",
+        "source_ids": [
+          "catalog-welcome",
+          "access-policy"
+        ],
+        "action_id": "df4ef90752f3878d79d1a5f84457c83a",
+        "search_mode": "hybrid",
+        "reply_to": "ebd16299dfc13a329f849be04b36090e",
+        "kind": "agent",
+        "duration_ms": 22298
+      },
+      "duration_ms": 22304,
+      "passed": true
+    },
+    {
+      "question": "Материалы команды недоступны. Помоги подготовиться к работе.",
+      "state": "pending",
+      "model_selected_tools": [
+        "get_context",
+        "search_knowledge",
+        "prepare_request"
+      ],
+      "model_outputs": [
+        "",
+        "",
+        ""
+      ],
+      "message": {
+        "id": "3af89c0e44f9a85bc7957a299b4255ac",
+        "role": "assistant",
+        "text": "Подготовил вопрос ответственному. Проверь текст и получателя перед отправкой.",
+        "created_at": "2026-11-16T12:39:39.254504+03:00",
+        "source_ids": [
+          "catalog-welcome",
+          "access-policy"
+        ],
+        "request_id": "help-2a34c13529b51d24a4f8ca8fad92f2c5",
+        "search_mode": "hybrid",
+        "reply_to": "f693fc734fd28dec43e067e73a068e94",
+        "kind": "agent",
+        "duration_ms": 20798
+      },
+      "duration_ms": 20808,
+      "passed": true
+    },
+    {
+      "question": "Мне согласовали заявку. Можно уже читать руководство?",
+      "state": "approved",
+      "model_selected_tools": [
+        "get_context"
+      ],
+      "model_outputs": [
+        "",
+        ""
+      ],
+      "message": {
+        "id": "",
+        "role": "",
+        "text": "",
+        "created_at": "0001-01-01T00:00:00Z",
+        "source_ids": null
+      },
+      "error": "model unavailable: service unavailable: service unavailable",
+      "duration_ms": 8669,
+      "passed": false
+    },
+    {
+      "question": "Доступ выдан. Хочу разобраться в руководстве и начать первую задачу.",
+      "state": "granted",
+      "model_selected_tools": null,
+      "model_outputs": [
+        ""
+      ],
+      "message": {
+        "id": "",
+        "role": "",
+        "text": "",
+        "created_at": "0001-01-01T00:00:00Z",
+        "source_ids": null
+      },
+      "error": "model unavailable: service unavailable: service unavailable",
+      "duration_ms": 2,
+      "passed": false
+    },
+    {
+      "question": "Руководство изучено, помоги приступить к первой задаче.",
+      "state": "read",
+      "model_selected_tools": null,
+      "model_outputs": [
+        ""
+      ],
+      "message": {
+        "id": "",
+        "role": "",
+        "text": "",
+        "created_at": "0001-01-01T00:00:00Z",
+        "source_ids": null
+      },
+      "error": "model unavailable: service unavailable: service unavailable",
+      "duration_ms": 1,
+      "passed": false
+    },
+    {
+      "question": "Я получил первую задачу. Как понять, что она готова к ревью, и где посмотреть требования команды?",
+      "state": "read",
+      "model_selected_tools": null,
+      "model_outputs": [
+        ""
+      ],
+      "message": {
+        "id": "",
+        "role": "",
+        "text": "",
+        "created_at": "0001-01-01T00:00:00Z",
+        "source_ids": null
+      },
+      "error": "model unavailable: service unavailable: service unavailable",
+      "duration_ms": 1,
+      "passed": false
+    },
+    {
+      "question": "Подготовь наставнику вопрос: какие критерии готовности моей первой задачи?",
+      "state": "none",
+      "model_selected_tools": null,
+      "model_outputs": [
+        ""
+      ],
+      "message": {
+        "id": "",
+        "role": "",
+        "text": "",
+        "created_at": "0001-01-01T00:00:00Z",
+        "source_ids": null
+      },
+      "error": "model unavailable: service unavailable: service unavailable",
+      "duration_ms": 2,
+      "passed": false
+    }
+  ],
+  "digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+  "mode": "real-local-ollama",
+  "model": "qwen3.5:4b",
+  "prompt": "buddy-tools-v2",
+  "server_policy": "ACL, exact confirmation, idempotency, no model write tool"
+}

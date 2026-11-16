@@ -1,33 +1,33 @@
 {
   "backend_lines": {
-    "covered": 2768,
-    "total": 3228,
-    "pct": 85.75
+    "covered": 3365,
+    "total": 3930,
+    "pct": 85.62
   },
-  "backend_statements_pct": 88.4,
+  "backend_statements_pct": 88.6,
   "frontend_lines": {
-    "total": 475,
-    "covered": 418,
+    "total": 488,
+    "covered": 430,
     "skipped": 0,
-    "pct": 88
+    "pct": 88.11
   },
   "frontend_statements": {
-    "total": 527,
-    "covered": 455,
+    "total": 541,
+    "covered": 468,
     "skipped": 0,
-    "pct": 86.33
+    "pct": 86.5
   },
   "frontend_branches": {
-    "total": 538,
-    "covered": 439,
+    "total": 572,
+    "covered": 473,
     "skipped": 0,
-    "pct": 81.59
+    "pct": 82.69
   },
   "frontend_functions": {
-    "total": 243,
-    "covered": 197,
+    "total": 254,
+    "covered": 207,
     "skipped": 0,
-    "pct": 81.06
+    "pct": 81.49
   },
   "method": "Go coverprofile converted to executable-line LCOV by gcov2lcov v1.1.1; frontend Vitest V8. Native Go statement coverage is a separate metric. No cross-language average.",
   "exclusions": "Dependencies and tests. Frontend type-only declarations have no executable statements. No authored runtime file or entrypoint excluded."

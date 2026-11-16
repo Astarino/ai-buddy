@@ -150,7 +150,7 @@ it('cancels requests on timeout and respects an external abort signal', async ()
   );
   const pending = request('/slow');
   const assertion = expect(pending).rejects.toMatchObject({ code: 'timeout' });
-  await vi.advanceTimersByTimeAsync(95_001);
+  await vi.advanceTimersByTimeAsync(125_001);
   await assertion;
   const controller = new AbortController();
   const stopped = request('/slow', { signal: controller.signal });

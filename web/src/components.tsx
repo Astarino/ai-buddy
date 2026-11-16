@@ -297,7 +297,7 @@ export function OperationCard({ operation }: { operation: Operation }) {
       </h3>
       <p>{operation.note}</p>
       <div className="operation-meta">
-        {operation.kind === 'access' ? 'Сервис доступов' : 'Jira'} · тестовый результат
+        {operation.kind === 'access' ? 'Сервис доступов' : 'Jira'}
       </div>
     </article>
   );

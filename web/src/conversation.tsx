@@ -10,7 +10,7 @@ type ConversationProps = {
   onSource: (id: string) => void;
   onConfirm: (id: string) => void;
   onPrepare: (kind: 'access' | 'issue') => void;
-  onInbox: () => void;
+  onInbox: (id?: string) => void;
   onSend: (text: string) => void;
 };
 
@@ -31,6 +31,14 @@ export function Conversation({
   const accessCompleted = workspace.tasks.some(
     (task) => task.id === 'space-access' && task.status === 'completed',
   );
+  const guideRead = workspace.tasks.some(
+    (task) => task.id === 'read-guide' && task.status === 'completed',
+  );
+  const assigned = workspace.operations.some((operation) => operation.kind === 'issue');
+  const access = workspace.operations.find(
+    (operation) =>
+      operation.kind === 'access' && ['pending', 'approved'].includes(operation.status),
+  );
   return (
     <div
       className="conversation"
@@ -49,7 +57,7 @@ export function Conversation({
             <div className="next-step">
               <div>
                 <h3>Запросы стажёров</h3>
-                <button className="text-button" onClick={onInbox}>
+                <button className="text-button" onClick={() => onInbox()}>
                   Нужен мой ответ
                   <Icon name="chevron" size={15} />
                 </button>
@@ -59,16 +67,40 @@ export function Conversation({
             <div className="next-step">
               <div>
                 <h3>
-                  {accessCompleted ? 'Доступ к материалам открыт' : 'Доступ к командной базе'}
+                  {assigned
+                    ? 'Первая задача назначена'
+                    : guideRead
+                      ? 'Можно начать первую задачу'
+                      : accessCompleted
+                        ? 'Доступ к материалам открыт'
+                        : access
+                          ? `${access.id} · ${access.status === 'approved' ? 'Ожидает выдачи доступа' : 'Ожидает согласования'}`
+                          : 'Доступ к командной базе'}
                 </h3>
                 <button
                   className="text-button"
                   disabled={sending}
                   onClick={() =>
-                    hasGuide ? onSource(guideID) : onSend('Не открывается командная вики')
+                    assigned
+                      ? onSend('Как понять, что первая задача готова к ревью?')
+                      : guideRead
+                        ? onSend('Руководство изучено, помоги приступить к первой задаче')
+                        : hasGuide
+                          ? onSource(guideID)
+                          : onSend(
+                              'Хочу приступить к первой задаче, но документация команды не открывается. Проверь, что нужно сделать.',
+                            )
                   }
                 >
-                  {hasGuide ? 'Открыть руководство' : 'Разобраться с доступом'}
+                  {assigned
+                    ? 'Проверить требования к ревью'
+                    : guideRead
+                      ? 'Продолжить к первой задаче'
+                      : hasGuide
+                        ? 'Открыть руководство'
+                        : access
+                          ? 'Проверить и продолжить'
+                          : 'Разобраться с доступом'}
                   <Icon name="chevron" size={15} />
                 </button>
               </div>
@@ -95,6 +127,18 @@ export function Conversation({
                 {message.kind === 'fixture' && <span className="fixture-tag">Тестовый ответ</span>}
               </div>
               <p className="message-text">{message.text}</p>
+              {message.request_id && (
+                <button className="text-button" onClick={() => onInbox(message.request_id)}>
+                  Проверить вопрос и получателя
+                  <Icon name="chevron" size={15} />
+                </button>
+              )}
+              {message.search_mode === 'bm25_fallback' && (
+                <details className="fine-print">
+                  <summary>Как найден ответ</summary>Поиск по словам. Смысловой поиск временно
+                  недоступен.
+                </details>
+              )}
               {message.source_ids.length > 0 && (
                 <div className="message-sources">
                   {message.source_ids.map((id) => (
@@ -121,6 +165,21 @@ export function Conversation({
             </div>
           </article>
         ))}
+        {workspace.actions
+          .filter(
+            (action) =>
+              action.status === 'ready' &&
+              !workspace.messages.some((message) => message.action_id === action.id),
+          )
+          .map((action) => (
+            <ActionCard
+              key={action.id}
+              action={action}
+              busy={busy === action.id}
+              onConfirm={() => onConfirm(action.id)}
+              onRecreate={() => onPrepare(action.kind)}
+            />
+          ))}
         {sending && (
           <div className="message message-assistant waiting-message" role="status">
             <BuddyMark small />
@@ -132,8 +191,16 @@ export function Conversation({
                   <i />
                   <i />
                 </span>
-                Проверяю материалы и следующий шаг…
+                {workspace.progress?.at(-1) ?? 'Проверяю материалы и следующий шаг…'}
               </p>
+              {!!workspace.progress?.length && (
+                <details className="fine-print">
+                  <summary>Выполненные шаги</summary>
+                  {workspace.progress.map((step, index) => (
+                    <p key={`${index}-${step}`}>{step}</p>
+                  ))}
+                </details>
+              )}
             </div>
           </div>
         )}

@@ -68,26 +68,29 @@ export default function App() {
     if (!ownerID) return;
     let active = true;
     const controller = new AbortController();
-    const timer = setInterval(() => {
-      if (document.hidden) return;
-      void api
-        .state(controller.signal)
-        .then((value) => {
-          if (active && value.profile.id === ownerID) {
-            setWorkspace(value);
-            setSyncError(false);
-          }
-        })
-        .catch(() => {
-          if (active && !controller.signal.aborted) setSyncError(true);
-        });
-    }, 15000);
+    const timer = setInterval(
+      () => {
+        if (document.hidden) return;
+        void api
+          .state(controller.signal)
+          .then((value) => {
+            if (active && value.profile.id === ownerID) {
+              setWorkspace(value);
+              setSyncError(false);
+            }
+          })
+          .catch(() => {
+            if (active && !controller.signal.aborted) setSyncError(true);
+          });
+      },
+      sending ? 1500 : 15000,
+    );
     return () => {
       active = false;
       controller.abort();
       clearInterval(timer);
     };
-  }, [ownerID]);
+  }, [ownerID, sending]);
 
   async function login(profile: Profile) {
     setBusy('login');
@@ -357,7 +360,7 @@ export default function App() {
           onSource={openSource}
           onConfirm={(id) => void perform(id, () => api.confirm(id))}
           onPrepare={prepare}
-          onInbox={() => setPanel({ kind: 'inbox' })}
+          onInbox={(id) => setPanel({ kind: 'inbox', id })}
           onSend={(text) => void send(text)}
         />
         <div className="composer-area">

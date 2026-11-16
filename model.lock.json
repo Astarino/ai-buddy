@@ -16,5 +16,7 @@
   "concurrency": 1,
   "keep_alive": 0,
   "prompt_version": "buddy-grounded-v4",
-  "corpus_version": "2026-11-14-v3"
+  "corpus_version": "2026-11-14-v3",
+  "agent_prompt_version": "buddy-tools-v2",
+  "agent_corpus_version": "2026-11-16-v4"
 }
