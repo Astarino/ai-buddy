@@ -1,70 +1,72 @@
 {
-  "generated_at": "2026-11-15T07:55:50.837363+00:00",
-  "application_commit": "da2cea80e76aaf18bf82355fa7f9e839d6f30cd9",
-  "model_backend_commit": "3d945a0915b4f9aec7f1bd081a6f28dad6eb1231",
-  "cpu_verification_run": "https://github.com/Astarino/ai-buddy/actions/runs/43656311396",
+  "generated_at": "2026-11-16T10:57:11.978150+00:00",
+  "application_commit": "b09878521b3357b837ad292d70568e644aae51f0",
+  "model_backend_commit": "f848b67c69a8a53eb81de621ab86711d49768d7c",
+  "cpu_verification_run": "https://github.com/Astarino/ai-buddy/actions/runs/43844812208",
   "file": "docs/assets/demo.mp4",
-  "sha256": "db284d4e3c45feb067024e93d2df569a75c3e4974e8ae32189f0fa6a9166a223",
-  "duration_seconds": 166,
-  "bytes": 7604877,
+  "sha256": "57a3c2b19facbb0b7ad12d0be5bb90e3426032755dd34d745b4547040259848e",
+  "duration_seconds": 62,
+  "container_duration_seconds": 62.016,
+  "bytes": 2962518,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "frames": 4980,
+  "frames": 1860,
   "codec": "h264",
   "audio": true,
-  "source": "Edited real UI snapshots at 1280x648 and 1440x900, device scale 2. Actions were performed through the application in an isolated synthetic database. The successful real CPU Qwen conversation was restored from reports/model-problem.json and is explicitly identified as a saved answer. No live inference during capture is claimed. Corporate access, help requests and Jira are real HTTP calls to the PostgreSQL-backed simulation; no real colleagues were contacted. Go output is the unchanged output of the isolated practical test, not model shell execution.",
+  "source": "Full native 1920x1080 UI captures of Avito Start; AI Buddy remains a personal contact. No crops, zoom, camera motion or music. Real saved Qwen messages were restored in a separate synthetic schema, then exact confirmations, owner approval, grant and assignment were performed through the application. Static full UI states replace loading pauses and cursor motion. No live inference during capture is claimed. The original main native answer used buddy-tools-v2, continuing assignment/review used v3; current CPU buddy-tools-v3 quality is proved separately by reports/agent-qwen.json.",
   "renderer": {
     "name": "HyperFrames",
     "version": "0.9.33",
     "workers": 1,
-    "capture": "drawelement",
-    "gpu": "Apple M4 hardware"
+    "capture": "screenshot",
+    "postprocess": "AAC voice given 1 dB headroom; video stream copied unchanged"
   },
   "narration": {
-    "provider": "HeyGen",
+    "provider": "HeyGen Voice",
     "voice": "Svetlana — Clear & Composed",
     "voice_id": "e73c775c2e6f4400a125dd6ee2f07e2e",
     "language": "ru",
-    "source_duration_seconds": 115.271995,
-    "segments": 12,
+    "source_duration_seconds": 59.89845804988662,
     "speed": 1,
-    "alignment": "Provider character timings, paragraph boundaries; no local ASR"
+    "model": "server-selected, not returned",
+    "with_timestamps": true,
+    "spoken_text": "Это Авито Старт — рабочая среда стажёра, а внутри — личный чат с Эй Ай Бадди. Антон хочет приступить к первой задаче, но документация команды закрыта. Помощник проверяет контекст и предлагает запросить доступ. В карточке уже указаны пространство, права и цель. Антон проверяет параметры и подтверждает отправку. Приложение сохраняет номер заявки. Решение принимает владелец ресурса: сначала согласует заявку, затем отдельно выдаёт доступ. Само согласование документ не открывает. Теперь Антон изучает руководство и просит подготовить первую задачу. Ещё одно подтверждение — и задача назначена через сервис. Номер и результат сохраняются после обновления страницы. Бадди помогает продолжить работу: находит требования к ревью и показывает источник. Здесь настоящие ответы локальной модели и реальные действия в тестовом контуре. Ожидания модели сокращены монтажом. Исходники и проверенный запуск без видеокарты доступны на Гитхабе."
   },
-  "music": {
-    "provider": "HeyGen catalog",
-    "track_id": "1cbba060b7d2482a94e9156485f1e66d",
-    "timeline_gain": 0.05
-  },
+  "music": null,
   "verification": {
     "lint_errors": 0,
     "runtime_errors": 0,
     "layout_errors": 0,
-    "automatic_contrast_checked_texts": 3,
-    "manual_visual_review": "All scene beats, seams, phone sheets, enlarged role and status panels, decoded output frames. Fresh-eye visual review found P1 issues; roles, source framing, key result and reload labels were improved.",
-    "intentional_warning": "timeline_track_too_dense: twelve labels share one caption host. Readable proof states deliberately use data-hold.",
+    "full_decode_passed": true,
+    "intentional_warnings": [
+      "timeline_track_too_dense",
+      "nested_structure_needs_subcomposition"
+    ],
+    "manual_visual_review": "All states, new environment header, settled source panels, exact request and assigned task, full frame layout and centered close. No crop or enlargement.",
     "decoded_frames_seconds": [
       0,
-      130,
-      162
+      20,
+      33,
+      40,
+      48,
+      59
     ]
   },
   "audio_verification": {
     "codec": "aac",
     "sample_rate": 48000,
     "channels": 2,
-    "lufsIntegrated": -13.3,
-    "lufsShortTermMax": -11.6,
-    "samplePeakDb": -1.7,
-    "truePeakDb": -1.7,
+    "lufsIntegrated": -13.9,
+    "lufsShortTermMax": -12.5,
+    "samplePeakDb": -2,
+    "truePeakDb": -2,
     "clipping": {
       "count": 0,
       "firstAt": null
     },
     "warnings": [],
-    "heard_by_reviewer": false,
-    "encoded_stream_sha256": "f23cd728be77928944d0e8aa25d61bd075eb36c5445e9727f1906e0bde88832b",
-    "same_encoded_audio_as_measured_candidate": true
+    "heard_by_reviewer": false
   },
-  "viewing": "Desktop Full HD; opening overview and small UI metadata require pausing or zoom on a phone."
+  "viewing": "Desktop Full HD; narration explains actions without requiring small UI text to be read on a phone."
 }

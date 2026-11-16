@@ -1,0 +1,388 @@
+{
+  "cases": [
+    {
+      "question": "Привет! Хочу приступить к первой задаче, но у меня не открывается документация команды. Проверь, что мне нужно сделать, и помоги начать работу.",
+      "state": "none",
+      "model_selected_tools": [
+        "get_context",
+        "prepare_action"
+      ],
+      "model_outputs": [
+        "",
+        ""
+      ],
+      "message": {
+        "id": "f96ce19a59822336893101a738243a5a",
+        "role": "assistant",
+        "text": "Подготовил действие. Проверь параметры в карточке и подтверди отправку.",
+        "created_at": "2026-11-16T10:01:49.603565527Z",
+        "source_ids": [],
+        "action_id": "6ce0ba0f0f02253a327d11f5b3ac106c",
+        "reply_to": "87ae2910f48300475279f71d23f2ad74",
+        "kind": "agent",
+        "duration_ms": 46129
+      },
+      "duration_ms": 46134,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_1aivrf8j",
+          "function": {
+            "name": "get_context",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_blachu2e",
+          "function": {
+            "name": "prepare_action",
+            "arguments": {
+              "kind": "access",
+              "reason": "Нужен доступ к документации команды для начала работы над задачей CAT-101"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "question": "Материалы команды недоступны. Помоги подготовиться к работе.",
+      "state": "pending",
+      "model_selected_tools": [
+        "get_context",
+        "search_knowledge",
+        "finish"
+      ],
+      "model_outputs": [
+        "",
+        "",
+        ""
+      ],
+      "message": {
+        "id": "d91dacaa467abf3f478a9866c066f572",
+        "role": "assistant",
+        "text": "Доступ к материалам пока не выдан (REQ-05D2BE в статусе pending). Твой наставник — Даша Волкова, задачи в Jira CAT, руководство в Confluence. Первая неделя: настройка avito-cli, ключи в stash, канал Tech-dep, Sentry и учебная платформа.",
+        "created_at": "2026-11-16T10:02:35.780195708Z",
+        "source_ids": [
+          "backend-checklist",
+          "catalog-welcome"
+        ],
+        "search_mode": "hybrid",
+        "reply_to": "d144d2d2ea27914534ea0e9e2ba7f4dd",
+        "kind": "agent",
+        "duration_ms": 80984
+      },
+      "duration_ms": 80988,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_xdmfnwqc",
+          "function": {
+            "name": "get_context",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_39wb7ver",
+          "function": {
+            "name": "search_knowledge",
+            "arguments": {
+              "query": "принципы разработки backend CATALOG"
+            }
+          }
+        },
+        {
+          "id": "call_ddclyyvc",
+          "function": {
+            "name": "finish",
+            "arguments": {
+              "answer": "Доступ к материалам пока не выдан (REQ-05D2BE в статусе pending). Твой наставник — Даша Волкова, задачи в Jira CAT, руководство в Confluence. Первая неделя: настройка avito-cli, ключи в stash, канал Tech-dep, Sentry и учебная платформа.",
+              "needs_clarification": false,
+              "source_ids": [
+                "source-1",
+                "source-2"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "question": "Мне согласовали заявку. Можно уже читать руководство?",
+      "state": "approved",
+      "model_selected_tools": [
+        "get_context",
+        "search_knowledge",
+        "finish"
+      ],
+      "model_outputs": [
+        "",
+        "",
+        ""
+      ],
+      "message": {
+        "id": "0c9235706f0815cec1e08b615f4b3eda",
+        "role": "assistant",
+        "text": "Да, заявку REQ-A761FE уже согласовали. Теперь у вас есть права на чтение руководства в пространстве CATALOG.",
+        "created_at": "2026-11-16T10:03:56.813264215Z",
+        "source_ids": [
+          "access-policy"
+        ],
+        "search_mode": "hybrid",
+        "reply_to": "e2a92619f8836375ea823a9318b316b8",
+        "kind": "agent",
+        "duration_ms": 66950
+      },
+      "duration_ms": 66954,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_npj10aw0",
+          "function": {
+            "name": "get_context",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_2yy6bf0t",
+          "function": {
+            "name": "search_knowledge",
+            "arguments": {
+              "query": "Руководство по разработке в пространстве CATALOG"
+            }
+          }
+        },
+        {
+          "id": "call_ktxw23p7",
+          "function": {
+            "name": "finish",
+            "arguments": {
+              "answer": "Да, заявку REQ-A761FE уже согласовали. Теперь у вас есть права на чтение руководства в пространстве CATALOG.",
+              "source_ids": [
+                "source-2"
+              ],
+              "needs_clarification": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "question": "Доступ выдан. Хочу разобраться в руководстве и начать первую задачу.",
+      "state": "granted",
+      "model_selected_tools": [
+        "get_context",
+        "search_knowledge",
+        "finish"
+      ],
+      "model_outputs": [
+        "",
+        "",
+        ""
+      ],
+      "message": {
+        "id": "c86599b5df82e8764232e3dee8519bda",
+        "role": "assistant",
+        "text": "Доступ к CATALOG выдан. Руководство изучено: для первой задачи (CAT-101) создай отдельную ветку, проверь контракт API и добавь тесты поведения. Запусти go test ./... в учебном репозитории. Ревьюер — Даша Волкова.",
+        "created_at": "2026-11-16T10:05:03.814895973Z",
+        "source_ids": [
+          "catalog-guide"
+        ],
+        "search_mode": "hybrid",
+        "reply_to": "bdfc3fc6614aa1fa986c3d110e7244f9",
+        "kind": "agent",
+        "duration_ms": 75185
+      },
+      "duration_ms": 75189,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_ksny77k7",
+          "function": {
+            "name": "get_context",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_j2dec5is",
+          "function": {
+            "name": "search_knowledge",
+            "arguments": {
+              "query": "руководство CATALOG"
+            }
+          }
+        },
+        {
+          "id": "call_8x2wzk8t",
+          "function": {
+            "name": "finish",
+            "arguments": {
+              "answer": "Доступ к CATALOG выдан. Руководство изучено: для первой задачи (CAT-101) создай отдельную ветку, проверь контракт API и добавь тесты поведения. Запусти go test ./... в учебном репозитории. Ревьюер — Даша Волкова.",
+              "source_ids": [
+                "source-2"
+              ],
+              "needs_clarification": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "question": "Руководство изучено, помоги приступить к первой задаче.",
+      "state": "read",
+      "model_selected_tools": [
+        "get_context",
+        "prepare_action"
+      ],
+      "model_outputs": [
+        "",
+        ""
+      ],
+      "message": {
+        "id": "021a12f6f304cf7025266554c95ed0c2",
+        "role": "assistant",
+        "text": "Подготовил действие. Проверь параметры в карточке и подтверди отправку.",
+        "created_at": "2026-11-16T10:06:19.050452207Z",
+        "source_ids": [],
+        "action_id": "365f797079146d1e378c72b57b229a1c",
+        "reply_to": "f4c7f517c5c9183f8dd1f7622a967bab",
+        "kind": "agent",
+        "duration_ms": 42725
+      },
+      "duration_ms": 42729,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_3zl4t368",
+          "function": {
+            "name": "get_context",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_8exf6yhy",
+          "function": {
+            "name": "prepare_action",
+            "arguments": {
+              "kind": "issue",
+              "reason": "Запуск первой задачи CAT-101 в направлении backend для команды Каталог"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "question": "Я получил первую задачу. Как понять, что она готова к ревью, и где посмотреть требования команды?",
+      "state": "assigned",
+      "model_selected_tools": [
+        "get_context",
+        "search_knowledge",
+        "finish"
+      ],
+      "model_outputs": [
+        "",
+        "",
+        ""
+      ],
+      "message": {
+        "id": "01cbe9aaad41010604b6811661afea10",
+        "role": "assistant",
+        "text": "Критерии готовности для CAT-101: пустой и обычный запросы, понятная ошибка, отсутствие лишних изменений. В описании укажи причину, новое поведение и проверки. Требования команды — в руководстве «Подготовка к первому ревью: «Каталог»».",
+        "created_at": "2026-11-16T10:07:01.833275478Z",
+        "source_ids": [
+          "catalog-review"
+        ],
+        "search_mode": "hybrid",
+        "reply_to": "7bbe756b9c3530271bbcb921f1c7f01f",
+        "kind": "agent",
+        "duration_ms": 70054
+      },
+      "duration_ms": 70059,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_313ft29t",
+          "function": {
+            "name": "get_context",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_2d7yw3il",
+          "function": {
+            "name": "search_knowledge",
+            "arguments": {
+              "query": "критерии готовности задачи к ревью требования команды"
+            }
+          }
+        },
+        {
+          "id": "call_6vvfd3l3",
+          "function": {
+            "name": "finish",
+            "arguments": {
+              "answer": "Критерии готовности для CAT-101: пустой и обычный запросы, понятная ошибка, отсутствие лишних изменений. В описании укажи причину, новое поведение и проверки. Требования команды — в руководстве «Подготовка к первому ревью: «Каталог»».",
+              "source_ids": [
+                "source-1"
+              ],
+              "needs_clarification": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "question": "Подготовь наставнику вопрос: какие критерии готовности моей первой задачи?",
+      "state": "none",
+      "model_selected_tools": [
+        "prepare_request"
+      ],
+      "model_outputs": [
+        ""
+      ],
+      "message": {
+        "id": "631fbec9f5984eaa9a20231fb933adf5",
+        "role": "assistant",
+        "text": "Подготовил вопрос ответственному. Проверь текст и получателя перед отправкой.",
+        "created_at": "2026-11-16T10:08:11.931454957Z",
+        "source_ids": [],
+        "request_id": "help-564cf79b471beee93c085803ca32e8a6",
+        "reply_to": "8c4f85055ca94dc6f98d9299de2dd3b3",
+        "kind": "agent",
+        "duration_ms": 26106
+      },
+      "duration_ms": 26110,
+      "passed": true,
+      "model_choice_passed": true,
+      "model_decisions": [
+        {
+          "id": "call_0m0nyucf",
+          "function": {
+            "name": "prepare_request",
+            "arguments": {
+              "kind": "mentor",
+              "subject": "Критерии готовности первой задачи",
+              "body": "Какие критерии готовности моей первой задачи?"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+  "mode": "real-local-ollama",
+  "model": "qwen3.5:4b",
+  "prompt": "buddy-tools-v3",
+  "server_policy": "ACL, exact confirmation, idempotency, no model write tool",
+  "environment": "GitHub Actions ubuntu-24.04 CPU, Ollama container limited to 6 GiB",
+  "runtime_version": "0.40.16",
+  "application_commit": "f848b67c69a8a53eb81de621ab86711d49768d7c",
+  "verification_run": "https://github.com/Astarino/ai-buddy/actions/runs/43844812208",
+  "model_decisions_passed": 7,
+  "limitations": "Seven synthetic Backend cases. Not a user study, not universal agent reliability. Native Mac smoke checked separately; full Mac evaluation hit the unchanged 25% memory guard."
+}

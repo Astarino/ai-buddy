@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-11-16T10:51:18.622231+00:00",
+  "files": {
+    "docs/assets/AI-Buddy.pptx": "2a58812254d2988cb7ab7fe063b36d5cf1e6f65f3b288f0ec30f52df3728a862",
+    "docs/assets/AI-Buddy.pdf": "b4a34294a9cb0b7844fc2ca46440a20e4e2855295c3af36c2e114d1d5cf0c1b0"
+  },
+  "slide_count": 11,
+  "format": "16:9",
+  "pptx_validation": {
+    "package": "passed",
+    "layout": "passed",
+    "heading_fit": "passed",
+    "font_policy": "Rubik",
+    "native_tables_slides": [
+      8,
+      9
+    ],
+    "original_brand_pngs_unchanged": 7,
+    "powerpoint_native_execution_checked": false
+  },
+  "pdf_validation": {
+    "renderer": "LibreOfficeDev 26.8.0.0.alpha0",
+    "pages": 11,
+    "first_page_clickable_links": 3,
+    "all_pages_visually_reviewed": true
+  },
+  "claims": {
+    "agent_report": "reports/agent-qwen.json",
+    "retrieval_report": "reports/retrieval.json",
+    "coverage_report": "reports/coverage/summary.json",
+    "limits": "Synthetic Backend corpus; 7 agent cases and 26 retrieval questions; no user pilot or real corporate connectors."
+  },
+  "provenance": "Editable native PPTX generated with the bundled presentation artifact runtime, structurally finalized and reimported; PDF exported locally. Real application screenshots and actual saved Qwen review answer; source screenshots and intermediate files remain local.",
+  "editorial_update": "Workspace is Avito Start, AI Buddy is its personal contact. Replaced the pilot closing slide with verified workflow outcomes and GitHub; rewrote choppy copy as connected phrases.",
+  "design_references": [
+    "https://www.intercom.com/blog/first-pitch-deck/",
+    "https://sequoiacap.com/article/writing-a-business-plan"
+  ]
+}
